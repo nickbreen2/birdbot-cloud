@@ -45,11 +45,11 @@ describe("POST /api/agents/create", () => {
     mockClerkClient.mockResolvedValue({
       users: { updateUserMetadata: mockUpdateUserMetadata },
     })
-    process.env.ADMIN_EMAIL = "admin@birdbot.ai"
     process.env.ADMIN_WEBHOOK_URL = "https://hooks.example.com/birdbot"
   })
 
   it("returns 401 when not authenticated", async () => {
+    vi.resetModules()
     const { auth } = await import("@clerk/nextjs/server")
     vi.mocked(auth).mockResolvedValueOnce({ userId: null } as never)
     const { POST } = await import("@/app/api/agents/create/route")
