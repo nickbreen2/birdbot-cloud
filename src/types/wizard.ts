@@ -41,16 +41,20 @@ export const FOCUS_AREAS = [
 
 export type FocusId = typeof FOCUS_AREAS[number]["id"]
 
+export type ModelId = typeof MODELS[number]["id"]
+
+export type ChannelId = typeof CHANNELS[number]["id"]
+
 export interface AgentConfig {
   name: string
-  model: string
+  model: ModelId
   traits: Traits
   focusAreas: FocusId[]
-  channels: string[]
+  channels: ChannelId[]
   createdAt: string
 }
 
-export interface CreateAgentPayload extends AgentConfig {}
+export type CreateAgentPayload = AgentConfig
 
 export const MODELS = [
   {
