@@ -1,32 +1,14 @@
 import Image from "next/image"
 
-interface AuthBrandProps {
-  tagline: string
-}
-
-export function AuthBrand({ tagline }: AuthBrandProps) {
+export function AuthBrand() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-      <Image
-        src="/BirdBot-Icon-mark1.svg"
-        alt="BirdBot"
-        width={48}
-        height={48}
-        priority
-        style={{ height: "auto" }}
-      />
-      <span
-        style={{
-          fontFamily: "var(--font-heading)",
-          fontSize: "20px",
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-          color: "#f1f5f9",
-        }}
-      >
-        BirdBot
-      </span>
-      <span style={{ fontSize: "13px", color: "#64748b" }}>{tagline}</span>
-    </div>
+    <Image
+      src="/birdbot-full-logo-mark2.svg"
+      alt="BirdBot"
+      width={220}
+      height={66}
+      priority
+      style={{ height: "auto" }}
+    />
   )
 }

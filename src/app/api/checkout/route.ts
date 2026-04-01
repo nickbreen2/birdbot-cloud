@@ -1,0 +1,36 @@
+import { NextResponse } from "next/server"
+import { auth } from "@clerk/nextjs/server"
+import { getStripe } from "@/lib/stripe"
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+
+export async function POST(request: Request) {
+  const { userId } = await auth()
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const body = await request.json() as { priceId?: string }
+  const { priceId } = body
+
+  if (!priceId) {
+    return NextResponse.json({ error: "Missing priceId" }, { status: 400 })
+  }
+
+  try {
+    const session = await getStripe().checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${APP_URL}/dashboard?checkout=success&step=2`,
+      cancel_url: `${APP_URL}/dashboard`,
+      metadata: { userId },
+      // Pre-fill email if available from Clerk via customer_email
+      // (would require fetching user data — left as TODO)
+    })
+
+    return NextResponse.json({ url: session.url })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error"
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}

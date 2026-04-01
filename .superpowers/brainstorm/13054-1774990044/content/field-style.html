@@ -1,0 +1,60 @@
+<h2>How should the form fields look?</h2>
+<p class="subtitle">No card wrapper — just fields floating on the star field. Pick a field style.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="underline" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:16px 20px;border-radius:6px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Email</div>
+        <div style="width:100%;height:1px;background:#1e2a45;margin-top:6px;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Password</div>
+        <div style="width:100%;height:1px;background:#1e2a45;margin-top:6px;"></div>
+      </div>
+      <div style="width:100%;height:14px;background:#2563eb;border-radius:2px;margin-top:4px;"></div>
+    </div>
+    <div class="card-body">
+      <h3>Underline only</h3>
+      <p>Just a bottom border. Very editorial and stripped-back. Common in high-end SaaS.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="ghost" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:16px 20px;border-radius:6px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Email</div>
+        <div style="width:100%;height:26px;background:transparent;border:1px solid #1e2a45;border-radius:4px;margin-top:2px;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Password</div>
+        <div style="width:100%;height:26px;background:transparent;border:1px solid #1e2a45;border-radius:4px;margin-top:2px;"></div>
+      </div>
+      <div style="width:100%;height:14px;background:#2563eb;border-radius:4px;margin-top:4px;"></div>
+    </div>
+    <div class="card-body">
+      <h3>Ghost bordered</h3>
+      <p>Thin border, fully transparent fill. Form feels open and airy — no heavy box feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="subtle-fill" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:16px 20px;border-radius:6px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Email</div>
+        <div style="width:100%;height:26px;background:rgba(255,255,255,0.04);border:1px solid #1e2a45;border-radius:4px;margin-top:2px;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8px;color:#64748b;letter-spacing:0.5px;">Password</div>
+        <div style="width:100%;height:26px;background:rgba(255,255,255,0.04);border:1px solid #1e2a45;border-radius:4px;margin-top:2px;"></div>
+      </div>
+      <div style="width:100%;height:14px;background:#2563eb;border-radius:4px;margin-top:4px;"></div>
+    </div>
+    <div class="card-body">
+      <h3>Subtle fill</h3>
+      <p>Barely-there frosted fill with a thin border. Slightly more tactile — easier to spot fields at a glance.</p>
+    </div>
+  </div>
+
+</div>

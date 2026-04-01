@@ -1,0 +1,61 @@
+<h2>What layout direction do you want?</h2>
+<p class="subtitle">The current page is a centered card with a floating BirdBot icon. Choose a new direction.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:12px;border-radius:6px;min-height:140px;display:flex;gap:8px;">
+      <div style="flex:1;background:linear-gradient(160deg,#111827,#151c2e);border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:8px;">
+        <div style="width:28px;height:28px;background:radial-gradient(circle,#60a5fa,#2563eb);border-radius:50%;opacity:0.9;"></div>
+        <div style="width:60px;height:6px;background:#1e3a6e;border-radius:3px;"></div>
+        <div style="width:44px;height:4px;background:#1e2a45;border-radius:3px;"></div>
+        <div style="width:52px;height:4px;background:#1e2a45;border-radius:3px;"></div>
+      </div>
+      <div style="flex:1;background:#111827;border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:8px;border:1px solid rgba(59,130,246,0.2);">
+        <div style="width:60px;height:4px;background:#1e3a6e;border-radius:3px;"></div>
+        <div style="width:56px;height:20px;background:#0d1526;border:1px solid #1e2a45;border-radius:3px;margin-top:4px;"></div>
+        <div style="width:56px;height:20px;background:#0d1526;border:1px solid #1e2a45;border-radius:3px;"></div>
+        <div style="width:56px;height:16px;background:#2563eb;border-radius:3px;margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Split-screen</h3>
+      <p>Branding / value props on the left, auth form on the right. More spacious and premium feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="immersive" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:12px;border-radius:6px;min-height:140px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(37,99,235,0.2),transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(125,211,252,0.1),transparent 60%);"></div>
+      <div style="position:relative;background:rgba(17,24,39,0.85);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:10px;width:80px;display:flex;flex-direction:column;align-items:center;gap:4px;backdrop-filter:blur(8px);">
+        <div style="width:18px;height:18px;background:radial-gradient(circle,#93c5fd,#3b82f6);border-radius:50%;margin-bottom:2px;"></div>
+        <div style="width:50px;height:4px;background:#1e3a6e;border-radius:3px;"></div>
+        <div style="width:44px;height:14px;background:#0d1526;border:1px solid #1e2a45;border-radius:2px;margin-top:2px;"></div>
+        <div style="width:44px;height:14px;background:#0d1526;border:1px solid #1e2a45;border-radius:2px;"></div>
+        <div style="width:44px;height:12px;background:#2563eb;border-radius:2px;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Immersive background</h3>
+      <p>Full-screen animated background (star field, gradients, or birds) with form floating in the center. More dramatic.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="minimal" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0e1a;padding:12px;border-radius:6px;min-height:140px;display:flex;align-items:center;justify-content:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:80%;">
+        <div style="font-size:11px;color:#60a5fa;font-weight:700;letter-spacing:2px;text-transform:uppercase;">BIRDBOT</div>
+        <div style="width:70px;height:4px;background:#1e3a6e;border-radius:3px;"></div>
+        <div style="width:90px;height:16px;background:#111827;border:1px solid #1e2a45;border-radius:3px;margin-top:4px;"></div>
+        <div style="width:90px;height:16px;background:#111827;border:1px solid #1e2a45;border-radius:3px;"></div>
+        <div style="width:90px;height:14px;background:#2563eb;border-radius:3px;margin-top:2px;"></div>
+        <div style="font-size:8px;color:#64748b;margin-top:4px;">Don't have an account? Sign up</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Minimal / clean</h3>
+      <p>No card, no heavy chrome — just logo, form fields, and a subtle background. Ultra-clean and modern.</p>
+    </div>
+  </div>
+
+</div>
