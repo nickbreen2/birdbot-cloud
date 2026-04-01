@@ -33,7 +33,15 @@ export function AgentSetupWizard() {
   // unmounting when publicMetadata.onboarded flips to true after a successful deploy
   const wasOnboarded = useRef<boolean | null>(null)
 
-  if (!isLoaded) return null
+  if (!isLoaded) {
+    // Block the dashboard until we know onboarding state — prevents bypass during hydration
+    return (
+      <div
+        className="fixed inset-0 z-50"
+        style={{ background: "rgba(9,13,26,0.88)", backdropFilter: "blur(4px)" }}
+      />
+    )
+  }
 
   if (wasOnboarded.current === null) {
     wasOnboarded.current = !!user?.publicMetadata?.onboarded
@@ -180,7 +188,7 @@ function StepBar({ current }: { current: number }) {
     { n: 4, label: "Channels" },
   ]
   return (
-    <div className="flex items-center px-7 py-4 border-b border-border bg-depth/60">
+    <div className="flex items-center justify-center px-7 py-4 border-b border-border bg-depth/60">
       {steps.map((s, i) => (
         <div key={s.n} className="flex items-center flex-1">
           <div className="flex flex-col items-center gap-1.5">
@@ -670,7 +678,7 @@ function StepSuccess({ agentName, onEdit }: { agentName: string; onEdit: () => v
           We&apos;ll let you know when <span className="text-text-base font-semibold">{agentName}</span> has hatched.
         </p>
       </div>
-      <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-left max-w-sm w-full">
+      <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-center max-w-sm w-full">
         <p className="text-xs font-bold text-gold mb-1.5">What happens next</p>
         <p className="text-xs text-text-muted font-sans leading-relaxed">
           We&apos;ll provision your agent and notify you at your registered email when it&apos;s ready to chat. You&apos;ll be able to access it from your dashboard once it&apos;s live.
