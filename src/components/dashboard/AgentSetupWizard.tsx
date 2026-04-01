@@ -82,8 +82,6 @@ function WizardOverlay() {
     }
   }
 
-  const stepNumber = typeof step === "number" ? step : step === "summary" ? 5 : 6
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -350,7 +348,7 @@ function Step2({
 
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-4">
+      <div className="px-7 py-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Personality</h3>
           <p className="text-text-dim text-sm font-sans">Each trait is 0–100. Distribute your 400 points across all 8 traits.</p>
@@ -642,7 +640,7 @@ function StepSummary({
   )
 }
 
-function SummaryCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SummaryCard({ title, children }: { title: string; children: import("react").ReactNode }) {
   return (
     <div className="bg-depth border border-border rounded-xl p-4 flex flex-col gap-1">
       <p className="text-[10px] font-bold font-sans text-text-muted uppercase tracking-widest mb-1">{title}</p>
