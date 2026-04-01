@@ -3,6 +3,7 @@
 
 import { useState, useRef } from "react"
 import { useUser } from "@clerk/nextjs"
+import { useWizard } from "./WizardContext"
 import {
   MODELS,
   TRAIT_KEYS,
@@ -29,6 +30,7 @@ const emptyTraits: Traits = {
 
 export function AgentSetupWizard() {
   const { user, isLoaded } = useUser()
+  const { forceOpen, setForceOpen } = useWizard()
   // Capture onboarded state once after Clerk loads — prevents the wizard from
   // unmounting when publicMetadata.onboarded flips to true after a successful deploy
   const wasOnboarded = useRef<boolean | null>(null)
@@ -47,21 +49,27 @@ export function AgentSetupWizard() {
     wasOnboarded.current = !!user?.publicMetadata?.onboarded
   }
 
+  // forceOpen = user clicked "Edit BirdBot" from the dashboard incubating screen
+  if (forceOpen) return <WizardOverlay onClose={() => setForceOpen(false)} />
+
   if (wasOnboarded.current) return null
 
   return <WizardOverlay />
 }
 
-// ── Overlay (uncloseable) ─────────────────────────────────────────────────────
+// ── Overlay ───────────────────────────────────────────────────────────────────
 
-function WizardOverlay() {
+function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
   const { user } = useUser()
 
+  // Pre-populate from existing agent data if the user is editing an already-deployed agent
+  const existing = user?.publicMetadata?.agent as Partial<CreateAgentPayload> | undefined
+
   const [step, setStep] = useState<WizardStep>(1)
-  const [agentName, setAgentName] = useState("")
-  const [model, setModel] = useState<ModelId>("kimi-k2.5")
-  const [traits, setTraits] = useState<Traits>(emptyTraits)
-  const [focusAreas, setFocusAreas] = useState<FocusId[]>([])
+  const [agentName, setAgentName] = useState(existing?.name ?? "")
+  const [model, setModel] = useState<ModelId>(existing?.model ?? "kimi-k2.5")
+  const [traits, setTraits] = useState<Traits>(existing?.traits ?? emptyTraits)
+  const [focusAreas, setFocusAreas] = useState<FocusId[]>(existing?.focusAreas ?? [])
   const [deploying, setDeploying] = useState(false)
   const [deployError, setDeployError] = useState("")
 
@@ -108,18 +116,25 @@ function WizardOverlay() {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 px-7 py-5 border-b border-border bg-depth">
-          <span className="text-xl select-none">🐦</span>
-          <div>
-            <h2 className="font-heading font-bold text-base text-text-base">
-              {step === "success"
-                ? "Your BirdBot is Incubating"
-                : step === "summary"
-                ? "Review & Deploy"
-                : `Create Your BirdBot — Step ${step} of 4`}
-            </h2>
-            <p className="text-xs text-text-muted font-sans">Set up your personal AI agent</p>
-          </div>
+        <div className="relative flex flex-col items-center text-center px-7 py-5 border-b border-border bg-depth">
+          <span className="text-xl select-none hidden">🐦</span>
+          <h2 className="font-heading font-bold text-base text-text-base">
+            {step === "success"
+              ? "Your BirdBot is Incubating"
+              : step === "summary"
+              ? "Review & Deploy"
+              : `Create Your BirdBot — Step ${step} of 4`}
+          </h2>
+          <p className="text-xs text-text-muted font-sans">Set up your personal AI agent</p>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="absolute right-7 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base transition-colors text-lg leading-none"
+              aria-label="Close"
+            >
+              ×
+            </button>
+          )}
         </div>
 
         {/* Step progress bar — hidden on success */}
@@ -189,37 +204,48 @@ function StepBar({ current }: { current: number }) {
   ]
   return (
     <div className="flex items-center justify-center px-7 py-4 border-b border-border bg-depth/60">
-      {steps.map((s, i) => (
-        <div key={s.n} className="flex items-center flex-1">
-          <div className="flex flex-col items-center gap-1.5">
-            <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                s.n < current
-                  ? "bg-blue border-blue text-white"
-                  : s.n === current
-                  ? "bg-blue/10 border-blue text-blue-bright"
-                  : "bg-panel border-border text-text-muted"
-              }`}
-            >
-              {s.n < current ? (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
-              ) : s.n}
+      {/* Step nodes and connectors are siblings so connector width is fixed regardless of label length */}
+      <div className="flex items-start">
+        {steps.map((s, i) => (
+          <div key={s.n} className="flex items-start">
+            {/* Step node */}
+            <div className="flex flex-col items-center gap-2" style={{ width: 96 }}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-200 ${
+                  s.n < current
+                    ? "bg-blue border-blue text-white"
+                    : s.n === current
+                    ? "border-blue text-blue-bright"
+                    : "border-border text-text-muted"
+                }`}
+                style={s.n === current ? { background: "rgba(37,99,235,0.12)", boxShadow: "0 0 0 3px rgba(37,99,235,0.15)" } : undefined}
+              >
+                {s.n < current ? (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                  </svg>
+                ) : (
+                  s.n
+                )}
+              </div>
+              <span
+                className={`text-[10px] font-semibold font-sans tracking-wide ${
+                  s.n <= current ? "text-blue-bright" : "text-text-muted"
+                }`}
+              >
+                {s.label}
+              </span>
             </div>
-            <span
-              className={`text-[11px] font-semibold font-sans ${
-                s.n < current ? "text-blue-bright" : s.n === current ? "text-blue-bright" : "text-text-muted"
-              }`}
-            >
-              {s.label}
-            </span>
+            {/* Connector line — fixed width, vertically centred with the circle (half of 32px = 16px top) */}
+            {i < steps.length - 1 && (
+              <div
+                className={`h-px flex-shrink-0 transition-colors duration-300 ${s.n < current ? "bg-blue" : "bg-border"}`}
+                style={{ width: 80, marginTop: 15 }}
+              />
+            )}
           </div>
-          {i < steps.length - 1 && (
-            <div className={`flex-1 h-px mx-2 mb-5 ${s.n < current ? "bg-blue" : "bg-border"}`} />
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -648,7 +674,7 @@ function StepSummary({
           className="px-6 py-2.5 rounded-xl text-sm font-bold font-sans text-amber-100 disabled:opacity-60 disabled:cursor-wait transition-colors"
           style={{ background: deploying ? "#78350f" : "linear-gradient(135deg,#92400e,#d97706)" }}
         >
-          {deploying ? "Deploying…" : `🚀 Deploy ${agentName}`}
+          {deploying ? "Deploying…" : `Deploy ${agentName}`}
         </button>
       </div>
     </>
@@ -684,12 +710,20 @@ function StepSuccess({ agentName, onEdit }: { agentName: string; onEdit: () => v
           We&apos;ll provision your agent and notify you at your registered email when it&apos;s ready to chat. You&apos;ll be able to access it from your dashboard once it&apos;s live.
         </p>
       </div>
-      <button
-        onClick={onEdit}
-        className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
-      >
-        ✏️ Edit BirdBot
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={onEdit}
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
+        >
+          Edit BirdBot
+        </button>
+        <a
+          href="/"
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
+        >
+          Return to Home
+        </a>
+      </div>
     </div>
   )
 }

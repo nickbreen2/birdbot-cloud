@@ -35,10 +35,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-5 pt-5 pb-4 border-b border-border">
         <Link href="/" className="flex items-center gap-2 group w-fit">
-          <span className="text-xl select-none">🐦</span>
-          <span className="font-heading font-bold text-text-base group-hover:text-blue-bright transition-colors">
-            BirdBot
-          </span>
+          <img src="/birdbot-full-logo-mark2.svg" alt="BirdBot" className="h-7 w-auto" />
         </Link>
       </div>
 

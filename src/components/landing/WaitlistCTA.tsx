@@ -41,7 +41,7 @@ export function WaitlistCTA() {
             Stay in the Loop
           </h2>
           <p className="text-text-dim font-sans">
-            Get updates on new features, integrations, and lobster wisdom. No spam, unsubscribe anytime.
+            Get updates on new features, integrations, and bird wisdom. No spam, unsubscribe anytime.
           </p>
         </div>
 
