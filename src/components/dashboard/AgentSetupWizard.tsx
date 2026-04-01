@@ -1,7 +1,7 @@
 // src/components/dashboard/AgentSetupWizard.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useUser } from "@clerk/nextjs"
 import {
   MODELS,
@@ -29,9 +29,17 @@ const emptyTraits: Traits = {
 
 export function AgentSetupWizard() {
   const { user, isLoaded } = useUser()
+  // Capture onboarded state once after Clerk loads — prevents the wizard from
+  // unmounting when publicMetadata.onboarded flips to true after a successful deploy
+  const wasOnboarded = useRef<boolean | null>(null)
 
   if (!isLoaded) return null
-  if (user?.publicMetadata?.onboarded) return null
+
+  if (wasOnboarded.current === null) {
+    wasOnboarded.current = !!user?.publicMetadata?.onboarded
+  }
+
+  if (wasOnboarded.current) return null
 
   return <WizardOverlay />
 }
@@ -70,7 +78,6 @@ function WizardOverlay() {
       })
       const data = await res.json() as { ok: boolean; error?: string }
       if (data.ok) {
-        await user?.reload()
         setStep("success")
       } else {
         setDeployError(data.error ?? "Something went wrong. Please try again.")
@@ -98,7 +105,7 @@ function WizardOverlay() {
           <div>
             <h2 className="font-heading font-bold text-base text-text-base">
               {step === "success"
-                ? `${agentName} is hatching!`
+                ? "Your BirdBot is Incubating"
                 : step === "summary"
                 ? "Review & Deploy"
                 : `Create Your BirdBot — Step ${step} of 4`}
@@ -157,7 +164,7 @@ function WizardOverlay() {
             onDeploy={handleDeploy}
           />
         )}
-        {step === "success" && <StepSuccess agentName={agentName} />}
+        {step === "success" && <StepSuccess agentName={agentName} onEdit={() => setStep(1)} />}
       </div>
     </div>
   )
@@ -651,16 +658,16 @@ function SummaryCard({ title, children }: { title: string; children: import("rea
 
 // ── Success ───────────────────────────────────────────────────────────────────
 
-function StepSuccess({ agentName }: { agentName: string }) {
+function StepSuccess({ agentName, onEdit }: { agentName: string; onEdit: () => void }) {
   return (
     <div className="flex flex-col items-center gap-5 py-12 px-7 text-center">
-      <span className="text-5xl animate-float select-none">🐦</span>
+      <span className="text-5xl animate-float select-none">🥚</span>
       <div>
         <h3 className="font-heading font-black text-2xl text-text-base mb-2">
-          {agentName} is hatching!
+          Your BirdBot is incubating
         </h3>
         <p className="text-text-dim font-sans text-sm max-w-sm">
-          Your BirdBot is being set up. We&apos;ll send you an email the moment it&apos;s live — usually within a few minutes.
+          We&apos;ll let you know when <span className="text-text-base font-semibold">{agentName}</span> has hatched.
         </p>
       </div>
       <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-left max-w-sm w-full">
@@ -669,6 +676,12 @@ function StepSuccess({ agentName }: { agentName: string }) {
           We&apos;ll provision your agent and notify you at your registered email when it&apos;s ready to chat. You&apos;ll be able to access it from your dashboard once it&apos;s live.
         </p>
       </div>
+      <button
+        onClick={onEdit}
+        className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
+      >
+        ✏️ Edit BirdBot
+      </button>
     </div>
   )
 }
