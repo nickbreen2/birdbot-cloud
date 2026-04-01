@@ -4,45 +4,45 @@ import { auth, clerkClient } from "@clerk/nextjs/server"
 import type { CreateAgentPayload } from "@/types/wizard"
 
 export async function POST(request: Request) {
-  const { userId } = await auth()
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const payload = (await request.json()) as Partial<CreateAgentPayload>
-
-  if (!payload.name || payload.name.trim().length < 2) {
-    return NextResponse.json(
-      { error: "Agent name must be at least 2 characters" },
-      { status: 400 }
-    )
-  }
-  if (!payload.focusAreas || payload.focusAreas.length === 0) {
-    return NextResponse.json(
-      { error: "At least one focus area is required" },
-      { status: 400 }
-    )
-  }
-
-  const agentData: CreateAgentPayload = {
-    name: payload.name.trim(),
-    model: payload.model ?? "kimi-k2.5",
-    traits: payload.traits ?? {
-      professional: 0,
-      friendly: 0,
-      unhinged: 0,
-      creative: 0,
-      direct: 0,
-      humor: 0,
-      analytical: 0,
-      supportive: 0,
-    },
-    focusAreas: payload.focusAreas,
-    channels: payload.channels ?? ["web"],
-    createdAt: new Date().toISOString(),
-  }
-
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const payload = (await request.json()) as Partial<CreateAgentPayload>
+
+    if (!payload.name || payload.name.trim().length < 2) {
+      return NextResponse.json(
+        { error: "Agent name must be at least 2 characters" },
+        { status: 400 }
+      )
+    }
+    if (!payload.focusAreas || payload.focusAreas.length === 0) {
+      return NextResponse.json(
+        { error: "At least one focus area is required" },
+        { status: 400 }
+      )
+    }
+
+    const agentData: CreateAgentPayload = {
+      name: payload.name.trim(),
+      model: payload.model ?? "kimi-k2.5",
+      traits: payload.traits ?? {
+        professional: 0,
+        friendly: 0,
+        unhinged: 0,
+        creative: 0,
+        direct: 0,
+        humor: 0,
+        analytical: 0,
+        supportive: 0,
+      },
+      focusAreas: payload.focusAreas,
+      channels: payload.channels ?? ["web"],
+      createdAt: new Date().toISOString(),
+    }
+
     // 1. Save to Clerk
     const clerk = await clerkClient()
     await clerk.users.updateUserMetadata(userId, {
@@ -66,6 +66,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
+    console.error("[/api/agents/create] Error:", err)
     const message = err instanceof Error ? err.message : "Unknown error"
     return NextResponse.json({ ok: false, error: message }, { status: 500 })
   }
