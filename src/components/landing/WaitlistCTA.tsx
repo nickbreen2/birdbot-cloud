@@ -7,16 +7,26 @@ export function WaitlistCTA() {
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || submitted) return
     setLoading(true)
-    // TODO: replace with real backend (Supabase insert to waitlist table)
-    setTimeout(() => {
-      setLoading(false)
+    setError(false)
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error("Failed")
       setSubmitted(true)
-    }, 1200)
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -70,6 +80,12 @@ export function WaitlistCTA() {
               Subscribe
             </Button>
           </form>
+        )}
+
+        {error && (
+          <p className="text-red-400 text-sm font-sans">
+            Something went wrong — please try again.
+          </p>
         )}
 
         <p className="text-text-muted text-xs font-sans">

@@ -1,7 +1,8 @@
 // src/app/api/agents/create/route.ts
 import { NextResponse } from "next/server"
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import type { CreateAgentPayload } from "@/types/wizard"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: Request) {
   try {
@@ -43,11 +44,34 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     }
 
-    // 1. Save to Clerk
-    const clerk = await clerkClient()
-    await clerk.users.updateUserMetadata(userId, {
-      publicMetadata: { onboarded: true, agent: agentData },
-    })
+    // 1. Save to database — update existing agent or create new one
+    if (payload.id) {
+      const result = await prisma.agent.updateMany({
+        where: { id: payload.id, clerkUserId: userId },
+        data: {
+          name: agentData.name,
+          model: agentData.model,
+          traits: agentData.traits,
+          focusAreas: agentData.focusAreas,
+          channels: agentData.channels,
+        },
+      })
+      if (result.count === 0) {
+        return NextResponse.json({ error: "Agent not found" }, { status: 404 })
+      }
+    } else {
+      await prisma.agent.create({
+        data: {
+          clerkUserId: userId,
+          name: agentData.name,
+          model: agentData.model,
+          traits: agentData.traits,
+          focusAreas: agentData.focusAreas,
+          channels: agentData.channels,
+          status: "incubating",
+        },
+      })
+    }
 
     // 2. Notify via webhook (fire-and-forget — never blocks the response)
     const webhookUrl = process.env.ADMIN_WEBHOOK_URL

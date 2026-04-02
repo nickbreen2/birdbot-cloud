@@ -54,7 +54,7 @@ export interface AgentConfig {
   createdAt: string
 }
 
-export type CreateAgentPayload = AgentConfig
+export type CreateAgentPayload = AgentConfig & { id?: string }
 
 export const MODELS = [
   {

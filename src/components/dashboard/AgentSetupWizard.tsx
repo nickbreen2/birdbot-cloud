@@ -2,7 +2,6 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { useUser } from "@clerk/nextjs"
 import { useWizard } from "./WizardContext"
 import {
   MODELS,
@@ -29,13 +28,12 @@ const emptyTraits: Traits = {
 // ── Root component ────────────────────────────────────────────────────────────
 
 export function AgentSetupWizard() {
-  const { user, isLoaded } = useUser()
-  const { forceOpen, setForceOpen } = useWizard()
-  // Capture onboarded state once after Clerk loads — prevents the wizard from
-  // unmounting when publicMetadata.onboarded flips to true after a successful deploy
+  const { agentsLoaded, onboarded, forceOpen, setForceOpen } = useWizard()
+  // Capture onboarded state once after agents load — prevents the wizard from
+  // unmounting when onboarded flips to true after a successful deploy in the same session
   const wasOnboarded = useRef<boolean | null>(null)
 
-  if (!isLoaded) {
+  if (!agentsLoaded) {
     // Block the dashboard until we know onboarding state — prevents bypass during hydration
     return (
       <div
@@ -46,7 +44,7 @@ export function AgentSetupWizard() {
   }
 
   if (wasOnboarded.current === null) {
-    wasOnboarded.current = !!user?.publicMetadata?.onboarded
+    wasOnboarded.current = onboarded
   }
 
   // forceOpen = user clicked "Edit BirdBot" from the dashboard incubating screen
@@ -60,10 +58,10 @@ export function AgentSetupWizard() {
 // ── Overlay ───────────────────────────────────────────────────────────────────
 
 function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
-  const { user } = useUser()
+  const { agents, refreshAgents } = useWizard()
 
   // Pre-populate from existing agent data if the user is editing an already-deployed agent
-  const existing = user?.publicMetadata?.agent as Partial<CreateAgentPayload> | undefined
+  const existing = agents[0] as Partial<CreateAgentPayload> | undefined
 
   const [step, setStep] = useState<WizardStep>(1)
   const [agentName, setAgentName] = useState(existing?.name ?? "")
@@ -79,6 +77,7 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
     setDeploying(true)
     setDeployError("")
     const payload: CreateAgentPayload = {
+      id: agents[0]?.id,  // present when editing an existing agent
       name: agentName.trim(),
       model,
       traits,
@@ -94,6 +93,7 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
       })
       const data = await res.json() as { ok: boolean; error?: string }
       if (data.ok) {
+        refreshAgents()
         setStep("success")
       } else {
         setDeployError(data.error ?? "Something went wrong. Please try again.")

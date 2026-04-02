@@ -1,20 +1,18 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs"
 import { useWizard } from "./WizardContext"
 
 export function IncubatingGate({ children }: { children: React.ReactNode }) {
-  const { user, isLoaded } = useUser()
-  const { setForceOpen } = useWizard()
+  const { agents, onboarded, agentsLoaded, setForceOpen } = useWizard()
 
-  // Don't render anything while Clerk loads — the wizard overlay handles the backdrop
-  if (!isLoaded) return null
+  // Don't render anything while agents are loading — the wizard overlay handles the backdrop
+  if (!agentsLoaded) return null
 
   // Not onboarded: wizard overlay handles them, show children underneath
-  if (!user?.publicMetadata?.onboarded) return <>{children}</>
+  if (!onboarded) return <>{children}</>
 
   // Onboarded (deployed but bot not provisioned yet): show the incubating holding screen
-  const agentName = (user?.publicMetadata?.agent as { name?: string } | undefined)?.name
+  const agentName = agents[0]?.name
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-5 text-center px-7">
