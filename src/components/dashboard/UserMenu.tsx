@@ -11,6 +11,7 @@ export function UserMenu() {
   const { setSettingsOpen } = useWizard()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -20,7 +21,10 @@ export function UserMenu() {
       }
     }
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false)
+      if (e.key === "Escape") {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
     }
     document.addEventListener("mousedown", onMouseDown)
     document.addEventListener("keydown", onKeyDown)
@@ -69,6 +73,7 @@ export function UserMenu() {
 
           {/* BirdBot Settings */}
           <button
+            type="button"
             onClick={() => { setOpen(false); setSettingsOpen(true) }}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-blue-bright hover:bg-blue/10 transition-colors text-left"
           >
@@ -78,6 +83,7 @@ export function UserMenu() {
 
           {/* Manage Account */}
           <button
+            type="button"
             onClick={() => { setOpen(false); openUserProfile() }}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
@@ -89,6 +95,7 @@ export function UserMenu() {
 
           {/* Sign Out */}
           <button
+            type="button"
             onClick={() => signOut()}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
@@ -100,7 +107,12 @@ export function UserMenu() {
 
       {/* Trigger card */}
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label="User menu"
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-panel border transition-all text-left"
         style={{
           borderColor: open ? "rgba(37,99,235,0.35)" : "var(--color-border)",
