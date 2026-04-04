@@ -39,7 +39,21 @@ export default function RootLayout({
       className={`${outfit.variable} ${dmSans.variable} h-full`}
     >
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
-        <ClerkProvider>
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorBackground: "#141a2c",
+              colorInputBackground: "#0e1425",
+              colorInputText: "#f1f5f9",
+              colorText: "#f1f5f9",
+              colorTextSecondary: "#94a3b8",
+              colorPrimary: "#2563eb",
+              colorDanger: "#ef4444",
+              borderRadius: "0.75rem",
+              fontFamily: "var(--font-dm-sans)",
+            },
+          }}
+        >
           <StarField />
           <div className="relative" style={{ zIndex: 1 }}>
             {children}
