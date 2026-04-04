@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useUser, UserButton } from "@clerk/nextjs"
+import { UserMenu } from "@/components/dashboard/UserMenu"
 import {
   MessageSquare,
   Plug,
@@ -29,15 +29,18 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { user } = useUser()
-  const { agents, agentsLoaded } = useWizard()
+  const { agents, agentsLoaded, setSettingsOpen } = useWizard()
   const activeAgent = agents[0] ?? null
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 flex flex-col bg-surface border-r border-border z-40">
       {/* Instance status (top slot, replaces logo) */}
-      <div className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border">
-        {agentsLoaded && activeAgent ? (
+      {agentsLoaded && activeAgent ? (
+        <button
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open BirdBot settings"
+          className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border w-[calc(100%-1.5rem)] text-left hover:border-blue/40 hover:bg-panel/80 transition-colors cursor-pointer"
+        >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center flex-shrink-0">
               {activeAgent.status === "incubating" ? (
@@ -73,20 +76,20 @@ export function Sidebar() {
               </div>
             </div>
           </div>
-        ) : (
-          <>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-border flex-shrink-0" />
-              <span className="text-xs font-semibold text-text-dim font-sans uppercase tracking-wide">
-                No Bird Instance
-              </span>
-            </div>
-            <p className="text-xs text-text-muted font-sans">
-              {agentsLoaded ? "Create your first Bird to get started" : "Loading…"}
-            </p>
-          </>
-        )}
-      </div>
+        </button>
+      ) : (
+        <div className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-border flex-shrink-0" />
+            <span className="text-xs font-semibold text-text-dim font-sans uppercase tracking-wide">
+              No Bird Instance
+            </span>
+          </div>
+          <p className="text-xs text-text-muted font-sans">
+            {agentsLoaded ? "Create your first Bird to get started" : "Loading…"}
+          </p>
+        </div>
+      )}
 
       <div className="mt-3 border-t border-border" />
 
@@ -135,18 +138,8 @@ export function Sidebar() {
           <Badge variant="blue" className="text-[10px] px-1.5 py-0">NEW</Badge>
         </Link>
 
-        {/* User profile */}
-        <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl bg-panel border border-border">
-          <UserButton />
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-semibold text-text-base font-sans truncate">
-              {user?.firstName ?? user?.username ?? "User"}
-            </span>
-            <span className="text-xs text-text-muted font-sans truncate">
-              {user?.primaryEmailAddress?.emailAddress ?? ""}
-            </span>
-          </div>
-        </div>
+        {/* User menu */}
+        <UserMenu />
       </div>
     </aside>
   )
