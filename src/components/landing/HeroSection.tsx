@@ -1,6 +1,11 @@
+"use client"
+
 import Image from "next/image"
+import Link from "next/link"
+import { useAuth } from "@clerk/nextjs"
 
 export function HeroSection() {
+  const { isLoaded, isSignedIn } = useAuth()
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-30 pb-16 overflow-hidden">
       {/* Background atmosphere */}
@@ -120,8 +125,8 @@ export function HeroSection() {
 
         {/* CTA */}
         <div style={{ animation: "slide-up 0.5s 0.5s ease both" }}>
-          <a
-            href="#waitlist"
+          <Link
+            href={isLoaded && isSignedIn ? "/dashboard" : "/sign-up"}
             className="group inline-flex items-center gap-3 rounded-full font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
             style={{
               padding: "15px 28px",
@@ -132,7 +137,7 @@ export function HeroSection() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-            Create your BirdBot Agent
+            {isLoaded && isSignedIn ? "Go to Dashboard" : "Create your BirdBot Agent"}
             <span
               className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
               style={{
@@ -145,7 +150,7 @@ export function HeroSection() {
                 <path d="M2.5 6.5H10.5M10.5 6.5L7 3M10.5 6.5L7 10" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Early-access text */}

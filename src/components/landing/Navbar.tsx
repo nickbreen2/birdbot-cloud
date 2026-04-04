@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { Show, SignOutButton } from "@clerk/nextjs"
+import { useAuth, SignOutButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/Button"
 
 const NAV_LINKS = [
@@ -16,6 +16,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [signInHover, setSignInHover] = useState(false)
   const [signOutHover, setSignOutHover] = useState(false)
+  const { isLoaded, isSignedIn } = useAuth()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -55,24 +56,7 @@ export function Navbar() {
         </nav>
 
         {/* Desktop CTA — auth-aware */}
-        <Show when="signed-out">
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/sign-in"
-              className="text-sm font-sans transition-colors"
-              style={{ color: signInHover ? "#f1f5f9" : "#94a3b8" }}
-              onMouseEnter={() => setSignInHover(true)}
-              onMouseLeave={() => setSignInHover(false)}
-            >
-              Sign In
-            </Link>
-            <Link href="/sign-up">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </div>
-        </Show>
-
-        <Show when="signed-in">
+        {isLoaded && isSignedIn ? (
           <div className="hidden md:flex items-center gap-3">
             <SignOutButton>
               <button
@@ -97,7 +81,22 @@ export function Navbar() {
               </button>
             </Link>
           </div>
-        </Show>
+        ) : (
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/sign-in"
+              className="text-sm font-sans transition-colors"
+              style={{ color: signInHover ? "#f1f5f9" : "#94a3b8" }}
+              onMouseEnter={() => setSignInHover(true)}
+              onMouseLeave={() => setSignInHover(false)}
+            >
+              Sign In
+            </Link>
+            <Link href="/sign-up">
+              <Button size="sm">Get Started</Button>
+            </Link>
+          </div>
+        )}
 
         {/* Mobile hamburger — pushes to far right on mobile */}
         <button
@@ -145,38 +144,41 @@ export function Navbar() {
               </a>
             ))}
             <div className="mt-2 pt-2 border-t border-border px-1 flex flex-col gap-2">
-              <Show when="signed-out">
-                <Link href="/sign-in" onClick={() => setOpen(false)}>
-                  <button className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel">
-                    Sign In
-                  </button>
-                </Link>
-                <Link href="/sign-up" onClick={() => setOpen(false)}>
-                  <Button size="sm" className="w-full justify-center">Get Started</Button>
-                </Link>
-              </Show>
-              <Show when="signed-in">
-                <SignOutButton>
-                  <button
-                    className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel"
-                    onClick={() => setOpen(false)}
-                  >
-                    Sign out
-                  </button>
-                </SignOutButton>
-                <Link href="/dashboard" onClick={() => setOpen(false)}>
-                  <button
-                    className="w-full text-sm px-3 py-2.5 rounded-xl font-sans flex items-center justify-between transition-colors hover:opacity-90"
-                    style={{
-                      background: "#151c2e",
-                      border: "1px solid #1e2a45",
-                      color: "#f1f5f9",
-                    }}
-                  >
-                    Dashboard <span>→</span>
-                  </button>
-                </Link>
-              </Show>
+              {isLoaded && isSignedIn ? (
+                <>
+                  <SignOutButton>
+                    <button
+                      className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel"
+                      onClick={() => setOpen(false)}
+                    >
+                      Sign out
+                    </button>
+                  </SignOutButton>
+                  <Link href="/dashboard" onClick={() => setOpen(false)}>
+                    <button
+                      className="w-full text-sm px-3 py-2.5 rounded-xl font-sans flex items-center justify-between transition-colors hover:opacity-90"
+                      style={{
+                        background: "#151c2e",
+                        border: "1px solid #1e2a45",
+                        color: "#f1f5f9",
+                      }}
+                    >
+                      Dashboard <span>→</span>
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/sign-in" onClick={() => setOpen(false)}>
+                    <button className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel">
+                      Sign In
+                    </button>
+                  </Link>
+                  <Link href="/sign-up" onClick={() => setOpen(false)}>
+                    <Button size="sm" className="w-full justify-center">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

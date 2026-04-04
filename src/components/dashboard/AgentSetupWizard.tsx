@@ -5,9 +5,9 @@ import { useState, useRef } from "react"
 import { useWizard } from "./WizardContext"
 import {
   MODELS,
+  FOCUS_AREAS,
   TRAIT_KEYS,
   TRAIT_LABELS,
-  FOCUS_AREAS,
   CHANNELS,
   TOTAL_POINTS,
   MIN_POINTS_TO_PROCEED,
@@ -17,6 +17,9 @@ import {
   type ModelId,
   type CreateAgentPayload,
 } from "@/types/wizard"
+import { TraitSlider } from "@/components/wizard/TraitSlider"
+import { FocusAreaGrid } from "@/components/wizard/FocusAreaGrid"
+import { ModelSelector } from "@/components/wizard/ModelSelector"
 
 // ── Initial state ─────────────────────────────────────────────────────────────
 
@@ -291,65 +294,7 @@ function Step1({
           <label className="text-xs font-semibold font-sans text-text-dim uppercase tracking-wide">
             AI Model
           </label>
-          <div className="flex flex-col gap-2">
-            {MODELS.map((m) => (
-              <button
-                key={m.id}
-                disabled={!m.free}
-                onClick={() => m.free && onModelChange(m.id)}
-                className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
-                  model === m.id
-                    ? "border-blue/50 bg-blue/8"
-                    : m.free
-                    ? "border-border bg-depth hover:border-blue/30 hover:bg-panel cursor-pointer"
-                    : "border-border bg-depth opacity-45 cursor-default"
-                }`}
-              >
-                <div className="w-9 h-9 rounded-lg bg-panel flex items-center justify-center text-lg flex-shrink-0">
-                  {m.id === "kimi-k2.5" ? "⚡"
-                    : m.id === "gpt-4o" ? "🤖"
-                    : m.id === "claude-sonnet-4" ? "✦"
-                    : m.id === "claude-opus-4" ? "✦✦"
-                    : m.id === "gemini-2.5-pro" ? "💎"
-                    : "🧠"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-heading font-semibold text-sm text-text-base">{m.name}</div>
-                  <div className="text-xs text-text-muted font-sans">{m.provider}</div>
-                  <div className="text-xs text-text-dim font-sans mt-0.5">{m.desc}</div>
-                </div>
-                {/* IQ bar */}
-                <div className="w-20 flex-shrink-0">
-                  <div className="flex justify-between text-[10px] text-text-muted mb-1">
-                    <span>IQ</span>
-                    <span style={{ color: m.free ? "#4ade80" : "#f59e0b" }}>{m.iq}</span>
-                  </div>
-                  <div className="h-1 bg-border rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${m.iq}%`,
-                        background: m.free
-                          ? "linear-gradient(90deg,#166534,#4ade80)"
-                          : "linear-gradient(90deg,#b45309,#f59e0b)",
-                      }}
-                    />
-                  </div>
-                </div>
-                {/* Badge */}
-                <div
-                  className="absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded"
-                  style={
-                    m.free
-                      ? { background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#4ade80" }
-                      : { background: "linear-gradient(135deg,#92400e,#d97706)", color: "#fef3c7" }
-                  }
-                >
-                  {m.free ? "FREE" : "PRO"}
-                </div>
-              </button>
-            ))}
-          </div>
+          <ModelSelector value={model} onChange={onModelChange} />
         </div>
       </div>
 
@@ -452,48 +397,6 @@ function Step2({
   )
 }
 
-function TraitSlider({
-  label, value, onChange,
-}: {
-  label: string
-  value: number
-  onChange: (v: number) => void
-}) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold font-sans text-text-dim w-24 flex-shrink-0">{label}</span>
-      <div className="relative flex-1 h-5 flex items-center">
-        {/* Track background */}
-        <div className="absolute inset-x-0 h-1.5 bg-border rounded-full" />
-        {/* Fill */}
-        <div
-          className="absolute left-0 h-1.5 rounded-full pointer-events-none"
-          style={{
-            width: `${value}%`,
-            background: "linear-gradient(90deg,#2563eb,#60a5fa)",
-          }}
-        />
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={value}
-          onChange={(e) => onChange(parseInt(e.target.value))}
-          className="absolute inset-x-0 w-full h-5 opacity-0 cursor-pointer"
-          style={{ zIndex: 2 }}
-        />
-        {/* Thumb */}
-        <div
-          className="absolute h-4 w-4 rounded-full bg-blue border-2 border-blue-bright pointer-events-none shadow-[0_0_8px_rgba(37,99,235,0.5)]"
-          style={{ left: `calc(${value}% - 8px)`, zIndex: 1 }}
-        />
-      </div>
-      <span className="text-sm font-bold font-sans text-gold w-8 text-right tabular-nums">{value}</span>
-    </div>
-  )
-}
-
 // ── Step 3: Focus Areas ───────────────────────────────────────────────────────
 
 function Step3({
@@ -504,14 +407,6 @@ function Step3({
   onBack: () => void
   onNext: () => void
 }) {
-  function toggle(id: FocusId) {
-    onFocusChange(
-      focusAreas.includes(id)
-        ? focusAreas.filter((f) => f !== id)
-        : [...focusAreas, id]
-    )
-  }
-
   return (
     <>
       <div className="px-7 py-6 flex flex-col gap-4">
@@ -519,25 +414,7 @@ function Step3({
           <h3 className="font-heading font-semibold text-text-base mb-1">Focus Areas</h3>
           <p className="text-text-dim text-sm font-sans">What should your agent prioritize? Pick at least one. <span className="text-text-muted">Integrations come later.</span></p>
         </div>
-        <div className="grid grid-cols-4 gap-2">
-          {FOCUS_AREAS.map((f) => {
-            const selected = focusAreas.includes(f.id)
-            return (
-              <button
-                key={f.id}
-                onClick={() => toggle(f.id)}
-                className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border text-[11px] font-semibold font-sans transition-all ${
-                  selected
-                    ? "border-blue/50 bg-blue/10 text-blue-bright"
-                    : "border-border bg-depth text-text-muted hover:border-blue/30 hover:text-text-dim"
-                }`}
-              >
-                <span className="text-xl">{f.icon}</span>
-                {f.label}
-              </button>
-            )
-          })}
-        </div>
+        <FocusAreaGrid selected={focusAreas} onChange={onFocusChange} />
       </div>
 
       <div className="flex items-center justify-between px-7 py-4 border-t border-border bg-depth/60">
@@ -576,7 +453,10 @@ function Step4({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
                   : "border-border bg-depth text-text-muted opacity-35"
               }`}
             >
-              <span className="text-xl">{c.icon}</span>
+              {c.iconSrc
+                ? <img src={c.iconSrc} alt={c.label} className="w-6 h-6 object-contain" />
+                : <span className="text-xl">{c.icon}</span>
+              }
               {c.label}
               {!c.available && (
                 <span className="absolute top-1.5 right-1.5 text-[8px] text-text-muted font-bold bg-panel px-1 py-0.5 rounded uppercase tracking-wide">

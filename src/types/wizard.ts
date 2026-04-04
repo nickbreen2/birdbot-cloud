@@ -108,12 +108,12 @@ export const MODELS = [
 ] as const
 
 export const CHANNELS = [
-  { id: "web",       label: "Web Chat", icon: "💬", available: true },
-  { id: "imessage",  label: "iMessage", icon: "💬", available: false },
-  { id: "telegram",  label: "Telegram", icon: "✈️", available: false },
-  { id: "whatsapp",  label: "WhatsApp", icon: "💚", available: false },
-  { id: "discord",   label: "Discord",  icon: "🎮", available: false },
-  { id: "slack",     label: "Slack",    icon: "💼", available: false },
+  { id: "web",       label: "Web Chat", icon: "💬", iconSrc: "",               available: true },
+  { id: "imessage",  label: "iMessage", icon: "💬", iconSrc: "/IMessage.svg",  available: false },
+  { id: "telegram",  label: "Telegram", icon: "✈️", iconSrc: "/Telegram.svg",  available: false },
+  { id: "whatsapp",  label: "WhatsApp", icon: "💚", iconSrc: "/Whatsapp.svg",  available: false },
+  { id: "discord",   label: "Discord",  icon: "🎮", iconSrc: "/Discord.svg",   available: false },
+  { id: "slack",     label: "Slack",    icon: "💼", iconSrc: "/Slack.svg",     available: false },
 ] as const
 
 export const TOTAL_POINTS = 400

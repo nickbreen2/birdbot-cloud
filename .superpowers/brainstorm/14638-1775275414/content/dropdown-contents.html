@@ -1,0 +1,84 @@
+<h2>What goes in the user dropdown?</h2>
+<p class="subtitle">When you click the user card at the bottom of the sidebar, what menu items should appear?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0e1425;border:1px solid #1e2a45;border-radius:12px;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#151c2e;border-radius:10px;border:1px solid #1e2a45;margin-bottom:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;">N</div>
+        <div>
+          <div style="color:#f1f5f9;font-size:12px;font-weight:600;">Nicolas Breen</div>
+          <div style="color:#64748b;font-size:11px;">nabreen@csuchico.edu</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #1e2a45;margin:6px 0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>⚙️</span><span>Manage Account</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>🚪</span><span>Sign Out</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Option A — Minimal</h3>
+      <p>Manage Account + Sign Out. Clicking "Manage Account" opens Clerk's account panel (email, password, profile photo) themed dark.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0e1425;border:1px solid #1e2a45;border-radius:12px;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#151c2e;border-radius:10px;border:1px solid #1e2a45;margin-bottom:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;">N</div>
+        <div>
+          <div style="color:#f1f5f9;font-size:12px;font-weight:600;">Nicolas Breen</div>
+          <div style="color:#64748b;font-size:11px;">nabreen@csuchico.edu</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #1e2a45;margin:6px 0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#60a5fa;font-size:12px;cursor:pointer;">
+        <span>🐦</span><span>BirdBot Settings</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>⚙️</span><span>Manage Account</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>🚪</span><span>Sign Out</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Option B — BirdBot Settings included</h3>
+      <p>Adds "BirdBot Settings" as a shortcut to your existing settings modal (agent name, personality, etc.) — in addition to Manage Account + Sign Out.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0e1425;border:1px solid #1e2a45;border-radius:12px;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#151c2e;border-radius:10px;border:1px solid #1e2a45;margin-bottom:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;">N</div>
+        <div>
+          <div style="color:#f1f5f9;font-size:12px;font-weight:600;">Nicolas Breen</div>
+          <div style="color:#64748b;font-size:11px;">nabreen@csuchico.edu</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #1e2a45;margin:6px 0;"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>👤</span><span>Profile</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>🔔</span><span>Notifications</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>⚙️</span><span>Manage Account</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:#94a3b8;font-size:12px;cursor:pointer;">
+        <span>🚪</span><span>Sign Out</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Option C — Expanded menu</h3>
+      <p>Add Profile, Notifications, and other items for future extensibility. More items now, more room to grow.</p>
+    </div>
+  </div>
+
+</div>

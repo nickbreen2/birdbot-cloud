@@ -43,7 +43,23 @@ export function WaitlistCTA() {
 
       <div className="relative z-10 max-w-lg mx-auto text-center flex flex-col items-center gap-6">
         {/* Icon */}
-        <span className="text-5xl animate-float select-none">🐦</span>
+        <div className="relative flex items-center justify-center">
+          <div
+            aria-hidden
+            className="absolute rounded-full"
+            style={{
+              width: "120px",
+              height: "120px",
+              background: "radial-gradient(circle, rgba(59,130,246,0.35) 0%, rgba(37,99,235,0.15) 50%, transparent 75%)",
+              filter: "blur(12px)",
+            }}
+          />
+          <img
+            src="/BirdBot-Icon-mark1.svg"
+            alt="BirdBot"
+            className="relative w-24 h-24 animate-float select-none"
+          />
+        </div>
 
         {/* Headline */}
         <div>

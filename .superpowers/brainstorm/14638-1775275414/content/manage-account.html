@@ -1,0 +1,67 @@
+<h2>What does "Manage Account" open?</h2>
+<p class="subtitle">This is the screen for changing email, password, profile photo — your actual Clerk account.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0e1425;border:1px solid #1e2a45;border-radius:12px;padding:16px;font-family:system-ui,sans-serif;min-height:180px;">
+      <div style="color:#60a5fa;font-size:11px;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Clerk Panel — Dark Themed</div>
+      <div style="background:#141a2c;border:1px solid #1e2a45;border-radius:10px;padding:14px;display:flex;gap:12px;">
+        <div style="display:flex;flex-direction:column;gap:4px;width:110px;flex-shrink:0;">
+          <div style="padding:7px 10px;border-radius:6px;background:rgba(37,99,235,0.15);border-left:2px solid #60a5fa;color:#60a5fa;font-size:11px;">Profile</div>
+          <div style="padding:7px 10px;border-radius:6px;color:#64748b;font-size:11px;">Security</div>
+          <div style="padding:7px 10px;border-radius:6px;color:#64748b;font-size:11px;">Connected accounts</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="color:#f1f5f9;font-size:12px;font-weight:600;margin-bottom:8px;">Profile</div>
+          <div style="background:#0e1425;border:1px solid #1e2a45;border-radius:6px;padding:8px;display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;">N</div>
+            <span style="color:#94a3b8;font-size:11px;">nabreen@csuchico.edu</span>
+          </div>
+          <div style="color:#64748b;font-size:10px;margin-top:4px;">Change email · Change password</div>
+        </div>
+      </div>
+      <div style="color:#64748b;font-size:10px;margin-top:8px;text-align:center;">Clerk's UI, styled with BirdBot dark colors via appearance API</div>
+    </div>
+    <div class="card-body">
+      <h3>Option A — Themed Clerk panel</h3>
+      <p>Keep Clerk's full-featured account management (email, password, SSO, profile photo) but apply BirdBot dark colors. Less work, more features.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0e1425;border:1px solid #1e2a45;border-radius:12px;padding:16px;font-family:system-ui,sans-serif;min-height:180px;">
+      <div style="color:#60a5fa;font-size:11px;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Custom Panel — Fully On-Theme</div>
+      <div style="background:#141a2c;border:1px solid #1e2a45;border-radius:10px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #1e2a45;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;">N</div>
+          <div>
+            <div style="color:#f1f5f9;font-size:12px;font-weight:600;">Nicolas Breen</div>
+            <div style="color:#64748b;font-size:11px;">nabreen@csuchico.edu</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 8px;background:#0e1425;border:1px solid #1e2a45;border-radius:6px;">
+            <span style="color:#94a3b8;font-size:11px;">Display name</span>
+            <span style="color:#60a5fa;font-size:10px;cursor:pointer;">Edit</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 8px;background:#0e1425;border:1px solid #1e2a45;border-radius:6px;">
+            <span style="color:#94a3b8;font-size:11px;">Password</span>
+            <span style="color:#60a5fa;font-size:10px;cursor:pointer;">Change</span>
+          </div>
+        </div>
+      </div>
+      <div style="color:#64748b;font-size:10px;margin-top:8px;text-align:center;">Fully custom — built with Clerk hooks, matches BirdBot exactly</div>
+    </div>
+    <div class="card-body">
+      <h3>Option B — Custom account panel</h3>
+      <p>Build a new section inside your existing BirdBot settings modal. Pixel-perfect match to your design system. Requires building out edit flows for name, email, password.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:24px;padding:14px;background:#0e1425;border:1px solid #1e2a45;border-radius:10px;">
+  <p class="label">Context</p>
+  <p style="margin-top:6px;">Option A is what most production apps do — Clerk handles all the complexity of email verification flows, password security requirements, and SSO. Option B gives you full design control but you'd need to reimplement those flows yourself using Clerk's hooks.</p>
+</div>

@@ -15,6 +15,8 @@ export interface AgentData extends Omit<CreateAgentPayload, "createdAt"> {
 interface WizardContextType {
   forceOpen: boolean
   setForceOpen: (open: boolean) => void
+  settingsOpen: boolean
+  setSettingsOpen: (open: boolean) => void
   agents: AgentData[]
   onboarded: boolean
   agentsLoaded: boolean
@@ -24,6 +26,8 @@ interface WizardContextType {
 const WizardContext = createContext<WizardContextType>({
   forceOpen: false,
   setForceOpen: () => {},
+  settingsOpen: false,
+  setSettingsOpen: () => {},
   agents: [],
   onboarded: false,
   agentsLoaded: false,
@@ -32,6 +36,7 @@ const WizardContext = createContext<WizardContextType>({
 
 export function WizardProvider({ children }: { children: React.ReactNode }) {
   const [forceOpen, setForceOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [agents, setAgents] = useState<AgentData[]>([])
   const [onboarded, setOnboarded] = useState(false)
   const [agentsLoaded, setAgentsLoaded] = useState(false)
@@ -54,7 +59,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WizardContext.Provider
-      value={{ forceOpen, setForceOpen, agents, onboarded, agentsLoaded, refreshAgents: fetchAgents }}
+      value={{ forceOpen, setForceOpen, settingsOpen, setSettingsOpen, agents, onboarded, agentsLoaded, refreshAgents: fetchAgents }}
     >
       {children}
     </WizardContext.Provider>

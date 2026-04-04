@@ -6,6 +6,7 @@ export default function SignInPage() {
   return (
     <main
       className="relative min-h-screen flex flex-col items-center justify-center p-6"
+
     >
       <div
         className="flex flex-col items-center gap-8"

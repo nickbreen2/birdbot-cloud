@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { AgentSetupWizard } from "@/components/dashboard/AgentSetupWizard"
+import { SettingsModal } from "@/components/dashboard/SettingsModal"
 import { WizardProvider } from "@/components/dashboard/WizardContext"
 import { IncubatingGate } from "@/components/dashboard/IncubatingGate"
 
@@ -16,6 +17,7 @@ export default function DashboardLayout({
           <IncubatingGate>{children}</IncubatingGate>
         </main>
         <AgentSetupWizard />
+        <SettingsModal />
       </div>
     </WizardProvider>
   )

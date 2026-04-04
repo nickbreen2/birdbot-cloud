@@ -1,3 +1,5 @@
+import React from "react"
+
 const steps = [
   {
     num: 1,
@@ -39,13 +41,13 @@ export function HowItWorks() {
         {/* Steps */}
         <div className="flex flex-col md:flex-row items-stretch gap-0">
           {steps.map((step, i) => (
-            <div key={step.num} className="flex flex-col md:flex-row items-center flex-1">
+            <React.Fragment key={step.num}>
               {/* Card */}
               <div
-                className={`flex-1 rounded-2xl p-7 text-center flex flex-col items-center gap-4 transition-all ${
+                className={`flex-1 rounded-2xl p-7 text-center flex flex-col items-center gap-4 cursor-default ${
                   step.highlighted
                     ? "glow-border-gold bg-panel"
-                    : "border border-border bg-panel"
+                    : "card-glow bg-panel"
                 }`}
               >
                 {/* Number circle */}
@@ -71,7 +73,7 @@ export function HowItWorks() {
 
               {/* Connector arrow (between steps) */}
               {i < steps.length - 1 && (
-                <div className="flex items-center justify-center md:px-3 py-3 md:py-0">
+                <div className="flex items-center justify-center md:px-3 py-3 md:py-0 shrink-0">
                   <svg
                     width="20"
                     height="20"
@@ -89,7 +91,7 @@ export function HowItWorks() {
                   </svg>
                 </div>
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>

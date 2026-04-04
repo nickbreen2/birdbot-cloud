@@ -75,9 +75,9 @@ export function UserMenu() {
           <button
             type="button"
             onClick={() => { setOpen(false); setSettingsOpen(true) }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-blue-bright hover:bg-blue/10 transition-colors text-left"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
-            <Settings size={14} className="text-blue-bright flex-shrink-0" />
+            <Settings size={14} className="text-text-muted flex-shrink-0" />
             BirdBot Settings
           </button>
 

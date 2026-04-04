@@ -1,0 +1,113 @@
+<h2>Final Design — Custom User Menu</h2>
+<p class="subtitle">The sidebar bottom section before and after. Click to approve.</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">Before — current Clerk default</div>
+    <div class="mockup-body" style="background:#111827;padding:16px;font-family:system-ui,sans-serif;min-height:280px;display:flex;flex-direction:column;justify-content:flex-end;">
+      <!-- Nav items faded -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;opacity:0.3;margin-bottom:12px;">
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Chat</div>
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Integrations</div>
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Usage</div>
+      </div>
+      <div style="border-top:1px solid #1e2a45;padding-top:10px;">
+        <!-- Current user card -->
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#151c2e;border:1px solid #1e2a45;border-radius:10px;">
+          <!-- Clerk default white circle avatar -->
+          <div style="width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#334155;flex-shrink:0;">N</div>
+          <div>
+            <div style="color:#f1f5f9;font-size:11px;font-weight:600;">Nicolas</div>
+            <div style="color:#64748b;font-size:10px;">nabreen@csuchico.edu</div>
+          </div>
+        </div>
+        <div style="margin-top:6px;padding:6px 12px;color:#64748b;font-size:10px;text-align:center;background:#fff;border-radius:6px;border:1px solid #e2e8f0;">
+          ⬆ Clerk white dropdown — doesn't match theme
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">After — fully on-theme</div>
+    <div class="mockup-body" style="background:#111827;padding:16px;font-family:system-ui,sans-serif;min-height:280px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;">
+      <!-- Nav items faded -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;opacity:0.3;margin-bottom:12px;">
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Chat</div>
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Integrations</div>
+        <div style="padding:10px 12px;border-radius:10px;color:#94a3b8;font-size:12px;">Usage</div>
+      </div>
+
+      <!-- Floating dropdown (shown open) -->
+      <div style="position:absolute;bottom:90px;left:16px;right:16px;background:#141a2c;border:1px solid #1e2a45;border-radius:12px;padding:8px;box-shadow:0 0 0 1px rgba(37,99,235,0.12),0 -8px 32px rgba(0,0,0,0.5);">
+        <!-- User header -->
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;margin-bottom:4px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;">N</div>
+          <div>
+            <div style="color:#f1f5f9;font-size:12px;font-weight:600;">Nicolas Breen</div>
+            <div style="color:#64748b;font-size:10px;">nabreen@csuchico.edu</div>
+          </div>
+        </div>
+        <div style="height:1px;background:#1e2a45;margin:4px 0;"></div>
+        <!-- BirdBot Settings -->
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:rgba(37,99,235,0.08);margin-bottom:2px;">
+          <span style="font-size:14px;">🐦</span>
+          <span style="color:#60a5fa;font-size:12px;font-weight:500;">BirdBot Settings</span>
+        </div>
+        <!-- Manage Account -->
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;margin-bottom:2px;">
+          <span style="font-size:14px;">⚙️</span>
+          <span style="color:#94a3b8;font-size:12px;">Manage Account</span>
+        </div>
+        <div style="height:1px;background:#1e2a45;margin:4px 0;"></div>
+        <!-- Sign Out -->
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;">
+          <span style="font-size:14px;">🚪</span>
+          <span style="color:#94a3b8;font-size:12px;">Sign Out</span>
+        </div>
+      </div>
+
+      <!-- User card (trigger button) -->
+      <div style="border-top:1px solid #1e2a45;padding-top:10px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#151c2e;border:1px solid rgba(37,99,235,0.35);border-radius:10px;cursor:pointer;box-shadow:0 0 12px rgba(37,99,235,0.1);">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;">N</div>
+          <div style="flex:1;">
+            <div style="color:#f1f5f9;font-size:11px;font-weight:600;">Nicolas</div>
+            <div style="color:#64748b;font-size:10px;">nabreen@csuchico.edu</div>
+          </div>
+          <span style="color:#64748b;font-size:10px;">▲</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <p class="label">What's changing</p>
+  <ul style="margin-top:8px;color:#94a3b8;font-size:13px;line-height:1.7;">
+    <li>Avatar circle: white Clerk default → blue gradient initials matching BirdBot palette</li>
+    <li>Dropdown: white Clerk popup → dark <code style="background:#1e2a45;padding:1px 5px;border-radius:4px;font-size:11px;">#141a2c</code> panel with blue glow border</li>
+    <li>Card becomes a button — subtle blue border glow when dropdown is open</li>
+    <li>"Manage Account" → opens Clerk's UserProfile styled dark via <code style="background:#1e2a45;padding:1px 5px;border-radius:4px;font-size:11px;">appearance</code> prop</li>
+    <li>Click outside the dropdown → closes it</li>
+  </ul>
+</div>
+
+<div class="options" style="margin-top:20px;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Approve this design</h3>
+      <p>Looks good — proceed to write the spec and implementation plan.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↩</div>
+    <div class="content">
+      <h3>Revise something</h3>
+      <p>I want to change the layout, colors, or menu items.</p>
+    </div>
+  </div>
+</div>

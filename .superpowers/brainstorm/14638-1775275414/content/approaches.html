@@ -1,0 +1,42 @@
+<h2>How should the dropdown behave?</h2>
+<p class="subtitle">Three ways to structure the user menu interaction in the sidebar.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A ★</div>
+    <div class="content">
+      <h3>Floating popup above the card <span style="color:#60a5fa;font-size:11px;margin-left:6px;">Recommended</span></h3>
+      <p>Clicking the user card at the bottom opens a small floating panel that pops up above it. Clean, familiar pattern (like VS Code, Linear, Vercel). Dropdown closes when you click outside or pick an option.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Familiar UX pattern</li><li>Doesn't change sidebar layout</li><li>Easy to extend later</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Needs click-outside handler</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Accordion inside the sidebar</h3>
+      <p>Clicking the user card expands a section inline within the sidebar — no floating element, menu items appear below the card and push other content up.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>No z-index / overflow issues</li><li>Stays within sidebar bounds</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Can feel cramped at bottom</li><li>Less polished / less expected</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full-width sidebar overlay</h3>
+      <p>Clicking opens a new "layer" inside the sidebar that slides in — similar to how some apps replace the sidebar content with a menu. Full sidebar width, feels like a sub-panel.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Lots of space for content</li><li>No floating element complexity</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Hides nav while open</li><li>More animation/state work</li><li>Overkill for 3 menu items</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>

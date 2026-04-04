@@ -3,7 +3,7 @@
 import { useWizard } from "./WizardContext"
 
 export function IncubatingGate({ children }: { children: React.ReactNode }) {
-  const { agents, onboarded, agentsLoaded, setForceOpen } = useWizard()
+  const { agents, onboarded, agentsLoaded, setSettingsOpen } = useWizard()
 
   // Don't render anything while agents are loading — the wizard overlay handles the backdrop
   if (!agentsLoaded) return null
@@ -41,7 +41,7 @@ export function IncubatingGate({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex gap-3">
         <button
-          onClick={() => setForceOpen(true)}
+          onClick={() => setSettingsOpen(true)}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
         >
           Edit BirdBot
