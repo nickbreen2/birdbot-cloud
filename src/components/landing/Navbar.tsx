@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useAuth, SignOutButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/Button"
+import { AuthModal } from "@/components/auth/AuthModal"
 
 const NAV_LINKS = [
   { label: "How We Differ", href: "#how-we-differ" },
@@ -14,9 +15,22 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
-  const [signInHover, setSignInHover] = useState(false)
   const [signOutHover, setSignOutHover] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'sign-in' | 'sign-up'>('sign-in')
   const { isLoaded, isSignedIn } = useAuth()
+
+  const openModal = useCallback((mode: 'sign-in' | 'sign-up') => {
+    setModalMode(mode)
+    setModalOpen(true)
+    setOpen(false)
+  }, [])
+
+  const closeModal = useCallback(() => setModalOpen(false), [])
+
+  const switchMode = useCallback((mode: 'sign-in' | 'sign-up') => {
+    setModalMode(mode)
+  }, [])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -83,22 +97,22 @@ export function Navbar() {
           </div>
         ) : (
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/sign-in"
+            <button
+              onClick={() => openModal('sign-in')}
               className="text-sm font-sans transition-colors"
-              style={{ color: signInHover ? "#f1f5f9" : "#94a3b8" }}
-              onMouseEnter={() => setSignInHover(true)}
-              onMouseLeave={() => setSignInHover(false)}
+              style={{ color: "#94a3b8" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#f1f5f9")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#94a3b8")}
             >
               Sign In
-            </Link>
-            <Link href="/sign-up">
-              <Button size="sm">Get Started</Button>
-            </Link>
+            </button>
+            <Button size="sm" onClick={() => openModal('sign-up')}>
+              Get Started
+            </Button>
           </div>
         )}
 
-        {/* Mobile hamburger — pushes to far right on mobile */}
+        {/* Mobile hamburger */}
         <button
           className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-150 flex-shrink-0"
           style={{
@@ -169,19 +183,29 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/sign-in" onClick={() => setOpen(false)}>
-                    <button className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel">
-                      Sign In
-                    </button>
-                  </Link>
-                  <Link href="/sign-up" onClick={() => setOpen(false)}>
-                    <Button size="sm" className="w-full justify-center">Get Started</Button>
-                  </Link>
+                  <button
+                    onClick={() => openModal('sign-in')}
+                    className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel"
+                  >
+                    Sign In
+                  </button>
+                  <Button size="sm" className="w-full justify-center" onClick={() => openModal('sign-up')}>
+                    Get Started
+                  </Button>
                 </>
               )}
             </div>
           </nav>
         </div>
+      )}
+
+      {/* ── Auth Modal ── */}
+      {modalOpen && (
+        <AuthModal
+          mode={modalMode}
+          onClose={closeModal}
+          onSwitchMode={switchMode}
+        />
       )}
     </header>
   )
