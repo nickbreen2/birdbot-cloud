@@ -16,6 +16,7 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
   const [step, setStep] = useState<'email' | 'verify'>('email')
 
   async function handleGoogle() {
+    if (!signIn) return
     await signIn.sso({
       strategy: 'oauth_google',
       redirectCallbackUrl: '/sso-callback',
@@ -49,8 +50,8 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6">
-      {errors?.global && Array.isArray(errors.global) && errors.global[0]?.message && (
-        <p className="text-red-400 text-sm text-center">{(errors.global[0] as any).message}</p>
+      {errors?.global?.[0]?.message && (
+        <p className="text-red-400 text-sm text-center">{errors.global[0].message}</p>
       )}
 
       {step === 'email' ? (
@@ -98,8 +99,8 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
                 className="rounded-xl px-4 py-3 text-text-base text-sm outline-none focus:ring-2 focus:ring-blue"
                 style={{ backgroundColor: '#0f172a', border: '1px solid #1e2a45' }}
               />
-              {(errors?.fields as any)?.email_address?.message && (
-                <p className="text-red-400 text-xs">{(errors?.fields as any)?.email_address?.message}</p>
+              {errors?.fields?.emailAddress?.message && (
+                <p className="text-red-400 text-xs">{errors.fields.emailAddress.message}</p>
               )}
             </div>
 
