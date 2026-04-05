@@ -29,7 +29,6 @@ export function AuthModal({ mode, onClose, onSwitchMode }: AuthModalProps) {
       className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
-      aria-hidden="true"
     >
       <div
         className="auth-card rounded-2xl glow-border-blue w-full max-w-[440px] p-6 sm:p-8 flex flex-col gap-5 sm:gap-6"
