@@ -3,7 +3,7 @@ import Image from "next/image"
 const FOOTER_HREFS: Record<string, string> = {
   Privacy: "/privacy",
   Terms: "/terms",
-  Contact: "#",
+  Support: "/support",
 }
 
 export function Footer() {
@@ -64,7 +64,7 @@ export function Footer() {
 
         {/* Links */}
         <nav className="flex items-center gap-1">
-          {["Privacy", "Terms", "Contact"].map((label, i) => (
+          {["Privacy", "Terms", "Support"].map((label, i) => (
             <span key={label} className="flex items-center">
               {i > 0 && (
                 <span
