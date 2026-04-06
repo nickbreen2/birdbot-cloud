@@ -6,7 +6,7 @@ export default function SSOCallbackPage() {
     <main className="relative min-h-screen flex items-center justify-center">
       <div id="clerk-captcha" />
       <p className="text-text-dim text-sm">Completing sign in…</p>
-      <AuthenticateWithRedirectCallback />
+      <AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/dashboard" />
     </main>
   )
 }
