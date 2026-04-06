@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Outfit, DM_Sans } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
+import { Analytics } from "@vercel/analytics/next"
 import { StarField } from "@/components/StarField"
 import "./globals.css"
 
@@ -69,6 +70,7 @@ export default function RootLayout({
           <div className="relative" style={{ zIndex: 1 }}>
             {children}
           </div>
+          <Analytics />
         </ClerkProvider>
       </body>
     </html>
