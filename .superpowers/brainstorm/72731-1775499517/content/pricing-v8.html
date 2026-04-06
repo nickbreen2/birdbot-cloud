@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BirdBot Pricing v8</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0e1a;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+  }
+
+  .top-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin-bottom: 6px;
+  }
+
+  .sub {
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+
+  .draft-note {
+    text-align: center;
+    font-size: 11px;
+    color: #2a3a55;
+    margin-bottom: 40px;
+  }
+
+  .badge-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .badge-cell {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 30px;
+  }
+  .popular-badge {
+    background: #fff;
+    color: #111;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .card {
+    background: #151c2e;
+    border: 1px solid #1e2a45;
+    border-radius: 16px;
+    padding: 28px 24px 30px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card.pro {
+    border-color: rgba(59, 130, 246, 0.55);
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.18), inset 0 0 0 1px rgba(59, 130, 246, 0.08);
+  }
+
+  .plan-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 5px;
+  }
+  .plan-name.pro { color: #60a5fa; }
+
+  .plan-desc {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.45;
+    min-height: 2.9em;
+    margin-bottom: 20px;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    margin-bottom: 20px;
+  }
+  .price-amount {
+    font-size: 52px;
+    font-weight: 900;
+    color: #f1f5f9;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .price-amount.pro {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .price-period {
+    font-size: 14px;
+    color: #64748b;
+    align-self: flex-end;
+    margin-bottom: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: default;
+    border: none;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .btn-outline {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1.5px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+  .btn-solid {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: #fff;
+  }
+
+  .cancel-note {
+    text-align: center;
+    font-size: 11px;
+    color: #475569;
+    margin-bottom: 22px;
+  }
+
+  .feat-divider {
+    height: 1px;
+    background: #1e2a45;
+    margin-bottom: 18px;
+  }
+
+  .features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .features li.bold-feat {
+    color: #f1f5f9;
+    font-weight: 600;
+  }
+
+  .features li.dim-feat {
+    color: #64748b;
+    font-weight: 400;
+  }
+
+  .check {
+    color: #60a5fa;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .byok {
+    text-align: center;
+    font-size: 12px;
+    color: #475569;
+    margin-top: 24px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+</head>
+<body>
+
+<p class="top-label">Pricing</p>
+<h1>Simple, transparent pricing</h1>
+<p class="sub">No surprise bills. Cancel anytime.</p>
+<p class="draft-note">⚡ Brainstorm draft</p>
+
+<div class="badge-row">
+  <div class="badge-cell"></div>
+  <div class="badge-cell"><span class="popular-badge">MOST POPULAR</span></div>
+  <div class="badge-cell"></div>
+</div>
+
+<div class="grid">
+
+  <!-- LITE -->
+  <div class="card">
+    <div class="plan-name">Lite</div>
+    <div class="plan-desc">For personal projects and getting started</div>
+    <div class="price-row">
+      <span class="price-amount">$19</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <button class="btn btn-outline">Coming Soon</button>
+    <p class="cancel-note">Cancel anytime</p>
+    <div class="feat-divider"></div>
+    <ul class="features">
+      <li class="bold-feat"><span class="check">✓</span> Zero setup, instant access</li>
+      <li class="bold-feat"><span class="check">✓</span> Personal AI assistant, 24/7</li>
+      <li class="bold-feat"><span class="check">✓</span> Auto-updates, zero maintenance</li>
+      <li class="dim-feat"><span class="check">✓</span> 1 BirdBot agent</li>
+      <li class="dim-feat"><span class="check">✓</span> Telegram & WebChat</li>
+      <li class="dim-feat"><span class="check">✓</span> Core skills</li>
+      <li class="dim-feat"><span class="check">✓</span> Standard AI models</li>
+      <li class="dim-feat"><span class="check">✓</span> Fully private & encrypted</li>
+      <li class="dim-feat"><span class="check">✓</span> Community support</li>
+    </ul>
+  </div>
+
+  <!-- PRO -->
+  <div class="card pro">
+    <div class="plan-name pro">Pro</div>
+    <div class="plan-desc">For power users who rely on AI daily</div>
+    <div class="price-row">
+      <span class="price-amount pro">$39</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <button class="btn btn-solid">Coming Soon</button>
+    <p class="cancel-note">Cancel anytime</p>
+    <div class="feat-divider"></div>
+    <ul class="features">
+      <li class="bold-feat"><span class="check">✓</span> Zero setup, instant access</li>
+      <li class="bold-feat"><span class="check">✓</span> Personal AI assistant, 24/7</li>
+      <li class="bold-feat"><span class="check">✓</span> Auto-updates, zero maintenance</li>
+      <li class="dim-feat"><span class="check">✓</span> 1 BirdBot agent</li>
+      <li class="dim-feat"><span class="check">✓</span> All channels — Telegram, Discord, Slack</li>
+      <li class="dim-feat"><span class="check">✓</span> All skills + marketplace</li>
+      <li class="dim-feat"><span class="check">✓</span> All major AI models</li>
+      <li class="dim-feat"><span class="check">✓</span> Custom personality & memory</li>
+      <li class="dim-feat"><span class="check">✓</span> Fully private & encrypted</li>
+      <li class="dim-feat"><span class="check">✓</span> Daily backups</li>
+      <li class="dim-feat"><span class="check">✓</span> Priority support</li>
+    </ul>
+  </div>
+
+  <!-- MAX -->
+  <div class="card">
+    <div class="plan-name">Max</div>
+    <div class="plan-desc">For heavy workloads and maximum performance</div>
+    <div class="price-row">
+      <span class="price-amount">$79</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <button class="btn btn-outline">Coming Soon</button>
+    <p class="cancel-note">Cancel anytime</p>
+    <div class="feat-divider"></div>
+    <ul class="features">
+      <li class="bold-feat"><span class="check">✓</span> Zero setup, instant access</li>
+      <li class="bold-feat"><span class="check">✓</span> Personal AI assistant, 24/7</li>
+      <li class="bold-feat"><span class="check">✓</span> Auto-updates, zero maintenance</li>
+      <li class="dim-feat"><span class="check">✓</span> 3 BirdBot agents</li>
+      <li class="dim-feat"><span class="check">✓</span> All channels — Telegram, Discord, Slack</li>
+      <li class="dim-feat"><span class="check">✓</span> All skills + early access</li>
+      <li class="dim-feat"><span class="check">✓</span> All AI models incl. frontier</li>
+      <li class="dim-feat"><span class="check">✓</span> Custom personality & memory</li>
+      <li class="dim-feat"><span class="check">✓</span> Fully private & encrypted</li>
+      <li class="dim-feat"><span class="check">✓</span> Daily backups</li>
+      <li class="dim-feat"><span class="check">✓</span> Advanced analytics</li>
+      <li class="dim-feat"><span class="check">✓</span> API access</li>
+      <li class="dim-feat"><span class="check">✓</span> Dedicated support</li>
+    </ul>
+  </div>
+
+</div>
+
+<p class="byok">All plans include BYOK support — bring your own API key for Claude, GPT, or Gemini.</p>
+
+</body>
+</html>

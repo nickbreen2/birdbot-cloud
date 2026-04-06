@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-depth">
+    <div className="min-h-screen">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-6 pt-36 pb-24">
+      <main className="max-w-3xl mx-auto px-6 pt-28 md:pt-36 pb-24">
         {/* Page header */}
         <div className="mb-10">
           <h1
@@ -30,11 +30,11 @@ export default function TermsPage() {
         <div
           className="rounded-xl px-5 py-4 mb-10"
           style={{
-            border: "1px solid rgba(59,130,246,0.30)",
-            background: "rgba(59,130,246,0.06)",
+            border: "1px solid rgba(234,179,8,0.30)",
+            background: "rgba(234,179,8,0.06)",
           }}
         >
-          <p className="text-sm font-sans font-semibold text-blue-bright mb-1.5">
+          <p className="text-sm font-sans font-semibold text-gold-light mb-1.5">
             Early Access Notice
           </p>
           <p className="text-sm font-sans text-text-dim leading-relaxed">

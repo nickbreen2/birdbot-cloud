@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BirdBot Pricing — Brainstorm</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0e0e10;
+    color: #e2e2e4;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px 48px;
+  }
+
+  .top-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b80;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: #f0f0f2;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #6b6b80;
+    margin-bottom: 10px;
+  }
+
+  .brainstorm-note {
+    text-align: center;
+    font-size: 12px;
+    color: #4a4a60;
+    background: #17171f;
+    border: 1px solid #2a2a3a;
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: inline-block;
+    margin: 0 auto 32px;
+  }
+
+  .center { text-align: center; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: #18181e;
+    border: 1px solid #2a2a3a;
+    border-radius: 16px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    border-color: #3a3a50;
+  }
+
+  .card.selected {
+    border-color: #4f8ef7 !important;
+    box-shadow: 0 0 0 1px #4f8ef7, 0 0 20px rgba(79,142,247,0.12);
+  }
+
+  .card.pro {
+    border-color: #2a3a5c;
+    box-shadow: 0 0 0 1px #2a3a5c, 0 0 30px rgba(79,142,247,0.08);
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #c9a227, #e6c54a);
+    color: #1a1400;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b6b80;
+    margin-bottom: 4px;
+  }
+
+  .plan-name.pro-name { color: #4f8ef7; }
+
+  .plan-desc {
+    font-size: 13px;
+    color: #5a5a70;
+    line-height: 1.4;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .price-amount {
+    font-size: 42px;
+    font-weight: 900;
+    color: #f0f0f2;
+    line-height: 1;
+  }
+
+  .price-amount.pro-price {
+    background: linear-gradient(135deg, #4f8ef7, #7cb3ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .price-period {
+    font-size: 13px;
+    color: #5a5a70;
+  }
+
+  .features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+  }
+
+  .features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #a0a0b0;
+    line-height: 1.4;
+  }
+
+  .check {
+    color: #4f8ef7;
+    font-size: 12px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .check.dim { color: #3a3a50; }
+
+  .divider {
+    height: 1px;
+    background: #222230;
+    margin: 2px 0;
+  }
+
+  .cta-btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: not-allowed;
+    border: none;
+    text-align: center;
+  }
+
+  .cta-outline {
+    background: transparent;
+    border: 1px solid #2a2a3a;
+    color: #6b6b80;
+  }
+
+  .cta-solid {
+    background: linear-gradient(135deg, #4f8ef7, #3a7de8);
+    color: #fff;
+    opacity: 0.7;
+  }
+
+  .byok-note {
+    text-align: center;
+    font-size: 12px;
+    color: #4a4a60;
+    margin-top: 20px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .section-divider {
+    border-top: 1px solid #2a2a3a;
+    margin: 4px 0 8px;
+  }
+
+  .feat-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3a3a50;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+
+  .question-box {
+    max-width: 960px;
+    margin: 32px auto 0;
+    background: #12121a;
+    border: 1px solid #2a2a3a;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .question-box h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c0c0d0;
+    margin-bottom: 10px;
+  }
+
+  .options-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .opt {
+    background: #18181e;
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .opt:hover { border-color: #3a3a50; background: #1e1e28; }
+  .opt.selected { border-color: #4f8ef7; background: #14192a; }
+
+  .opt-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #a0a0b0;
+    margin-bottom: 3px;
+  }
+
+  .opt-desc {
+    font-size: 11px;
+    color: #5a5a70;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<p class="top-label">Pricing</p>
+<h1>Simple, transparent pricing</h1>
+<p class="subtitle">No surprise bills. Cancel anytime.</p>
+<div class="center"><div class="brainstorm-note">⚡ Brainstorm draft — click a card to explore. Respond in terminal with feedback.</div></div>
+
+<div class="grid" style="margin-top: 24px;">
+
+  <!-- LITE -->
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div>
+      <div class="plan-name">Lite</div>
+      <div class="plan-desc">For personal projects and getting started</div>
+    </div>
+    <div class="price-row">
+      <span class="price-amount">$19</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <ul class="features">
+      <div class="feat-section-label">Agent</div>
+      <li><span class="check">✓</span> 1 BirdBot agent</li>
+      <li><span class="check">✓</span> Telegram + WebChat</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">AI Power</div>
+      <li><span class="check">✓</span> 100 AI credits / mo</li>
+      <li><span class="check">✓</span> Core skills</li>
+      <li><span class="check">✓</span> BYOK support</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">Support</div>
+      <li><span class="check">✓</span> Community support</li>
+    </ul>
+    <button class="cta-btn cta-outline">Coming Soon</button>
+  </div>
+
+  <!-- PRO -->
+  <div class="card pro" onclick="this.classList.toggle('selected')">
+    <div class="popular-badge">⭐ Most Popular</div>
+    <div>
+      <div class="plan-name pro-name">Pro</div>
+      <div class="plan-desc">For power users who rely on AI daily</div>
+    </div>
+    <div class="price-row">
+      <span class="price-amount pro-price">$39</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <ul class="features">
+      <div class="feat-section-label">Agent</div>
+      <li><span class="check">✓</span> 1 BirdBot agent</li>
+      <li><span class="check">✓</span> All channels — Telegram, Discord, Slack</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">AI Power</div>
+      <li><span class="check">✓</span> 500 AI credits / mo</li>
+      <li><span class="check">✓</span> All skills + marketplace</li>
+      <li><span class="check">✓</span> BYOK support</li>
+      <li><span class="check">✓</span> Custom personality & memory</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">Support</div>
+      <li><span class="check">✓</span> Priority support</li>
+    </ul>
+    <button class="cta-btn cta-solid">Coming Soon</button>
+  </div>
+
+  <!-- MAX -->
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div>
+      <div class="plan-name">Max</div>
+      <div class="plan-desc">For heavy workloads and maximum performance</div>
+    </div>
+    <div class="price-row">
+      <span class="price-amount">$79</span>
+      <span class="price-period">/mo</span>
+    </div>
+    <ul class="features">
+      <div class="feat-section-label">Agent</div>
+      <li><span class="check">✓</span> 3 BirdBot agents</li>
+      <li><span class="check">✓</span> All channels — Telegram, Discord, Slack</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">AI Power</div>
+      <li><span class="check">✓</span> Unlimited AI credits</li>
+      <li><span class="check">✓</span> All skills + early access</li>
+      <li><span class="check">✓</span> BYOK support</li>
+      <li><span class="check">✓</span> Custom personality & memory</li>
+
+      <div class="section-divider"></div>
+      <div class="feat-section-label">Support</div>
+      <li><span class="check">✓</span> Dedicated support</li>
+      <li><span class="check">✓</span> Advanced analytics</li>
+      <li><span class="check">✓</span> API access</li>
+    </ul>
+    <button class="cta-btn cta-outline">Coming Soon</button>
+  </div>
+
+</div>
+
+<p class="byok-note">All plans include BYOK support — bring your own API key for Claude, GPT, or Gemini.</p>
+
+<div class="question-box">
+  <h3>First question: How should AI credits work? Which framing resonates most for investors?</h3>
+  <div class="options-row">
+    <div class="opt" onclick="this.classList.toggle('selected')">
+      <div class="opt-label">A — Credit amounts (100 / 500 / Unlimited)</div>
+      <div class="opt-desc">Shows clear resource tiers. Familiar from cloud/SaaS pricing. Investor-friendly.</div>
+    </div>
+    <div class="opt" onclick="this.classList.toggle('selected')">
+      <div class="opt-label">B — Dollar amounts ($5 / $15 / $25 credit value)</div>
+      <div class="opt-desc">More concrete. Easier to understand cost per action. Matches existing component.</div>
+    </div>
+    <div class="opt" onclick="this.classList.toggle('selected')">
+      <div class="opt-label">C — Drop credits entirely, use requests/month</div>
+      <div class="opt-desc">500 / 2,000 / Unlimited AI requests. Cleaner abstraction — users don't see token math.</div>
+    </div>
+    <div class="opt" onclick="this.classList.toggle('selected')">
+      <div class="opt-label">D — No credit metric, just feature gates</div>
+      <div class="opt-desc">Simpler. Focus on what you CAN do, not how much you have. Less to explain.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

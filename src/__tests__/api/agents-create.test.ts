@@ -3,13 +3,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-const mockUpdateUserMetadata = vi.fn().mockResolvedValue({})
-const mockClerkClient = vi.fn().mockResolvedValue({
-  users: { updateUserMetadata: mockUpdateUserMetadata },
-})
 vi.mock("@clerk/nextjs/server", () => ({
   auth: vi.fn().mockResolvedValue({ userId: "user_123" }),
-  clerkClient: mockClerkClient,
+}))
+
+const mockAgentCreate  = vi.fn().mockResolvedValue({ id: "agent_abc" })
+const mockAgentUpdateMany = vi.fn().mockResolvedValue({ count: 1 })
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    agent: {
+      create:     (...args: unknown[]) => mockAgentCreate(...args),
+      updateMany: (...args: unknown[]) => mockAgentUpdateMany(...args),
+    },
+  },
 }))
 
 const mockFetch = vi.fn().mockResolvedValue({ ok: true })
@@ -41,10 +47,8 @@ describe("POST /api/agents/create", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFetch.mockResolvedValue({ ok: true })
-    mockUpdateUserMetadata.mockResolvedValue({})
-    mockClerkClient.mockResolvedValue({
-      users: { updateUserMetadata: mockUpdateUserMetadata },
-    })
+    mockAgentCreate.mockResolvedValue({ id: "agent_abc" })
+    mockAgentUpdateMany.mockResolvedValue({ count: 1 })
     process.env.ADMIN_WEBHOOK_URL = "https://hooks.example.com/birdbot"
   })
 
@@ -69,25 +73,28 @@ describe("POST /api/agents/create", () => {
     expect(res.status).toBe(400)
   })
 
-  it("saves onboarded=true and agent data to Clerk metadata", async () => {
+  it("saves agent to database on success", async () => {
     const { POST } = await import("@/app/api/agents/create/route")
     const res = await POST(makeRequest(validPayload))
     expect(res.status).toBe(200)
-    expect(mockUpdateUserMetadata).toHaveBeenCalledWith("user_123", {
-      publicMetadata: {
-        onboarded: true,
-        agent: expect.objectContaining({
+    expect(mockAgentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          clerkUserId: "user_123",
           name: "Atlas",
           model: "kimi-k2.5",
           focusAreas: ["email", "research"],
+          status: "incubating",
         }),
-      },
-    })
+      })
+    )
   })
 
   it("pings the webhook with agent payload", async () => {
     const { POST } = await import("@/app/api/agents/create/route")
     await POST(makeRequest(validPayload))
+    // Webhook is fire-and-forget; give the microtask queue a tick to flush
+    await new Promise((r) => setTimeout(r, 0))
     expect(mockFetch).toHaveBeenCalledWith(
       "https://hooks.example.com/birdbot",
       expect.objectContaining({ method: "POST" })

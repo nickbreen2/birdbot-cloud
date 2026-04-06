@@ -4,6 +4,7 @@ import { DashboardDemo } from "@/components/landing/DashboardDemo"
 import { WhyBirdBot } from "@/components/landing/WhyBirdBot"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
+import { PricingSection } from "@/components/landing/PricingSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
 
@@ -16,7 +17,8 @@ export default function Home() {
       <WhyBirdBot />
       <FeaturesSection />
       <HowItWorks />
-<WaitlistCTA />
+      <PricingSection />
+      <WaitlistCTA />
       <Footer />
     </main>
   )

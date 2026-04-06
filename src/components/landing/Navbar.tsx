@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
 const NAV_LINKS = [
-  { label: "How We Differ", href: "#how-we-differ" },
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "How We Differ", href: "/#how-we-differ" },
+  { label: "Features", href: "/#features" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
 ]
 
 export function Navbar() {
@@ -57,7 +58,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-7">
           {NAV_LINKS.map(({ label, href }) => (
             <a
               key={href}
@@ -71,7 +72,7 @@ export function Navbar() {
 
         {/* Desktop CTA — auth-aware */}
         {isLoaded && isSignedIn ? (
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <SignOutButton>
               <button
                 className="text-sm font-sans transition-colors"
@@ -96,7 +97,7 @@ export function Navbar() {
             </Link>
           </div>
         ) : (
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={() => openModal('sign-in')}
               className="text-sm font-sans transition-colors"
@@ -112,9 +113,9 @@ export function Navbar() {
           </div>
         )}
 
-        {/* Mobile hamburger */}
+        {/* Mobile / tablet hamburger */}
         <button
-          className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-150 flex-shrink-0"
+          className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-150 flex-shrink-0"
           style={{
             color: "#ffffff",
             background: open ? "rgba(37,99,235,0.70)" : "rgba(37,99,235,0.35)",
@@ -136,10 +137,10 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* ── Mobile dropdown menu ── */}
+      {/* ── Mobile / tablet dropdown menu ── */}
       {open && (
         <div
-          className="md:hidden mx-3 sm:mx-4 mt-1.5 rounded-2xl border border-border"
+          className="lg:hidden mx-3 sm:mx-4 mt-1.5 rounded-2xl border border-border"
           style={{
             background: "rgba(10, 14, 26, 0.96)",
             backdropFilter: "blur(16px)",
