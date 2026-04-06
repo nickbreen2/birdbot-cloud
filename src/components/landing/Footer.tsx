@@ -1,5 +1,11 @@
 import Image from "next/image"
 
+const FOOTER_HREFS: Record<string, string> = {
+  Privacy: "/privacy",
+  Terms: "/terms",
+  Contact: "#",
+}
+
 export function Footer() {
   return (
     <footer className="relative pb-8 pt-10">
@@ -70,7 +76,7 @@ export function Footer() {
                 </span>
               )}
               <a
-                href="#"
+                href={FOOTER_HREFS[label] ?? "#"}
                 className="text-sm font-sans transition-colors duration-200 hover:text-blue-bright"
                 style={{ color: "rgba(100,116,139,0.8)" }}
               >
