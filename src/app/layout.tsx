@@ -17,14 +17,39 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "BirdBot.ai — Your AI Assistant, Always On",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
+  ),
+  title: "BirdBot.ai — Your Personal AI Agent, Always On",
   description:
-    "Deploy your personal AI agent in seconds. Automates tasks, browses the web, manages files, and connects to your apps — running 24/7, no setup required.",
+    "Deploy your own AI agent in seconds. BirdBot automates tasks, browses the web, manages files, and connects to Telegram and your favorite apps — running 24/7, no setup required.",
+  keywords: [
+    "AI agent",
+    "personal AI assistant",
+    "Claude AI",
+    "autonomous agent",
+    "AI automation",
+    "Telegram AI bot",
+    "managed AI",
+    "BirdBot",
+  ],
+  icons: {
+    icon: "/BirdBot-Icon-mark1.png",
+    apple: "/BirdBot-Icon-mark1.png",
+  },
   openGraph: {
-    title: "BirdBot.ai — Your AI Assistant, Always On",
+    title: "BirdBot.ai — Your Personal AI Agent, Always On",
     description:
-      "Deploy your personal AI agent in seconds. Starting at $19/month.",
+      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
     type: "website",
+    url: "https://birdbot.ai",
+    siteName: "BirdBot.ai",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BirdBot.ai — Your Personal AI Agent, Always On",
+    description:
+      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
   },
 }
 

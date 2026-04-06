@@ -79,7 +79,7 @@ export function SettingsModal() {
           >
             <div className="flex items-center justify-between px-5 py-5 border-b border-border flex-shrink-0">
               <div>
-                <h2 className="text-xl font-heading font-bold text-text-base leading-tight">BirdBot Settings</h2>
+                <h2 className="text-lg font-sans font-semibold text-text-base leading-tight">BirdBot Settings</h2>
                 <p className="text-xs text-text-muted font-sans mt-1">Manage your BirdBot agent.</p>
               </div>
               <button
@@ -137,7 +137,7 @@ export function SettingsModal() {
         >
           {/* Header */}
           <div className="px-5 pt-6 pb-5">
-            <h2 className="text-xl font-heading font-bold text-text-base leading-tight">BirdBot Settings</h2>
+            <h2 className="text-lg font-sans font-semibold text-text-base leading-tight">BirdBot Settings</h2>
             <p className="text-xs text-text-muted font-sans mt-1">Manage your BirdBot agent.</p>
           </div>
 
@@ -202,7 +202,7 @@ export function SettingsModal() {
               <Menu size={18} strokeWidth={2} />
             </button>
             <div className="flex-1 min-w-0">
-              <h3 className="font-heading font-semibold text-base text-text-base leading-tight truncate">
+              <h3 className="font-sans font-semibold text-base text-text-base leading-tight truncate">
                 {SECTION_META[section].title}
               </h3>
               <p className="text-xs text-text-muted font-sans mt-0.5 truncate">{SECTION_META[section].subtitle}</p>

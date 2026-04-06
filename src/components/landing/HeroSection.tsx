@@ -7,7 +7,7 @@ import { useAuth } from "@clerk/nextjs"
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-30 pb-16 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-20 sm:pt-30 sm:pb-16 overflow-hidden">
       {/* Background atmosphere */}
       <div
         aria-hidden
@@ -26,7 +26,7 @@ export function HeroSection() {
         {/* Icon with glow halo */}
         <div
           className="relative flex items-center justify-center"
-          style={{ animation: "slide-up 0.5s ease both" }}
+          style={{ animation: "slide-up 0.5s ease both", marginTop: "-20px" }}
         >
           {/* Atmospheric glow ring */}
           <div
@@ -56,11 +56,12 @@ export function HeroSection() {
           {/* Floating icon */}
           <div style={{ animation: "float 4.5s 0.55s ease-in-out infinite", position: "relative" }}>
             <Image
-              src="/BirdBot-Icon-mark1.svg"
+              src="/birdbot-animated (1).svg"
               alt="BirdBot icon"
-              width={160}
-              height={149}
+              width={192}
+              height={179}
               priority
+              unoptimized
               style={{
                 filter:
                   "drop-shadow(0 8px 32px rgba(125,211,252,0.55)) drop-shadow(0 2px 12px rgba(37,99,235,0.40))",
@@ -70,7 +71,7 @@ export function HeroSection() {
         </div>
 
         {/* BirdBot wordmark */}
-        <div style={{ animation: "slide-up 0.5s 0.2s ease both", marginTop: "2px" }}>
+        <div style={{ animation: "slide-up 0.5s 0.2s ease both", marginTop: "-12px" }}>
           <span
             className="font-heading font-black leading-none block select-none"
             style={{

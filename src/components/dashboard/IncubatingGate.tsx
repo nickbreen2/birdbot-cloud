@@ -1,15 +1,20 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useWizard } from "./WizardContext"
 
 export function IncubatingGate({ children }: { children: React.ReactNode }) {
   const { agents, onboarded, agentsLoaded, setSettingsOpen } = useWizard()
+  const pathname = usePathname()
 
   // Don't render anything while agents are loading — the wizard overlay handles the backdrop
   if (!agentsLoaded) return null
 
   // Not onboarded: wizard overlay handles them, show children underneath
   if (!onboarded) return <>{children}</>
+
+  // Always allow the account page through
+  if (pathname === '/dashboard/account') return <>{children}</>
 
   // Onboarded (deployed but bot not provisioned yet): show the incubating holding screen
   const agentName = agents[0]?.name

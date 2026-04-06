@@ -1,7 +1,32 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// Simple per-IP rate limiter — 5 submissions per hour per IP.
+// Resets on serverless cold starts, which is acceptable for a v1 waitlist.
+const ipLog = new Map<string, number[]>()
+const WINDOW_MS = 60 * 60 * 1000 // 1 hour
+const MAX_PER_WINDOW = 5
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const recent = (ipLog.get(ip) ?? []).filter((t) => now - t < WINDOW_MS)
+  if (recent.length >= MAX_PER_WINDOW) return true
+  recent.push(now)
+  ipLog.set(ip, recent)
+  return false
+}
+
 export async function POST(request: Request) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests — try again later." },
+      { status: 429 }
+    )
+  }
+
   try {
     const { email } = (await request.json()) as { email?: string }
 

@@ -97,6 +97,18 @@ html, body {
   background-color: #1a2340;
 }
 
+/* Auth card: full-bleed dark page on mobile, glowing rounded card on desktop */
+.auth-card {
+  background-color: #111827;
+}
+@media (min-width: 640px) {
+  .auth-card {
+    border-radius: 1rem;
+    border: 1px solid rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+  }
+}
+
 /* blue glow border (always on, used for highlighted pricing card, step 2, etc.) */
 .glow-border-blue {
   border: 1px solid rgba(59, 130, 246, 0.6);
@@ -116,26 +128,64 @@ html, body {
 }
 
 /* ── Dashboard demo: scale to fit on mobile ── */
+
+/* < 375px — tiny phones (320px iPhone 4, 360px Android) */
 @media (max-width: 374px) {
   .demo-scale-wrapper {
     overflow: hidden !important;
     padding: 0 !important;
-    height: 288px !important; /* 645 * 0.44 + 4px buffer */
+    height: 294px !important; /* 645 * 0.45 + 4px */
   }
   .demo-scale-inner {
-    transform: scale(0.44);
+    transform: scale(0.45);
     transform-origin: top left;
+    /* 640 * 0.45 = 288px visual width — center in container */
+    margin-left: max(0px, calc((100% - 288px) / 2));
   }
 }
-@media (min-width: 375px) and (max-width: 639px) {
+
+/* 375–429px — iPhone SE / 12 mini / 12 / 13 / 14 / 15 (390px), Pixel 5 (393px) */
+@media (min-width: 375px) and (max-width: 429px) {
   .demo-scale-wrapper {
     overflow: hidden !important;
     padding: 0 !important;
-    height: 346px !important; /* 645 * 0.53 + 4px buffer */
+    height: 346px !important; /* 645 * 0.53 + 4px */
   }
   .demo-scale-inner {
     transform: scale(0.53);
     transform-origin: top left;
+    /* 640 * 0.53 = 339px visual width — center in container */
+    margin-left: max(0px, calc((100% - 339px) / 2));
+  }
+}
+
+/* 430–539px — iPhone 14/15 Plus & Pro Max (430px), Pixel 6/7 (412px handled above), large Android */
+@media (min-width: 430px) and (max-width: 539px) {
+  .demo-scale-wrapper {
+    overflow: hidden !important;
+    padding: 0 !important;
+    height: 410px !important; /* 645 * 0.63 + 4px */
+  }
+  .demo-scale-inner {
+    transform: scale(0.63);
+    transform-origin: top left;
+    /* 640 * 0.63 = 403px visual width — center in container */
+    margin-left: max(0px, calc((100% - 403px) / 2));
+  }
+}
+
+/* 540–639px — phablets / small tablets in portrait */
+@media (min-width: 540px) and (max-width: 639px) {
+  .demo-scale-wrapper {
+    overflow: hidden !important;
+    padding: 0 !important;
+    height: 501px !important; /* 645 * 0.77 + 4px */
+  }
+  .demo-scale-inner {
+    transform: scale(0.77);
+    transform-origin: top left;
+    /* 640 * 0.77 = 493px visual width — center in container */
+    margin-left: max(0px, calc((100% - 493px) / 2));
   }
 }
 

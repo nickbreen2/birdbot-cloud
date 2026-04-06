@@ -2,13 +2,14 @@
 
 import { useRef, useState, useEffect } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
+import Image from "next/image"
 import { LogOut, Settings, User } from "lucide-react"
 import { useWizard } from "@/components/dashboard/WizardContext"
 
 export function UserMenu() {
   const { user } = useUser()
-  const { signOut, openUserProfile } = useClerk()
-  const { setSettingsOpen } = useWizard()
+  const { signOut } = useClerk()
+  const { setSettingsOpen, setAccountOpen } = useWizard()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -57,12 +58,22 @@ export function UserMenu() {
         >
           {/* Header row — non-interactive */}
           <div className="flex items-center gap-2.5 px-3 py-3">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ background: "linear-gradient(135deg,#2563eb,#60a5fa)" }}
-            >
-              {initials}
-            </div>
+            {user?.hasImage ? (
+              <Image
+                src={user.imageUrl}
+                alt="Profile photo"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                style={{ background: "linear-gradient(135deg,#2563eb,#60a5fa)" }}
+              >
+                {initials}
+              </div>
+            )}
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-semibold text-text-base font-sans truncate">{fullName}</span>
               <span className="text-[11px] text-text-muted font-sans truncate">{email}</span>
@@ -77,17 +88,17 @@ export function UserMenu() {
             onClick={() => { setOpen(false); setSettingsOpen(true) }}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
-            <Settings size={14} className="text-text-muted flex-shrink-0" />
+            <Settings size={14} className="flex-shrink-0" />
             BirdBot Settings
           </button>
 
           {/* Manage Account */}
           <button
             type="button"
-            onClick={() => { setOpen(false); openUserProfile() }}
+            onClick={() => { setOpen(false); setAccountOpen(true) }}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
-            <User size={14} className="text-text-muted flex-shrink-0" />
+            <User size={14} className="flex-shrink-0" />
             Manage Account
           </button>
 
@@ -99,7 +110,7 @@ export function UserMenu() {
             onClick={() => signOut()}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
           >
-            <LogOut size={14} className="text-text-muted flex-shrink-0" />
+            <LogOut size={14} className="flex-shrink-0" />
             Sign Out
           </button>
         </div>
@@ -119,12 +130,22 @@ export function UserMenu() {
           boxShadow: open ? "0 0 12px rgba(37,99,235,0.1)" : "none",
         }}
       >
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
-          style={{ background: "linear-gradient(135deg,#2563eb,#60a5fa)" }}
-        >
-          {initials}
-        </div>
+        {user?.hasImage ? (
+          <Image
+            src={user.imageUrl}
+            alt="Profile photo"
+            width={28}
+            height={28}
+            className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+          />
+        ) : (
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+            style={{ background: "linear-gradient(135deg,#2563eb,#60a5fa)" }}
+          >
+            {initials}
+          </div>
+        )}
         <div className="flex flex-col min-w-0 flex-1">
           <span className="text-xs font-semibold text-text-base font-sans truncate">
             {user?.firstName ?? user?.username ?? "User"}
