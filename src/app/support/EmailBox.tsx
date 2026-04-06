@@ -61,7 +61,7 @@ export function EmailBox() {
         <a
           href="mailto:support@birdbot.ai"
           aria-label="Open email client"
-          className="cursor-pointer text-text-dim hover:text-text-base transition-colors"
+          className="cursor-pointer text-text-dim hover:text-text-base transition-colors focus:outline-none focus:ring-2 focus:ring-blue-bright/50 rounded"
         >
           {/* External link icon */}
           <svg
