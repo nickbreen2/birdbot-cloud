@@ -5,10 +5,14 @@ import { useState } from "react"
 export function EmailBox() {
   const [copied, setCopied] = useState(false)
 
-  function handleCopy() {
-    navigator.clipboard.writeText("support@birdbot.ai")
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText("support@birdbot.ai")
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard unavailable or permission denied — stay silent
+    }
   }
 
   return (
@@ -17,9 +21,10 @@ export function EmailBox() {
       <div className="flex items-center gap-3 flex-shrink-0">
         {/* Copy button */}
         <button
+          type="button"
           onClick={handleCopy}
           aria-label={copied ? "Copied" : "Copy email address"}
-          className="text-text-dim hover:text-text-base transition-colors"
+          className="cursor-pointer text-text-dim hover:text-text-base transition-colors focus:outline-none focus:ring-2 focus:ring-blue-bright/50 rounded"
         >
           {copied ? (
             /* Checkmark icon */
@@ -56,7 +61,7 @@ export function EmailBox() {
         <a
           href="mailto:support@birdbot.ai"
           aria-label="Open email client"
-          className="text-text-dim hover:text-text-base transition-colors"
+          className="cursor-pointer text-text-dim hover:text-text-base transition-colors"
         >
           {/* External link icon */}
           <svg
