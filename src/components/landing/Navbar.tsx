@@ -37,12 +37,8 @@ export function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50">
       {/* ── Glass pill ── */}
       <div
-        className="mx-4 mt-3 rounded-2xl border border-border px-4 sm:px-6 py-3 flex items-center justify-between max-w-full"
-        style={{
-          background: "rgba(10, 14, 26, 0.85)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        }}
+        className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between"
+        style={{ background: "#0a0e1a" }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center flex-shrink-0">
