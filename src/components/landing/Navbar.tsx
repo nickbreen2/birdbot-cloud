@@ -35,7 +35,7 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      {/* ── Glass pill ── */}
+      {/* ── Navbar bar ── */}
       <div
         className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between"
         style={{ background: "#0a0e1a" }}
@@ -136,12 +136,8 @@ export function Navbar() {
       {/* ── Mobile / tablet dropdown menu ── */}
       {open && (
         <div
-          className="lg:hidden mx-3 sm:mx-4 mt-1.5 rounded-2xl border border-border"
-          style={{
-            background: "rgba(10, 14, 26, 0.96)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-          }}
+          className="lg:hidden border-b border-border"
+          style={{ background: "#0a0e1a" }}
         >
           <nav className="flex flex-col p-3 gap-0.5">
             {NAV_LINKS.map(({ label, href }) => (
@@ -182,7 +178,7 @@ export function Navbar() {
                 <>
                   <button
                     onClick={() => openModal('sign-in')}
-                    className="w-full text-sm text-left px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel"
+                    className="w-full text-sm text-center px-3 py-2.5 rounded-xl font-sans transition-colors text-text-dim hover:text-text-base hover:bg-panel border border-border"
                   >
                     Sign In
                   </button>
