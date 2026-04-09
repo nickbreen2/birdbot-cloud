@@ -102,6 +102,7 @@ export function MobileHeader() {
       <div ref={menuRef} className="relative">
         {open && (
           <div
+            role="menu"
             className="absolute top-full right-0 mt-2 w-52 rounded-xl border border-border overflow-hidden z-50"
             style={{
               background: "#141a2c",
@@ -138,6 +139,7 @@ export function MobileHeader() {
 
             <button
               type="button"
+              role="menuitem"
               onClick={() => { setOpen(false); setSettingsOpen(true) }}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
             >
@@ -146,6 +148,7 @@ export function MobileHeader() {
             </button>
             <button
               type="button"
+              role="menuitem"
               onClick={() => { setOpen(false); setAccountOpen(true) }}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
             >
@@ -157,6 +160,7 @@ export function MobileHeader() {
 
             <button
               type="button"
+              role="menuitem"
               onClick={() => signOut()}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
             >
