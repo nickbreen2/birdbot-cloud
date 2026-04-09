@@ -1,3 +1,8 @@
+// Clerk v7 accesses `window` at module level (useInternalNavFun.js) without an
+// SSR guard, which breaks Next.js static prerendering. All pages here require
+// runtime auth state anyway, so force-dynamic is correct.
+export const dynamic = 'force-dynamic'
+
 import type { Metadata } from "next"
 import { Outfit, DM_Sans } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
