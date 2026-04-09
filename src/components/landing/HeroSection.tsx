@@ -2,12 +2,22 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
 
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
+  const [isIOS, setIsIOS] = useState(false)
+
+  useEffect(() => {
+    const ua = navigator.userAgent
+    const ios =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    setIsIOS(ios)
+  }, [])
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-20 sm:pt-30 sm:pb-16 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-20 sm:pt-36 sm:pb-16 overflow-hidden">
       {/* Background atmosphere */}
       <div
         aria-hidden
@@ -39,6 +49,7 @@ export function HeroSection() {
               background:
                 "radial-gradient(circle, rgba(125,211,252,0.20) 0%, rgba(59,130,246,0.10) 50%, transparent 72%)",
               filter: "blur(20px)",
+              ...(isIOS && { transform: "translateZ(0)" }),
             }}
           />
           {/* Inner bright spot */}
@@ -51,6 +62,7 @@ export function HeroSection() {
               borderRadius: "50%",
               background: "radial-gradient(circle, rgba(186,230,253,0.18) 0%, transparent 70%)",
               filter: "blur(10px)",
+              ...(isIOS && { transform: "translateZ(0)" }),
             }}
           />
           {/* Floating icon */}
@@ -58,8 +70,8 @@ export function HeroSection() {
             <Image
               src="/birdbot-animated (1).svg"
               alt="BirdBot icon"
-              width={192}
-              height={179}
+              width={isIOS ? 125 : 192}
+              height={isIOS ? 116 : 179}
               priority
               unoptimized
               style={{
