@@ -8,10 +8,6 @@ export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect()
   }
-}, {
-  // Proxy Clerk's frontend API through our own domain to fix iOS Safari ITP.
-  // Without this, iOS blocks the cross-site cookie from clerk.accounts.dev.
-  frontendApiProxy: { enabled: true },
 })
 
 export const config = {
