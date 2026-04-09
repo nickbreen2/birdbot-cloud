@@ -66,7 +66,7 @@ export default function RootLayout({
       className={`${outfit.variable} ${dmSans.variable} h-full`}
     >
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
-        <ClerkProvider>
+        <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
           <StarField />
           <div className="relative" style={{ zIndex: 1 }}>
             {children}

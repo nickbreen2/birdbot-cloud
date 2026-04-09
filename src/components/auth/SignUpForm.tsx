@@ -26,25 +26,30 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
 
   async function handleEmail(formData: FormData) {
     const emailAddress = formData.get('email') as string
-    const { error } = await signUp.create({ emailAddress })
-    if (error) return
-    const { error: sendError } = await signUp.verifications.sendEmailCode()
-    if (sendError) return
-    setStep('verify')
+    try {
+      await signUp.create({ emailAddress })
+      await signUp.verifications.sendEmailCode()
+      setStep('verify')
+    } catch {
+      // Clerk v7 throws on error — surfaces via `errors` state from useSignUp
+    }
   }
 
   async function handleVerify(formData: FormData) {
     const code = formData.get('code') as string
-    const { error } = await signUp.verifications.verifyEmailCode({ code })
-    if (error) return
-    if (signUp.status === 'complete') {
-      await signUp.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl('/dashboard')
-          if (url.startsWith('http')) window.location.href = url
-          else router.push(url)
-        },
-      })
+    try {
+      await signUp.verifications.verifyEmailCode({ code })
+      if (signUp.status === 'complete') {
+        await signUp.finalize({
+          navigate: ({ decorateUrl }) => {
+            const url = decorateUrl('/dashboard')
+            if (url.startsWith('http')) window.location.href = url
+            else router.push(url)
+          },
+        })
+      }
+    } catch {
+      // Clerk v7 throws on error — surfaces via `errors` state from useSignUp
     }
   }
 
