@@ -1,9 +1,9 @@
 // src/components/auth/SignUpForm.tsx
 'use client'
-import { useState } from 'react'
 import { useSignIn, useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useState } from 'react'
 
 interface SignUpFormProps {
   onSwitchMode?: () => void
@@ -25,31 +25,27 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
   }
 
   async function handleEmail(formData: FormData) {
+    if (!signUp) return
     const emailAddress = formData.get('email') as string
-    try {
-      await signUp.create({ emailAddress })
-      await signUp.verifications.sendEmailCode()
-      setStep('verify')
-    } catch {
-      // Clerk v7 throws on error — surfaces via `errors` state from useSignUp
-    }
+    const { error } = await signUp.create({ emailAddress })
+    if (error) return
+    await signUp.verifications.sendEmailCode()
+    setStep('verify')
   }
 
   async function handleVerify(formData: FormData) {
+    if (!signUp) return
     const code = formData.get('code') as string
-    try {
-      await signUp.verifications.verifyEmailCode({ code })
-      if (signUp.status === 'complete') {
-        await signUp.finalize({
-          navigate: ({ decorateUrl }) => {
-            const url = decorateUrl('/dashboard')
-            if (url.startsWith('http')) window.location.href = url
-            else router.push(url)
-          },
-        })
-      }
-    } catch {
-      // Clerk v7 throws on error — surfaces via `errors` state from useSignUp
+    const { error } = await signUp.verifications.verifyEmailCode({ code })
+    if (error) return
+    if (signUp.status === 'complete') {
+      await signUp.finalize({
+        navigate: ({ decorateUrl }) => {
+          const url = decorateUrl('/dashboard')
+          if (url.startsWith('http')) window.location.href = url
+          else router.push(url)
+        },
+      })
     }
   }
 
