@@ -36,8 +36,8 @@ export const metadata: Metadata = {
     "BirdBot",
   ],
   icons: {
-    icon: "/BirdBot-Icon-mark1.png",
-    apple: "/BirdBot-Icon-mark1.png",
+    icon: "/BirdBot-Icon-mark2.png",
+    apple: "/BirdBot-Icon-mark2.png",
   },
   openGraph: {
     title: "BirdBot.ai — Your Personal AI Agent, Always On",

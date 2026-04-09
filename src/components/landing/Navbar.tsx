@@ -43,7 +43,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center flex-shrink-0">
           <Image
-            src="/birdbot-full-logo-mark2.svg"
+            src="/birdbot-full-logo-mark3.svg"
             alt="BirdBot"
             width={133}
             height={32}

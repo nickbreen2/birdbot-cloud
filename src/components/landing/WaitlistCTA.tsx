@@ -55,7 +55,7 @@ export function WaitlistCTA() {
             }}
           />
           <img
-            src="/BirdBot-Icon-mark1.svg"
+            src="/BirdBot-Icon-mark2.svg"
             alt="BirdBot"
             className="relative w-24 h-24 animate-float select-none"
           />

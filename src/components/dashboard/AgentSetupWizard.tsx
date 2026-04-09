@@ -67,6 +67,7 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
   const existing = agents[0] as Partial<CreateAgentPayload> | undefined
 
   const [step, setStep] = useState<WizardStep>(1)
+  const [hidden, setHidden] = useState(false)
   const [agentName, setAgentName] = useState(existing?.name ?? "")
   const [model, setModel] = useState<ModelId>(existing?.model ?? "kimi-k2.5")
   const [traits, setTraits] = useState<Traits>(existing?.traits ?? emptyTraits)
@@ -108,13 +109,19 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
     }
   }
 
+  if (hidden) return null
+
+  // When the wizard reaches the success step, always allow closing to go to the dashboard.
+  // In the edit flow onClose is provided by the caller; for first-time deploys we use setHidden.
+  const handleClose = onClose ?? (() => setHidden(true))
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center sm:p-4"
       style={{ background: "rgba(9,13,26,0.88)", backdropFilter: "blur(4px)" }}
     >
       <div
-        className="w-full max-w-2xl rounded-2xl bg-panel border border-border overflow-hidden"
+        className="w-full sm:max-w-2xl sm:rounded-2xl bg-panel sm:border border-border overflow-hidden flex flex-col"
         style={{ boxShadow: "0 0 80px rgba(37,99,235,0.12), 0 40px 80px rgba(0,0,0,0.7)" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -129,11 +136,11 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
               : `Create Your BirdBot — Step ${step} of 4`}
           </h2>
           <p className="text-xs text-text-muted font-sans">Set up your personal AI agent</p>
-          {onClose && (
+          {(onClose || step === "success") && (
             <button
-              onClick={onClose}
-              className="absolute right-7 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base transition-colors text-lg leading-none"
-              aria-label="Close"
+              onClick={handleClose}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5"
+              aria-label="Go to dashboard"
             >
               ×
             </button>
@@ -190,7 +197,7 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
             onDeploy={handleDeploy}
           />
         )}
-        {step === "success" && <StepSuccess agentName={agentName} onEdit={() => setStep(1)} />}
+        {step === "success" && <StepSuccess agentName={agentName} onEdit={() => setStep(1)} onClose={handleClose} />}
       </div>
     </div>
   )
@@ -212,7 +219,7 @@ function StepBar({ current }: { current: number }) {
         {steps.map((s, i) => (
           <div key={s.n} className="flex items-start">
             {/* Step node */}
-            <div className="flex flex-col items-center gap-2" style={{ width: 96 }}>
+            <div className="flex flex-col items-center gap-2 w-14 sm:w-24">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-200 ${
                   s.n < current
@@ -242,8 +249,8 @@ function StepBar({ current }: { current: number }) {
             {/* Connector line — fixed width, vertically centred with the circle (half of 32px = 16px top) */}
             {i < steps.length - 1 && (
               <div
-                className={`h-px flex-shrink-0 transition-colors duration-300 ${s.n < current ? "bg-blue" : "bg-border"}`}
-                style={{ width: 80, marginTop: 15 }}
+                className={`h-px flex-shrink-0 transition-colors duration-300 w-6 sm:w-20 ${s.n < current ? "bg-blue" : "bg-border"}`}
+                style={{ marginTop: 15 }}
               />
             )}
           </div>
@@ -268,7 +275,7 @@ function Step1({
 
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-5 max-h-[60vh] overflow-y-auto">
+      <div className="px-7 py-6 flex flex-col gap-5 flex-1 overflow-y-auto sm:max-h-[60vh] sm:flex-none">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Name Your BirdBot</h3>
           <p className="text-text-dim text-sm font-sans">Give your agent a name and choose its AI brain.</p>
@@ -334,7 +341,7 @@ function Step2({
 
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+      <div className="px-7 py-6 flex flex-col gap-4 flex-1 overflow-y-auto sm:max-h-[60vh] sm:flex-none">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Personality</h3>
           <p className="text-text-dim text-sm font-sans">Each trait is 0–100. Distribute your 400 points across all 8 traits.</p>
@@ -409,7 +416,7 @@ function Step3({
 }) {
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-4">
+      <div className="px-7 py-6 flex flex-col gap-4 flex-1 overflow-y-auto">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Focus Areas</h3>
           <p className="text-text-dim text-sm font-sans">What should your agent prioritize? Pick at least one. <span className="text-text-muted">Integrations come later.</span></p>
@@ -438,7 +445,7 @@ function Step3({
 function Step4({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-4">
+      <div className="px-7 py-6 flex flex-col gap-4 flex-1 overflow-y-auto">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Channels</h3>
           <p className="text-text-dim text-sm font-sans">Where should your agent live? More channels coming soon.</p>
@@ -509,7 +516,7 @@ function StepSummary({
 
   return (
     <>
-      <div className="px-7 py-6 flex flex-col gap-4">
+      <div className="px-7 py-6 flex flex-col gap-4 flex-1 overflow-y-auto">
         <div>
           <h3 className="font-heading font-semibold text-text-base mb-1">Review & Deploy</h3>
           <p className="text-text-dim text-sm font-sans">Here&apos;s a summary of your BirdBot before we launch it.</p>
@@ -572,7 +579,7 @@ function SummaryCard({ title, children }: { title: string; children: import("rea
 
 // ── Success ───────────────────────────────────────────────────────────────────
 
-function StepSuccess({ agentName, onEdit }: { agentName: string; onEdit: () => void }) {
+function StepSuccess({ agentName, onEdit, onClose }: { agentName: string; onEdit: () => void; onClose: () => void }) {
   return (
     <div className="flex flex-col items-center gap-5 py-12 px-7 text-center">
       <span className="text-5xl animate-float select-none">🥚</span>
@@ -590,19 +597,19 @@ function StepSuccess({ agentName, onEdit }: { agentName: string; onEdit: () => v
           We&apos;ll provision your agent and notify you at your registered email when it&apos;s ready to chat. You&apos;ll be able to access it from your dashboard once it&apos;s live.
         </p>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap justify-center">
         <button
           onClick={onEdit}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
         >
           Edit BirdBot
         </button>
-        <a
-          href="/"
-          className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base transition-colors"
+        <button
+          onClick={onClose}
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans bg-blue text-white hover:bg-blue-light transition-colors"
         >
-          Return to Home
-        </a>
+          Go to Dashboard
+        </button>
       </div>
     </div>
   )

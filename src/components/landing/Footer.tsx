@@ -45,7 +45,7 @@ export function Footer() {
             }}
           >
             <Image
-              src="/birdbot-full-logo-mark2.svg"
+              src="/birdbot-full-logo-mark3.svg"
               alt="BirdBot"
               width={124}
               height={29}

@@ -53,20 +53,22 @@ export function MobileHeader() {
         <button
           onClick={() => setSettingsOpen(true)}
           aria-label="Open BirdBot settings"
-          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl bg-panel border border-border hover:border-blue/40 transition-colors"
+          className="flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-panel/60 transition-colors"
         >
-          <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-panel flex items-center justify-center flex-shrink-0">
             {activeAgent.status === "incubating" ? (
-              <span className="text-sm leading-none">🥚</span>
+              <span className="text-base leading-none">🥚</span>
             ) : (
               <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-4 h-4" />
             )}
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-[11px] font-semibold text-text-base font-sans uppercase tracking-wide truncate max-w-[120px]">
-              {activeAgent.name}
-            </span>
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="flex items-center">
+              <span className="text-[11px] font-semibold text-text-base font-sans uppercase tracking-wide truncate max-w-[120px] leading-tight">
+                {activeAgent.name}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 mt-[3px]">
               <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
                 <span
                   className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -83,15 +85,17 @@ export function MobileHeader() {
                   }`}
                 />
               </span>
-              <p className="text-[10px] text-text-muted font-sans capitalize">
+              <p className="text-[10px] text-text-muted font-sans capitalize leading-tight">
                 {activeAgent.status}
               </p>
             </div>
           </div>
         </button>
       ) : (
-        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-panel border border-border">
-          <span className="w-2 h-2 rounded-full bg-border flex-shrink-0" />
+        <div className="flex items-center gap-2.5 px-1 py-1">
+          <div className="w-8 h-8 rounded-xl bg-panel border border-border flex items-center justify-center flex-shrink-0">
+            <span className="w-2 h-2 rounded-full bg-border" />
+          </div>
           <span className="text-[11px] font-semibold text-text-dim font-sans uppercase tracking-wide">
             {agentsLoaded ? "No Bird" : "Loading…"}
           </span>

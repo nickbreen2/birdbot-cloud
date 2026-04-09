@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-import { getStripe } from "@/lib/stripe"
+import { getStripe, PLANS } from "@/lib/stripe"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+
+const ALLOWED_PRICE_IDS = new Set(
+  Object.values(PLANS)
+    .map((p) => p.priceId)
+    .filter(Boolean)
+)
 
 export async function POST(request: Request) {
   const { userId } = await auth()
@@ -15,6 +21,10 @@ export async function POST(request: Request) {
 
   if (!priceId) {
     return NextResponse.json({ error: "Missing priceId" }, { status: 400 })
+  }
+
+  if (!ALLOWED_PRICE_IDS.has(priceId)) {
+    return NextResponse.json({ error: "Invalid priceId" }, { status: 400 })
   }
 
   try {

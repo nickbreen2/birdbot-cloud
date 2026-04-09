@@ -125,7 +125,7 @@ export function WhyBirdBot() {
           {/* ── RIGHT: With BirdBot ── */}
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 mb-5">
-              <img src="/BirdBot-Icon-mark1.svg" alt="BirdBot" className="h-8 w-auto" />
+              <img src="/BirdBot-Icon-mark2.svg" alt="BirdBot" className="h-8 w-auto" />
               <p
                 className="font-heading font-bold text-xs tracking-[0.25em] uppercase"
                 style={{ color: "#3b82f6" }}

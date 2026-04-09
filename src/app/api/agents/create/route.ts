@@ -2,7 +2,12 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import type { CreateAgentPayload } from "@/types/wizard"
+import { MODELS, FOCUS_AREAS, CHANNELS } from "@/types/wizard"
 import { prisma } from "@/lib/prisma"
+
+const ALLOWED_MODELS = new Set<string>(MODELS.map((m) => m.id))
+const ALLOWED_FOCUS_AREAS = new Set<string>(FOCUS_AREAS.map((f) => f.id))
+const ALLOWED_CHANNELS = new Set<string>(CHANNELS.map((c) => c.id))
 
 export async function POST(request: Request) {
   try {
@@ -19,11 +24,26 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+    if (payload.name.trim().length > 50) {
+      return NextResponse.json(
+        { error: "Agent name must be 50 characters or fewer" },
+        { status: 400 }
+      )
+    }
+    if (payload.model && !ALLOWED_MODELS.has(payload.model)) {
+      return NextResponse.json({ error: "Invalid model" }, { status: 400 })
+    }
     if (!payload.focusAreas || payload.focusAreas.length === 0) {
       return NextResponse.json(
         { error: "At least one focus area is required" },
         { status: 400 }
       )
+    }
+    if (payload.focusAreas.some((f) => !ALLOWED_FOCUS_AREAS.has(f))) {
+      return NextResponse.json({ error: "Invalid focus area" }, { status: 400 })
+    }
+    if (payload.channels && payload.channels.some((c) => !ALLOWED_CHANNELS.has(c))) {
+      return NextResponse.json({ error: "Invalid channel" }, { status: 400 })
     }
 
     const agentData: CreateAgentPayload = {

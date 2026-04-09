@@ -60,7 +60,7 @@ export default function NotFound() {
           {/* Icon */}
           <div style={{ animation: "float 4.5s 0.2s ease-in-out infinite", position: "relative" }}>
             <Image
-              src="/BirdBot-Icon-mark1.svg"
+              src="/BirdBot-Icon-mark2.svg"
               alt="BirdBot"
               width={160}
               height={149}

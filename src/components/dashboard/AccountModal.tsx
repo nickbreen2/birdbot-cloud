@@ -353,11 +353,11 @@ function ProfileSection({
         <div className="h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
 
         {/* Full name row */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
           <div className="flex flex-col gap-1.5 flex-1 min-w-0">
             <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Full name</p>
             {editingName ? (
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   value={firstName}
                   onChange={e => setFirstName(e.target.value)}
@@ -380,7 +380,7 @@ function ProfileSection({
               </p>
             )}
           </div>
-          <div className="flex gap-1.5 flex-shrink-0 pt-5">
+          <div className="flex gap-1.5 flex-shrink-0 sm:pt-5">
             {editingName ? (
               <>
                 <button

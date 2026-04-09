@@ -108,11 +108,11 @@ export function BottomTabBar() {
             <Link
               key={href}
               href={href}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-sans transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 text-[11px] font-sans transition-colors ${
                 active ? "text-blue-bright" : "text-text-muted hover:text-text-dim"
               }`}
             >
-              <Icon size={20} className={active ? "text-blue-bright" : "text-text-muted"} />
+              <Icon size={22} className={active ? "text-blue-bright" : "text-text-muted"} />
               {label}
             </Link>
           )
@@ -120,12 +120,12 @@ export function BottomTabBar() {
         <button
           type="button"
           onClick={() => setSheetOpen((v) => !v)}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-sans transition-colors ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 text-[11px] font-sans transition-colors ${
             moreActive ? "text-blue-bright" : "text-text-muted hover:text-text-dim"
           }`}
           aria-label="More navigation options"
         >
-          <MoreHorizontal size={20} className={moreActive ? "text-blue-bright" : "text-text-muted"} />
+          <MoreHorizontal size={22} className={moreActive ? "text-blue-bright" : "text-text-muted"} />
           More
         </button>
       </nav>

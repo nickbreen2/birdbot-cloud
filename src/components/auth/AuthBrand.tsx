@@ -5,7 +5,7 @@ export function AuthBrand() {
   return (
     <Link href="/">
       <Image
-        src="/birdbot-full-logo-mark2.svg"
+        src="/birdbot-full-logo-mark3.svg"
         alt="BirdBot"
         width={220}
         height={66}
