@@ -33,14 +33,17 @@ export function SignInForm({ onSwitchMode }: SignInFormProps) {
     const code = formData.get('code') as string
     const { error } = await signIn.emailCode.verifyCode({ code })
     if (error) return
-    if (signIn.status === 'complete') {
-      await signIn.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl('/dashboard')
-          if (url.startsWith('http')) window.location.href = url
-          else router.push(url)
-        },
-      })
+    let navigated = false
+    const { error: finalizeError } = await signIn.finalize({
+      navigate: ({ decorateUrl }) => {
+        navigated = true
+        const url = decorateUrl('/dashboard')
+        if (url.startsWith('http')) window.location.href = url
+        else router.push(url)
+      },
+    })
+    if (!finalizeError && !navigated) {
+      window.location.href = '/dashboard'
     }
   }
 

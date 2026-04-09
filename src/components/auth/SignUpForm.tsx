@@ -38,14 +38,17 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
     const code = formData.get('code') as string
     const { error } = await signUp.verifications.verifyEmailCode({ code })
     if (error) return
-    if (signUp.status === 'complete') {
-      await signUp.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl('/dashboard')
-          if (url.startsWith('http')) window.location.href = url
-          else router.push(url)
-        },
-      })
+    let navigated = false
+    const { error: finalizeError } = await signUp.finalize({
+      navigate: ({ decorateUrl }) => {
+        navigated = true
+        const url = decorateUrl('/dashboard')
+        if (url.startsWith('http')) window.location.href = url
+        else router.push(url)
+      },
+    })
+    if (!finalizeError && !navigated) {
+      window.location.href = '/dashboard'
     }
   }
 
