@@ -55,6 +55,7 @@ export function BottomTabBar() {
               More
             </span>
             <button
+              type="button"
               onClick={() => setSheetOpen(false)}
               className="text-text-muted hover:text-text-base transition-colors"
               aria-label="Close menu"
@@ -97,7 +98,7 @@ export function BottomTabBar() {
 
       {/* Fixed bottom tab bar */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-stretch"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-border flex items-stretch"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="Mobile navigation"
       >
@@ -117,6 +118,7 @@ export function BottomTabBar() {
           )
         })}
         <button
+          type="button"
           onClick={() => setSheetOpen((v) => !v)}
           className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-sans transition-colors ${
             moreActive ? "text-blue-bright" : "text-text-muted hover:text-text-dim"
