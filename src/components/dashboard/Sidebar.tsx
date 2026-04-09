@@ -33,7 +33,7 @@ export function Sidebar() {
   const activeAgent = agents[0] ?? null
 
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 flex flex-col bg-surface border-r border-border z-40">
+    <aside className="fixed top-0 left-0 h-full w-64 hidden lg:flex flex-col bg-surface border-r border-border z-40">
       {/* Instance status (top slot, replaces logo) */}
       {agentsLoaded && activeAgent ? (
         <button
@@ -46,7 +46,7 @@ export function Sidebar() {
               {activeAgent.status === "incubating" ? (
                 <span className="text-base leading-none">🥚</span>
               ) : (
-                <img src="/BirdBot-Icon-mark1.svg" alt="" className="w-5 h-5" />
+                <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-5 h-5" />
               )}
             </div>
             <div className="flex flex-col min-w-0">
