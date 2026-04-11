@@ -189,6 +189,11 @@ html, body {
   }
 }
 
+/* Prevent iOS Safari from auto-zooming inputs (triggered when font-size < 16px) */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
 /* scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #0a0e1a; }
