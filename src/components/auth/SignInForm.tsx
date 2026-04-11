@@ -2,7 +2,6 @@
 'use client'
 import { useState } from 'react'
 import { useSignIn } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 interface SignInFormProps {
@@ -11,7 +10,6 @@ interface SignInFormProps {
 
 export function SignInForm({ onSwitchMode }: SignInFormProps) {
   const { signIn, errors, fetchStatus } = useSignIn()
-  const router = useRouter()
   const [step, setStep] = useState<'email' | 'verify'>('email')
 
   async function handleGoogle() {
@@ -33,18 +31,13 @@ export function SignInForm({ onSwitchMode }: SignInFormProps) {
     const code = formData.get('code') as string
     const { error } = await signIn.emailCode.verifyCode({ code })
     if (error) return
-    let navigated = false
-    const { error: finalizeError } = await signIn.finalize({
-      navigate: ({ decorateUrl }) => {
-        navigated = true
-        const url = decorateUrl('/dashboard')
-        if (url.startsWith('http')) window.location.href = url
-        else router.push(url)
-      },
-    })
-    if (!finalizeError && !navigated) {
-      window.location.href = '/dashboard'
-    }
+    // Finalize session, then hard-navigate. iOS Safari blocks router.push() in
+    // deep async chains, so we always use window.location.href as the redirect.
+    await signIn.finalize({ navigate: ({ decorateUrl }) => {
+      const url = decorateUrl('/dashboard')
+      window.location.href = url.startsWith('http') ? url : '/dashboard'
+    }}).catch(() => {})
+    window.location.href = '/dashboard'
   }
 
   return (
