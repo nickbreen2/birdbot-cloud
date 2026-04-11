@@ -1,8 +1,8 @@
 // src/components/auth/SignUpForm.tsx
 'use client'
-import { useSignIn, useSignUp } from '@clerk/nextjs'
+import { useSignIn, useSignUp, useAuth } from '@clerk/nextjs'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface SignUpFormProps {
   onSwitchMode?: () => void
@@ -11,7 +11,17 @@ interface SignUpFormProps {
 export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
   const { signIn } = useSignIn()
   const { signUp, errors, fetchStatus } = useSignUp()
+  const { isSignedIn, isLoaded } = useAuth()
   const [step, setStep] = useState<'email' | 'verify'>('email')
+
+  // Redirect reactively — Clerk only sets isSignedIn=true after the session
+  // cookie is fully written, so this avoids the race condition where imperative
+  // navigation fires before the cookie exists (the iOS-visible symptom).
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      window.location.href = '/dashboard'
+    }
+  }, [isLoaded, isSignedIn])
 
   async function handleGoogle() {
     if (!signIn) return
@@ -36,13 +46,9 @@ export function SignUpForm({ onSwitchMode }: SignUpFormProps) {
     const code = formData.get('code') as string
     const { error } = await signUp.verifications.verifyEmailCode({ code })
     if (error) return
-    // Finalize session, then hard-navigate. iOS Safari blocks router.push() in
-    // deep async chains, so we always use window.location.href as the redirect.
-    await signUp.finalize({ navigate: ({ decorateUrl }) => {
-      const url = decorateUrl('/dashboard')
-      window.location.href = url.startsWith('http') ? url : '/dashboard'
-    }}).catch(() => {})
-    window.location.href = '/dashboard'
+    // Establish the session — the useEffect above will handle navigation once
+    // isSignedIn flips to true (i.e. after the cookie is actually written).
+    await signUp.finalize({ navigate: () => {} }).catch(() => {})
   }
 
   return (
