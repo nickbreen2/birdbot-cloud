@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
 import type Stripe from "stripe"
 import { getStripe } from "@/lib/stripe"
+import { tasks } from "@trigger.dev/sdk"
+import type {
+  handleStripeCheckoutCompleted,
+  handleStripeSubscriptionUpdated,
+  handleStripeSubscriptionDeleted,
+} from "@/trigger/stripe"
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -31,40 +37,32 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session
-      console.log("✅ Checkout completed:", {
-        sessionId: session.id,
-        customerId: session.customer,
-        subscriptionId: session.subscription,
-        userId: session.metadata?.userId,
-      })
-      // TODO: Store subscription info in database (e.g. Supabase)
-      // await db.subscriptions.upsert({ userId: session.metadata?.userId, ... })
-      break
-    }
-
-    case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription
-      console.log("❌ Subscription cancelled:", {
-        subscriptionId: subscription.id,
-        customerId: subscription.customer,
-      })
-      // TODO: Update user record to mark as unsubscribed
-      // await db.subscriptions.update({ subscriptionId: subscription.id, status: 'cancelled' })
+      await tasks.trigger<typeof handleStripeCheckoutCompleted>(
+        "stripe-checkout-completed",
+        { session }
+      )
       break
     }
 
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription
-      console.log("🔄 Subscription updated:", {
-        subscriptionId: subscription.id,
-        status: subscription.status,
-      })
-      // TODO: Update subscription status in database
+      await tasks.trigger<typeof handleStripeSubscriptionUpdated>(
+        "stripe-subscription-updated",
+        { subscription }
+      )
+      break
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription
+      await tasks.trigger<typeof handleStripeSubscriptionDeleted>(
+        "stripe-subscription-deleted",
+        { subscription }
+      )
       break
     }
 
     default:
-      // Unhandled event type — ignore
       break
   }
 

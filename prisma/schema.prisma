@@ -27,3 +27,18 @@ model Agent {
 
   @@index([clerkUserId])
 }
+
+model Subscription {
+  id                     String   @id @default(cuid())
+  clerkUserId            String   @unique
+  stripeCustomerId       String   @unique
+  stripeSubscriptionId   String   @unique
+  stripePriceId          String
+  status                 String
+  currentPeriodEnd       DateTime
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([clerkUserId])
+  @@index([stripeCustomerId])
+}

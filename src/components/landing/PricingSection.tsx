@@ -1,3 +1,6 @@
+import { PLANS } from "@/lib/stripe"
+import { PricingButton } from "./PricingButton"
+
 const BOLD_FEATURES = [
   "Zero setup, instant access",
   "Personal AI assistant, 24/7",
@@ -8,6 +11,7 @@ const plans = [
   {
     name: "Lite",
     price: 19,
+    priceId: PLANS.lite.priceId,
     desc: "For personal projects and getting started",
     features: [
       "1 BirdBot agent",
@@ -23,6 +27,7 @@ const plans = [
   {
     name: "Pro",
     price: 39,
+    priceId: PLANS.pro.priceId,
     desc: "For power users who rely on AI daily",
     features: [
       "1 BirdBot agent",
@@ -39,6 +44,7 @@ const plans = [
   {
     name: "Max",
     price: 79,
+    priceId: PLANS.max.priceId,
     desc: "For heavy workloads and maximum performance",
     features: [
       "3 BirdBot agents",
@@ -116,16 +122,7 @@ export function PricingSection() {
               </div>
 
               {/* Button */}
-              <button
-                disabled
-                className={`w-full py-3 rounded-xl text-sm font-bold tracking-wide cursor-default mb-2 ${
-                  plan.pro
-                    ? "bg-gradient-to-br from-blue-600 to-blue-500 text-white"
-                    : "bg-blue-500/10 border border-blue-500/30 text-blue-bright"
-                }`}
-              >
-                Coming Soon
-              </button>
+              <PricingButton priceId={plan.priceId} isPro={plan.pro} />
 
               {/* Cancel note */}
               <p className="text-center text-xs text-text-muted font-sans mb-5">
