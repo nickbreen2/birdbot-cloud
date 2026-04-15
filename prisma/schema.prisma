@@ -22,10 +22,31 @@ model Agent {
   focusAreas  String[]
   channels    String[]
   status      String   @default("incubating")
+  serverId    String?
+  containerId String?
+  hostPort    Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  server      Server?  @relation(fields: [serverId], references: [id])
+
   @@index([clerkUserId])
+}
+
+model Server {
+  id              String   @id @default(cuid())
+  hetznerServerId Int      @unique
+  ip              String
+  region          String   @default("us-east")
+  containerCount  Int      @default(0)
+  capacityLimit   Int      @default(6)
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agents          Agent[]
+
+  @@index([status])
 }
 
 model Subscription {

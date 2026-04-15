@@ -65,6 +65,7 @@ export async function POST(request: Request) {
     }
 
     // 1. Save to database — update existing agent or create new one
+    let agentId: string
     if (payload.id) {
       const result = await prisma.agent.updateMany({
         where: { id: payload.id, clerkUserId: userId },
@@ -79,8 +80,9 @@ export async function POST(request: Request) {
       if (result.count === 0) {
         return NextResponse.json({ error: "Agent not found" }, { status: 404 })
       }
+      agentId = payload.id
     } else {
-      await prisma.agent.create({
+      const created = await prisma.agent.create({
         data: {
           clerkUserId: userId,
           name: agentData.name,
@@ -91,6 +93,7 @@ export async function POST(request: Request) {
           status: "incubating",
         },
       })
+      agentId = created.id
     }
 
     // 2. Notify via webhook (fire-and-forget — never blocks the response)
@@ -108,7 +111,7 @@ export async function POST(request: Request) {
       }).catch(() => {})
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, agentId })
   } catch (err) {
     console.error("[/api/agents/create] Error:", err)
     const message = err instanceof Error ? err.message : "Unknown error"

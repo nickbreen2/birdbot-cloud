@@ -95,8 +95,16 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      const data = await res.json() as { ok: boolean; error?: string }
+      const data = await res.json() as { ok: boolean; agentId?: string; error?: string }
       if (data.ok) {
+        // Fire provisioning in the background — returns 202 immediately
+        if (data.agentId) {
+          fetch("/api/provision", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ agentId: data.agentId }),
+          }).catch(() => {})
+        }
         refreshAgents()
         setStep("success")
       } else {

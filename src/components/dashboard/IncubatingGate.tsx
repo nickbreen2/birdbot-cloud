@@ -1,28 +1,51 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { useWizard } from "./WizardContext"
 
+function statusMessage(agentStatus: string | undefined): string {
+  switch (agentStatus) {
+    case "provisioning": return "Your Bird is hatching…"
+    case "error":        return "Something went wrong during provisioning."
+    default:             return "We'll let you know when your BirdBot has hatched."
+  }
+}
+
+function statusSubline(agentStatus: string | undefined): string | null {
+  switch (agentStatus) {
+    case "provisioning": return "Spinning up your server and starting the container. This takes 2–4 minutes."
+    case "error":        return "You can retry from the Edit BirdBot screen, or contact support."
+    default:             return null
+  }
+}
+
 export function IncubatingGate({ children }: { children: React.ReactNode }) {
-  const { agents, onboarded, agentsLoaded, setSettingsOpen } = useWizard()
+  const { agents, onboarded, agentsLoaded, setSettingsOpen, refreshAgents } = useWizard()
   const pathname = usePathname()
   const [dismissed, setDismissed] = useState(false)
 
-  // Don't render anything while agents are loading — the wizard overlay handles the backdrop
+  const agent = agents[0]
+  const agentStatus = agent?.status
+  const isTransitioning = agentStatus === "incubating" || agentStatus === "provisioning"
+
+  // Poll every 5s while provisioning so the gate lifts automatically when active
+  useEffect(() => {
+    if (!isTransitioning) return
+    const id = setInterval(refreshAgents, 5000)
+    return () => clearInterval(id)
+  }, [isTransitioning, refreshAgents])
+
   if (!agentsLoaded) return null
-
-  // Not onboarded: wizard overlay handles them, show children underneath
   if (!onboarded) return <>{children}</>
-
-  // Always allow the account page through
-  if (pathname === '/dashboard/account') return <>{children}</>
-
-  // User dismissed the gate — show dashboard
+  if (pathname === "/dashboard/account") return <>{children}</>
   if (dismissed) return <>{children}</>
 
-  // Onboarded (deployed but bot not provisioned yet): show the incubating holding screen
-  const agentName = agents[0]?.name
+  // Auto-lift: agent is fully provisioned
+  if (agentStatus === "active") return <>{children}</>
+
+  const agentName = agent?.name
+  const isError = agentStatus === "error"
 
   return (
     <div className="fixed inset-0 lg:left-64 flex flex-col items-center justify-center gap-5 text-center px-7 pt-14 pb-16 lg:pt-0 lg:pb-0">
@@ -36,29 +59,51 @@ export function IncubatingGate({ children }: { children: React.ReactNode }) {
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
-      <span className="text-5xl animate-float select-none">🥚</span>
+
+      <span className={`text-5xl select-none ${isTransitioning ? "animate-float" : ""}`}>
+        {isError ? "⚠️" : "🥚"}
+      </span>
+
       <div>
         <h2 className="font-heading font-black text-2xl text-text-base mb-2">
-          Your BirdBot is incubating
+          {isError ? "Provisioning failed" : "Your BirdBot is incubating"}
         </h2>
         <p className="text-text-dim font-sans text-sm max-w-sm">
-          {agentName ? (
+          {agentName && !isError ? (
             <>
-              We'll let you know when{" "}
-              <span className="text-text-base font-semibold">{agentName}</span> has hatched.
+              {statusMessage(agentStatus).replace("your BirdBot", agentName)}
             </>
           ) : (
-            "We'll let you know when your BirdBot has hatched."
+            statusMessage(agentStatus)
           )}
         </p>
+        {statusSubline(agentStatus) && (
+          <p className="text-text-muted font-sans text-xs max-w-xs mx-auto mt-2">
+            {statusSubline(agentStatus)}
+          </p>
+        )}
       </div>
-      <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-center max-w-sm w-full">
-        <p className="text-xs font-bold text-gold mb-1.5">What happens next</p>
-        <p className="text-xs text-text-muted font-sans leading-relaxed">
-          We'll provision your agent and notify you at your registered email when it's ready to
-          chat. You'll be able to access it from your dashboard once it's live.
-        </p>
-      </div>
+
+      {/* Progress indicator while provisioning */}
+      {isTransitioning && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue/10 border border-blue/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-bright animate-pulse" />
+          <span className="text-xs font-semibold font-sans text-blue-bright">
+            {agentStatus === "provisioning" ? "Provisioning" : "Starting up"}
+          </span>
+        </div>
+      )}
+
+      {!isTransitioning && !isError && (
+        <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-center max-w-sm w-full">
+          <p className="text-xs font-bold text-gold mb-1.5">What happens next</p>
+          <p className="text-xs text-text-muted font-sans leading-relaxed">
+            We'll provision your agent and notify you at your registered email when it's ready to
+            chat. You'll be able to access it from your dashboard once it's live.
+          </p>
+        </div>
+      )}
+
       <div className="flex gap-3">
         <button
           onClick={() => setSettingsOpen(true)}
