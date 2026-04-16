@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/prisma"
+import { deprovisionAgent } from "@/lib/deprovisionAgent"
 
 export async function DELETE(
   _req: Request,
@@ -12,13 +13,21 @@ export async function DELETE(
 
     const { id } = await params
 
-    const result = await prisma.agent.deleteMany({
+    // Verify ownership and check provisioning state
+    const agent = await prisma.agent.findFirst({
       where: { id, clerkUserId: userId },
     })
+    if (!agent) return NextResponse.json({ error: "Agent not found" }, { status: 404 })
 
-    if (result.count === 0) {
-      return NextResponse.json({ error: "Agent not found" }, { status: 404 })
+    // If provisioned, deprovision first — removes container, Caddy route, and decrements pool count
+    if (agent.serverId || agent.containerId) {
+      await deprovisionAgent(id, userId)
     }
+
+    // Delete the agent record
+    await prisma.agent.deleteMany({
+      where: { id, clerkUserId: userId },
+    })
 
     return NextResponse.json({ ok: true })
   } catch (err) {

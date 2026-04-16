@@ -154,9 +154,47 @@ async function registerCaddyRoute(
     terminal: true,
   }
   const b64 = Buffer.from(JSON.stringify(route)).toString("base64")
-  const cmd = `echo '${b64}' | base64 -d | curl -sf -X POST http://localhost:2019/config/apps/http/servers/srv0/routes -H 'Content-Type: application/json' --data-binary @-`
   try {
-    await sshExec(gatewayIp, privateKey, cmd)
+    // 1. Capture the catch-all route so we can re-append it after the agent route.
+    //    Caddy's POST appends to the array, so agent routes must go before the catch-all.
+    let catchallJson: string | null = null
+    try {
+      const raw = await sshExec(gatewayIp, privateKey, "curl -s http://localhost:2019/id/route-catchall")
+      const parsed = JSON.parse(raw)
+      if (parsed?.["@id"] === "route-catchall") catchallJson = raw
+    } catch {
+      // No catch-all present — route ordering is not a concern
+    }
+
+    // 2. Remove catch-all temporarily (if present)
+    if (catchallJson) {
+      await sshExec(gatewayIp, privateKey, "curl -sf -X DELETE http://localhost:2019/id/route-catchall")
+    }
+
+    // 2b. Remove existing agent route if present (idempotent re-registration)
+    await sshExec(
+      gatewayIp,
+      privateKey,
+      `curl -s -X DELETE http://localhost:2019/id/route-${agentId} || true`,
+    )
+
+    // 3. Append the agent route
+    await sshExec(
+      gatewayIp,
+      privateKey,
+      `echo '${b64}' | base64 -d | curl -sf -X POST http://localhost:2019/config/apps/http/servers/srv0/routes -H 'Content-Type: application/json' --data-binary @-`,
+    )
+
+    // 4. Re-append catch-all at the end so it stays last
+    if (catchallJson) {
+      const catchallB64 = Buffer.from(catchallJson).toString("base64")
+      await sshExec(
+        gatewayIp,
+        privateKey,
+        `echo '${catchallB64}' | base64 -d | curl -sf -X POST http://localhost:2019/config/apps/http/servers/srv0/routes -H 'Content-Type: application/json' --data-binary @-`,
+      )
+    }
+
     console.log(`Caddy route registered: ${agentId}.${AGENTS_DOMAIN} → ${serverIp}:${hostPort}`)
   } catch (e) {
     // Log but don't fail provisioning — route can be re-registered once gateway is stable
@@ -185,6 +223,12 @@ export const provisionAgent = task({
       where: { id: agentId, clerkUserId },
     })
     if (!agent) throw new Error(`Agent ${agentId} not found`)
+
+    // Guard: already active — don't re-provision
+    if (agent.status === "active") {
+      console.log(`Agent ${agentId} is already active — skipping provisioning`)
+      return { success: true, agentId, skipped: true }
+    }
 
     // Rollback tracking
     let isNewServer = false
@@ -331,7 +375,7 @@ export const provisionAgent = task({
       // 10. Mark agent active
       await prisma.agent.update({
         where: { id: agentId },
-        data: { status: "active" },
+        data: { status: "active", errorReason: null },
       })
 
       // 11. Register route with Caddy gateway (no-op if GATEWAY_IP not set yet)
@@ -377,7 +421,7 @@ export const provisionAgent = task({
       // Set agent to error state regardless of rollback outcome
       await prisma.agent.update({
         where: { id: agentId },
-        data: { status: "error", serverId: null, containerId: null, hostPort: null },
+        data: { status: "error", errorReason: reason, serverId: null, containerId: null, hostPort: null },
       })
 
       throw err

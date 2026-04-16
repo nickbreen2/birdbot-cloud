@@ -22,6 +22,7 @@ model Agent {
   focusAreas  String[]
   channels    String[]
   status      String   @default("incubating")
+  errorReason String?
   serverId    String?
   containerId String?
   hostPort    Int?
