@@ -1,5 +1,5 @@
 #!/bin/bash
-# BirdBot Agent Health Checker — S2-17
+# BirdBot Agent Health Checker — S2-18
 #
 # Queries the local Caddy admin API for all registered agent routes,
 # checks each agent container's /health endpoint via its pool-server port,
@@ -14,6 +14,8 @@ STATE_DIR="/var/lib/birdbot"
 STATE_FILE="${STATE_DIR}/health-state.json"
 CADDY_ADMIN="http://localhost:2019"
 LOG_TAG="birdbot-health"
+SSH_KEY="/root/.ssh/birdbot_provisioner"
+RESTART_THRESHOLD=5  # restart after this many consecutive failures, and every Nth after
 
 log()     { logger -t "$LOG_TAG" -p user.info "$*"; }
 log_err() { logger -t "$LOG_TAG" -p user.err  "$*"; }
@@ -79,6 +81,23 @@ while IFS= read -r route; do
     jq --arg id "$AGENT_ID" --argjson n "$NEW_FAILURES" \
       '.[$id] = $n' "$STATE_FILE" > "${STATE_FILE}.tmp"
     mv "${STATE_FILE}.tmp" "$STATE_FILE"
+
+    # ── Auto-restart on every Nth consecutive failure ──────────────────────────
+    if (( NEW_FAILURES % RESTART_THRESHOLD == 0 )); then
+      log "Agent ${AGENT_ID}: ${NEW_FAILURES} consecutive failures — attempting container restart on ${SERVER_IP}"
+      if ssh -i "$SSH_KEY" \
+           -o StrictHostKeyChecking=accept-new \
+           -o ConnectTimeout=10 \
+           -o BatchMode=yes \
+           "root@${SERVER_IP}" \
+           "docker restart birdbot-${AGENT_ID}" 2>/dev/null; then
+        log "Agent ${AGENT_ID}: container restarted successfully — resetting failure counter"
+        jq --arg id "$AGENT_ID" 'del(.[$id])' "$STATE_FILE" > "${STATE_FILE}.tmp"
+        mv "${STATE_FILE}.tmp" "$STATE_FILE"
+      else
+        log_err "Agent ${AGENT_ID}: container restart FAILED — will retry in $((RESTART_THRESHOLD * 60))s"
+      fi
+    fi
   fi
 
 done < <(echo "$AGENT_ROUTES" | jq -c '.[]')
