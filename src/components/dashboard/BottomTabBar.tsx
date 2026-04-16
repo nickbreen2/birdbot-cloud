@@ -3,25 +3,24 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  MessageSquare, Plug, BarChart2, CreditCard,
-  MoreHorizontal, Cpu, Wrench, LifeBuoy, Coins, Gift, X,
+  MessageSquare, Layers, Brain, Bell,
+  Plug, CreditCard, Wrench, LifeBuoy,
+  MoreHorizontal, X,
 } from "lucide-react"
 import { useState } from "react"
-import { Badge } from "@/components/ui/Badge"
 
 const primaryTabs = [
-  { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
-  { label: "Integrations", href: "/dashboard/integrations", icon: Plug },
-  { label: "Usage",        href: "/dashboard/usage",        icon: BarChart2 },
-  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard },
+  { label: "Chat",      href: "/dashboard/chat",      icon: MessageSquare },
+  { label: "Projects",  href: "/dashboard/projects",  icon: Layers },
+  { label: "Memory",    href: "/dashboard/memory",    icon: Brain },
+  { label: "Briefings", href: "/dashboard/briefings", icon: Bell },
 ]
 
 const moreItems = [
-  { label: "AI Models",         href: "/dashboard/models",  icon: Cpu,      iconColor: "" },
-  { label: "Skills",            href: "/dashboard/skills",  icon: Wrench,   iconColor: "" },
-  { label: "Support",           href: "/dashboard/support", icon: LifeBuoy, iconColor: "" },
-  { label: "Set Up AI Credits", href: "/dashboard/models",  icon: Coins,    iconColor: "text-gold" },
-  { label: "Refer & Earn",      href: "#",                  icon: Gift,     iconColor: "text-blue-bright", badge: "NEW" },
+  { label: "Integrations", href: "/dashboard/integrations", icon: Plug,        iconColor: "" },
+  { label: "Skills",       href: "/dashboard/skills",       icon: Wrench,      iconColor: "" },
+  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard,  iconColor: "" },
+  { label: "Support",      href: "/dashboard/support",      icon: LifeBuoy,    iconColor: "" },
 ] as const
 
 export function BottomTabBar() {
@@ -29,9 +28,7 @@ export function BottomTabBar() {
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const moreActive = moreItems.some(
-    ({ href, label }) =>
-      label !== "Refer & Earn" &&
-      (pathname === href || pathname.startsWith(href + "/")),
+    ({ href }) => pathname === href || pathname.startsWith(href + "/"),
   )
 
   return (
@@ -66,7 +63,6 @@ export function BottomTabBar() {
           <div className="flex flex-col gap-0.5 pb-2">
             {moreItems.map((item) => {
               const { label, href, icon: Icon, iconColor } = item
-              const badge = "badge" in item ? item.badge : undefined
               const active = pathname === href || pathname.startsWith(href + "/")
               return (
                 <Link
@@ -84,11 +80,6 @@ export function BottomTabBar() {
                     className={active ? "text-blue-bright" : (iconColor || "text-text-muted")}
                   />
                   <span className="flex-1">{label}</span>
-                  {badge && (
-                    <Badge variant="blue" className="text-[10px] px-1.5 py-0">
-                      {badge}
-                    </Badge>
-                  )}
                 </Link>
               )
             })}

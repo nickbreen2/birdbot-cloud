@@ -5,25 +5,24 @@ import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
 import {
   MessageSquare,
+  Layers,
+  Brain,
+  Bell,
   Plug,
-  BarChart2,
-  Cpu,
   CreditCard,
   Wrench,
   LifeBuoy,
-  Coins,
-  Gift,
 } from "lucide-react"
-import { Badge } from "@/components/ui/Badge"
 import { useWizard } from "@/components/dashboard/WizardContext"
 
 const navItems = [
   { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
+  { label: "Projects",     href: "/dashboard/projects",     icon: Layers },
+  { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
+  { label: "Briefings",    href: "/dashboard/briefings",    icon: Bell },
   { label: "Integrations", href: "/dashboard/integrations", icon: Plug },
-  { label: "Usage",        href: "/dashboard/usage",        icon: BarChart2 },
-  { label: "AI Models",    href: "/dashboard/models",       icon: Cpu },
-  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard },
   { label: "Skills",       href: "/dashboard/skills",       icon: Wrench },
+  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard },
   { label: "Support",      href: "/dashboard/support",      icon: LifeBuoy },
 ]
 
@@ -119,26 +118,6 @@ export function Sidebar() {
 
       {/* Bottom section */}
       <div className="px-3 pb-3 flex flex-col gap-1 border-t border-border pt-3">
-        {/* Set up AI credits */}
-        <Link
-          href="/dashboard/models"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-all"
-        >
-          <Coins size={16} className="text-gold" />
-          <span>Set Up AI Credits</span>
-        </Link>
-
-        {/* Refer & Earn */}
-        <Link
-          href="#"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-all"
-        >
-          <Gift size={16} className="text-blue-bright" />
-          <span className="flex-1">Refer &amp; Earn</span>
-          <Badge variant="blue" className="text-[10px] px-1.5 py-0">NEW</Badge>
-        </Link>
-
-        {/* User menu */}
         <UserMenu />
       </div>
     </aside>
