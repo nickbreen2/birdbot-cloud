@@ -307,13 +307,16 @@ export const provisionAgent = task({
       const agentNameSafe = agent.name.replace(/"/g, '\\"').replace(/`/g, "\\`").replace(/\$/g, "\\$")
       // Pick a free host port so the gateway can reach this container
       const hostPort = await pickFreePort(targetServerDbId!)
+      // Ensure the host data directory exists before mounting (Docker auto-creates it as root)
+      await sshExec(targetServerIp!, privateKey, `mkdir -p /var/birdbot/${agentId}`)
       const dockerRunCmd = [
         "docker run -d",
         `--name ${containerName}`,
-        "--memory=512m",
+        "--memory=1g",
         "--cpus=0.4",
         "--restart=unless-stopped",
         `-p ${hostPort}:18789`,
+        `-v /var/birdbot/${agentId}:/data/.birdbot`,
         `--env AGENT_NAME="${agentNameSafe}"`,
         `--env AGENT_MODEL="${agent.model}"`,
         DOCKER_IMAGE,
