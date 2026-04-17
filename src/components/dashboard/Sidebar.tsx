@@ -3,27 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
-import {
-  MessageSquare,
-  Layers,
-  Brain,
-  Bell,
-  Plug,
-  CreditCard,
-  Wrench,
-  LifeBuoy,
-} from "lucide-react"
+import { MessageSquare, Layers, Plug, Settings } from "lucide-react"
 import { useWizard } from "@/components/dashboard/WizardContext"
 
 const navItems = [
-  { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
-  { label: "Projects",     href: "/dashboard/projects",     icon: Layers },
-  { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
-  { label: "Briefings",    href: "/dashboard/briefings",    icon: Bell },
-  { label: "Integrations", href: "/dashboard/integrations", icon: Plug },
-  { label: "Skills",       href: "/dashboard/skills",       icon: Wrench },
-  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard },
-  { label: "Support",      href: "/dashboard/support",      icon: LifeBuoy },
+  { label: "Projects", href: "/dashboard/projects", icon: Layers },
+  { label: "Connect",  href: "/dashboard/connect",  icon: Plug },
+  { label: "Chat",     href: "/dashboard/chat",     icon: MessageSquare },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 export function Sidebar() {

@@ -139,12 +139,14 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
           <h2 className="font-heading font-bold text-base text-text-base">
             {step === "success"
               ? "Your BirdBot is Incubating"
+              : step === "connect"
+              ? "Connect your coding tool"
               : step === "summary"
               ? "Review & Deploy"
               : `Create Your BirdBot — Step ${step} of 4`}
           </h2>
           <p className="text-xs text-text-muted font-sans">Set up your personal AI agent</p>
-          {(onClose || step === "success") && (
+          {(onClose || step === "success" || step === "connect") && (
             <button
               onClick={handleClose}
               className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5"
@@ -155,8 +157,8 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
           )}
         </div>
 
-        {/* Step progress bar — hidden on success */}
-        {step !== "success" && (
+        {/* Step progress bar — hidden on success and connect */}
+        {step !== "success" && step !== "connect" && (
           <StepBar current={typeof step === "number" ? step : 5} />
         )}
 
@@ -205,7 +207,8 @@ function WizardOverlay({ onClose }: { onClose?: () => void } = {}) {
             onDeploy={handleDeploy}
           />
         )}
-        {step === "success" && <StepSuccess agentName={agentName} onEdit={() => setStep(1)} onClose={handleClose} />}
+        {step === "success" && <StepSuccess agentName={agentName} onEdit={() => setStep(1)} onConnect={() => setStep("connect")} />}
+        {step === "connect" && <StepConnect onDone={handleClose} />}
       </div>
     </div>
   )
@@ -585,9 +588,109 @@ function SummaryCard({ title, children }: { title: string; children: import("rea
   )
 }
 
+// ── Connect your tool ─────────────────────────────────────────────────────────
+
+const MCP_SNIPPET = `{
+  "mcpServers": {
+    "birdbot": {
+      "command": "npx",
+      "args": ["-y", "birdbot-mcp"],
+      "env": {
+        "ANTHROPIC_API_KEY": "YOUR_KEY_HERE"
+      }
+    }
+  }
+}`
+
+const TOOL_TABS = [
+  { id: "claude", label: "Claude Code", file: "~/.claude/settings.json" },
+  { id: "cursor", label: "Cursor", file: "~/.cursor/mcp.json" },
+  { id: "windsurf", label: "Windsurf", file: "~/.codeium/windsurf/mcp_config.json" },
+] as const
+
+function StepConnect({ onDone }: { onDone: () => void }) {
+  const [activeTab, setActiveTab] = useState<string>("claude")
+  const [copied, setCopied] = useState(false)
+  const tool = TOOL_TABS.find((t) => t.id === activeTab)!
+
+  function handleCopy() {
+    navigator.clipboard.writeText(MCP_SNIPPET).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <>
+      <div className="px-7 py-6 flex flex-col gap-5 flex-1 overflow-y-auto sm:max-h-[60vh] sm:flex-none">
+        <div>
+          <p className="text-text-dim text-sm font-sans">
+            Add BirdBot to your coding tool to get persistent memory across sessions. Paste the snippet into your MCP config file.
+          </p>
+        </div>
+
+        {/* Tool tabs */}
+        <div className="flex gap-1 bg-depth border border-border rounded-xl p-1">
+          {TOOL_TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex-1 py-2 rounded-lg text-xs font-semibold font-sans transition-colors ${
+                activeTab === t.id
+                  ? "bg-blue text-white"
+                  : "text-text-muted hover:text-text-base"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* File path hint */}
+        <p className="text-[11px] text-text-muted font-mono -mt-2">
+          Config file: <span className="text-text-dim">{tool.file}</span>
+        </p>
+
+        {/* Snippet */}
+        <div className="relative rounded-xl bg-depth border border-border overflow-hidden">
+          <pre className="text-xs font-mono text-text-dim p-4 overflow-x-auto leading-relaxed whitespace-pre">
+            {MCP_SNIPPET}
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="absolute top-2.5 right-2.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-sans border border-border bg-panel text-text-dim hover:text-text-base hover:border-border/60 transition-colors"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
+
+        <p className="text-[11px] text-text-muted font-sans">
+          Replace <span className="font-mono text-gold">YOUR_KEY_HERE</span> with your Anthropic API key from{" "}
+          <span className="font-mono text-text-dim">console.anthropic.com</span>. Restart your tool after saving.
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between px-7 py-4 border-t border-border bg-depth/60">
+        <button
+          onClick={onDone}
+          className="text-sm font-sans text-text-muted hover:text-text-dim transition-colors"
+        >
+          Skip — I&apos;ll do this later
+        </button>
+        <button
+          onClick={onDone}
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans bg-blue text-white hover:bg-blue-light transition-colors"
+        >
+          Done →
+        </button>
+      </div>
+    </>
+  )
+}
+
 // ── Success ───────────────────────────────────────────────────────────────────
 
-function StepSuccess({ agentName, onEdit, onClose }: { agentName: string; onEdit: () => void; onClose: () => void }) {
+function StepSuccess({ agentName, onEdit, onConnect }: { agentName: string; onEdit: () => void; onConnect: () => void }) {
   return (
     <div className="flex flex-col items-center gap-5 py-12 px-7 text-center">
       <span className="text-5xl animate-float select-none">🥚</span>
@@ -613,10 +716,10 @@ function StepSuccess({ agentName, onEdit, onClose }: { agentName: string; onEdit
           Edit BirdBot
         </button>
         <button
-          onClick={onClose}
+          onClick={onConnect}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold font-sans bg-blue text-white hover:bg-blue-light transition-colors"
         >
-          Go to Dashboard
+          Connect your tool →
         </button>
       </div>
     </div>

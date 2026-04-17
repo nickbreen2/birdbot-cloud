@@ -1,6 +1,6 @@
 // src/types/wizard.ts
 
-export type WizardStep = 1 | 2 | 3 | 4 | "summary" | "success"
+export type WizardStep = 1 | 2 | 3 | 4 | "summary" | "success" | "connect"
 
 export const TRAIT_KEYS = [
   "professional",

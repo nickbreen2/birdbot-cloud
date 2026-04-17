@@ -4,7 +4,7 @@ export default function ChatPage() {
   return (
     <PlaceholderPage
       title="Chat"
-      description="Your WebChat interface will live here — talk to your Bird directly from the dashboard."
+      description="Talk to your Bird directly from the dashboard. We're building this now — drop in soon."
       icon="💬"
     />
   )
