@@ -64,3 +64,13 @@ model Subscription {
   @@index([clerkUserId])
   @@index([stripeCustomerId])
 }
+
+model McpConnection {
+  id          String    @id @default(cuid())
+  clerkUserId String    @unique
+  userToken   String    @unique
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userToken])
+}
