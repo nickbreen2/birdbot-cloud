@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 
 const FOOTER_HREFS: Record<string, string> = {
   Privacy: "/privacy",
@@ -31,7 +32,7 @@ export function Footer() {
 
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-6 px-8 sm:px-12">
         {/* Logo */}
-        <a
+        <Link
           href="/"
           className="flex items-center gap-2.5 group flex-shrink-0"
           aria-label="BirdBot home"
@@ -52,7 +53,7 @@ export function Footer() {
               style={{ height: "29px", width: "auto" }}
             />
           </div>
-        </a>
+        </Link>
 
         {/* Copyright */}
         <p

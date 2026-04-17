@@ -98,8 +98,8 @@ export function IncubatingGate({ children }: { children: React.ReactNode }) {
         <div className="px-5 py-4 rounded-xl bg-gold/8 border border-gold/20 text-center max-w-sm w-full">
           <p className="text-xs font-bold text-gold mb-1.5">What happens next</p>
           <p className="text-xs text-text-muted font-sans leading-relaxed">
-            We'll provision your agent and notify you at your registered email when it's ready to
-            chat. You'll be able to access it from your dashboard once it's live.
+            We&apos;ll provision your agent and notify you at your registered email when it&apos;s ready to
+            chat. You&apos;ll be able to access it from your dashboard once it&apos;s live.
           </p>
         </div>
       )}
