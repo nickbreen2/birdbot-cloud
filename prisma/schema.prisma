@@ -71,6 +71,4 @@ model McpConnection {
   userToken   String    @unique
   lastSeenAt  DateTime?
   createdAt   DateTime  @default(now())
-
-  @@index([userToken])
 }
