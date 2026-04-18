@@ -72,3 +72,29 @@ model McpConnection {
   lastSeenAt  DateTime?
   createdAt   DateTime  @default(now())
 }
+
+model CloudSession {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  sessionId String   @unique
+  summary   String?
+  createdAt DateTime
+  syncedAt  DateTime @default(now())
+
+  @@index([userToken, project])
+}
+
+model CloudDecision {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  sessionId String?
+  decision  String
+  reasoning String?
+  createdAt DateTime
+  syncedAt  DateTime @default(now())
+
+  @@index([userToken, project])
+  @@index([sessionId])
+}
