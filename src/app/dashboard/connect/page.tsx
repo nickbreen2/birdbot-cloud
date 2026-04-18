@@ -2,13 +2,28 @@
 
 import { useState, useEffect, useRef } from "react"
 
-const TOOLS = [
-  { id: "claude", label: "Claude Code", file: "~/.claude/settings.json" },
-  { id: "cursor", label: "Cursor",      file: "~/.cursor/mcp.json" },
-  { id: "windsurf", label: "Windsurf",  file: "~/.codeium/windsurf/mcp_config.json" },
-] as const
+function buildPrompt(token: string, projectName: string): string {
+  return `## BirdBot Memory
 
-function buildSnippet(token: string) {
+You have access to BirdBot — a persistent memory layer for this project.
+
+At the START of every session, call:
+  GET https://app.birdbot.ai/api/mcp/briefing?project=${projectName}
+  Authorization: Bearer ${token}
+Read the returned briefing as your project context. Use the returned sessionId in all subsequent BirdBot calls this session.
+
+When you make a significant architectural decision, call:
+  POST https://app.birdbot.ai/api/mcp/decisions
+  Authorization: Bearer ${token}
+  Body: { "project": "${projectName}", "sessionId": "<sessionId from briefing>", "decision": "...", "reasoning": "..." }
+
+At the END of every session, call:
+  POST https://app.birdbot.ai/api/mcp/sessions
+  Authorization: Bearer ${token}
+  Body: { "project": "${projectName}", "sessionId": "<sessionId from briefing>", "summary": "..." }`
+}
+
+function buildMcpSnippet(token: string): string {
   return `{
   "mcpServers": {
     "birdbot": {
@@ -23,29 +38,39 @@ function buildSnippet(token: string) {
 }`
 }
 
+type Project = { name: string }
+
 export default function ConnectPage() {
-  const [activeTab, setActiveTab] = useState<string>("claude")
-  const [copied, setCopied] = useState(false)
   const [token, setToken] = useState<string | null>(null)
-  const [tokenError, setTokenError] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProject, setSelectedProject] = useState<string>("")
+  const [copied, setCopied] = useState(false)
+  const [mcpCopied, setMcpCopied] = useState(false)
+  const [showMcp, setShowMcp] = useState(false)
   const [connected, setConnected] = useState(false)
   const [lastSeenAt, setLastSeenAt] = useState<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    localStorage.setItem("bb_connected", "1")
-
     fetch("/api/connection/token")
-      .then((r) => r.json())
+      .then(r => r.json())
       .then((data: { token?: string }) => {
         if (data.token) setToken(data.token)
-        else setTokenError(true)
       })
-      .catch(() => setTokenError(true))
+      .catch(() => {})
+
+    fetch("/api/projects")
+      .then(r => r.json())
+      .then((data: { projects?: Project[] }) => {
+        const list = data.projects ?? []
+        setProjects(list)
+        if (list.length > 0) setSelectedProject(list[0].name)
+      })
+      .catch(() => {})
 
     function checkStatus() {
       fetch("/api/connection/status")
-        .then((r) => r.json())
+        .then(r => r.json())
         .then((data: { connected?: boolean; lastSeenAt?: string | null }) => {
           if (data.connected) {
             setConnected(true)
@@ -61,67 +86,115 @@ export default function ConnectPage() {
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [])
 
-  const tool = TOOLS.find((t) => t.id === activeTab)!
-  const snippet = buildSnippet(token ?? "YOUR_TOKEN_HERE")
-
   function handleCopy() {
-    navigator.clipboard.writeText(snippet).then(() => {
+    if (!token || !selectedProject) return
+    navigator.clipboard.writeText(buildPrompt(token, selectedProject)).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
   }
 
+  function handleMcpCopy() {
+    if (!token) return
+    navigator.clipboard.writeText(buildMcpSnippet(token)).then(() => {
+      setMcpCopied(true)
+      setTimeout(() => setMcpCopied(false), 2000)
+    })
+  }
+
+  const hasProjects = projects.length > 0
+
   return (
     <div className="p-6 md:p-8 max-w-2xl">
       <h1 className="font-heading font-bold text-2xl text-text-base mb-1">Connect your coding tool</h1>
       <p className="text-text-dim font-sans text-sm mb-8">
-        Paste the snippet below into your MCP config file and restart your tool. BirdBot will start remembering your sessions.
+        Paste this into your project&apos;s{" "}
+        <code className="font-mono text-xs bg-depth border border-border px-1.5 py-0.5 rounded text-text-dim">
+          CLAUDE.md
+        </code>{" "}
+        or coding tool system instructions. BirdBot will start remembering your sessions.
       </p>
 
-      {/* Tool tabs */}
-      <div className="flex gap-1 bg-depth border border-border rounded-xl p-1 mb-4">
-        {TOOLS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
-            className={`flex-1 py-2 rounded-lg text-xs font-semibold font-sans transition-colors ${
-              activeTab === t.id
-                ? "bg-blue text-white"
-                : "text-text-muted hover:text-text-base"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {hasProjects ? (
+        <>
+          {/* Project selector */}
+          {projects.length > 1 && (
+            <div className="mb-4">
+              <label className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest block mb-2">
+                Project
+              </label>
+              <select
+                value={selectedProject}
+                onChange={e => setSelectedProject(e.target.value)}
+                className="w-full bg-depth border border-border rounded-xl px-4 py-2.5 text-sm font-mono text-text-base focus:outline-none focus:border-blue transition-colors"
+              >
+                {projects.map(p => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
-      {/* File path */}
-      <p className="text-[11px] text-text-muted font-mono mb-3">
-        Config file: <span className="text-text-dim">{tool.file}</span>
-      </p>
-
-      {/* Snippet */}
-      <div className="relative rounded-xl bg-depth border border-border overflow-hidden mb-4">
-        {!token && !tokenError ? (
-          <div className="p-5 h-44 flex items-center justify-center">
-            <span className="text-xs text-text-muted font-mono animate-pulse">Loading your token...</span>
+          {/* Prompt block */}
+          <div className="relative rounded-xl bg-depth border border-border overflow-hidden mb-4">
+            {!token ? (
+              <div className="p-5 h-48 flex items-center justify-center">
+                <span className="text-xs text-text-muted font-mono animate-pulse">Loading your token…</span>
+              </div>
+            ) : (
+              <pre className="text-xs font-mono text-text-dim p-5 overflow-x-auto leading-relaxed whitespace-pre pr-20">
+                {buildPrompt(token, selectedProject)}
+              </pre>
+            )}
+            <button
+              onClick={handleCopy}
+              disabled={!token || !selectedProject}
+              className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-sans border border-border bg-panel text-text-dim hover:text-text-base hover:border-border/60 transition-colors disabled:opacity-40"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
           </div>
-        ) : (
-          <pre className="text-xs font-mono text-text-dim p-5 overflow-x-auto leading-relaxed whitespace-pre">
-            {snippet}
-          </pre>
-        )}
-        <button
-          onClick={handleCopy}
-          disabled={!token}
-          className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-sans border border-border bg-panel text-text-dim hover:text-text-base hover:border-border/60 transition-colors disabled:opacity-40"
-        >
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-border border-dashed text-center gap-2 mb-4">
+          <p className="text-sm font-semibold text-text-dim font-sans">No projects yet</p>
+          <p className="text-xs text-text-muted font-sans max-w-xs leading-relaxed">
+            Create a project in the Projects tab to get your personalized connection prompt.
+          </p>
+        </div>
+      )}
+
+      {/* MCP toggle */}
+      <button
+        onClick={() => setShowMcp(v => !v)}
+        className="text-xs text-text-muted hover:text-text-dim font-sans underline underline-offset-2 mb-4 block transition-colors"
+      >
+        {showMcp ? "Hide MCP config" : "Prefer MCP config instead?"}
+      </button>
+
+      {showMcp && (
+        <div className="relative rounded-xl bg-depth border border-border overflow-hidden mb-6">
+          {!token ? (
+            <div className="p-5 h-36 flex items-center justify-center">
+              <span className="text-xs text-text-muted font-mono animate-pulse">Loading…</span>
+            </div>
+          ) : (
+            <pre className="text-xs font-mono text-text-dim p-5 overflow-x-auto leading-relaxed whitespace-pre">
+              {buildMcpSnippet(token)}
+            </pre>
+          )}
+          <button
+            onClick={handleMcpCopy}
+            disabled={!token}
+            className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-sans border border-border bg-panel text-text-dim hover:text-text-base hover:border-border/60 transition-colors disabled:opacity-40"
+          >
+            {mcpCopied ? "Copied!" : "Copy"}
+          </button>
+        </div>
+      )}
 
       {/* Connection status */}
-      <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border mb-6 ${
+      <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border ${
         connected ? "border-emerald/30 bg-emerald/5" : "border-border bg-panel"
       }`}>
         {connected ? (
@@ -137,42 +210,9 @@ export default function ConnectPage() {
         ) : (
           <>
             <span className="w-2 h-2 rounded-full bg-amber-400/60 animate-pulse flex-shrink-0" />
-            <span className="text-xs font-semibold font-sans text-text-muted">Waiting for connection...</span>
+            <span className="text-xs font-semibold font-sans text-text-muted">Waiting for connection…</span>
           </>
         )}
-      </div>
-
-      {/* API key note */}
-      <div className="flex gap-3 p-4 rounded-xl bg-gold/5 border border-gold/20 mb-6">
-        <span className="text-gold text-base flex-shrink-0 mt-0.5">ℹ</span>
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold text-gold font-sans">Anthropic API key required</p>
-          <p className="text-xs text-text-muted font-sans leading-relaxed">
-            Replace <span className="font-mono text-gold">YOUR_KEY_HERE</span> with a key from{" "}
-            <span className="font-mono text-text-dim">console.anthropic.com</span>. This key stays on your machine — BirdBot never sees it.
-          </p>
-        </div>
-      </div>
-
-      {/* Step-by-step */}
-      <div className="border-t border-border pt-6">
-        <h2 className="font-heading font-semibold text-sm text-text-base mb-4">What to do next</h2>
-        <ol className="flex flex-col gap-3">
-          {[
-            "Open your tool's MCP config file at the path shown above",
-            "Paste the snippet (merge it in if you already have other MCP servers)",
-            "Replace YOUR_KEY_HERE with your Anthropic API key",
-            "Save and restart your coding tool",
-            "At the start of your next session, ask it to call get_briefing",
-          ].map((step, i) => (
-            <li key={i} className="flex gap-3 text-sm font-sans text-text-dim">
-              <span className="w-5 h-5 rounded-full bg-panel border border-border flex items-center justify-center text-[10px] font-bold text-text-muted flex-shrink-0 mt-0.5">
-                {i + 1}
-              </span>
-              {step}
-            </li>
-          ))}
-        </ol>
       </div>
     </div>
   )
