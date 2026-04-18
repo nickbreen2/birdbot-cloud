@@ -26,6 +26,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "project is required" }, { status: 400 })
     }
 
+    if (project.length > 200 || !/^[\w\-:.]+$/.test(project)) {
+      return NextResponse.json({ error: "Invalid project name" }, { status: 400 })
+    }
+
     const [cloudSessions, cloudDecisions] = await Promise.all([
       prisma.cloudSession.findMany({
         where: { userToken: token, project },

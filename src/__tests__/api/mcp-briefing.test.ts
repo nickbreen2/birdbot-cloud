@@ -42,6 +42,7 @@ describe("GET /api/mcp/briefing", () => {
     const { GET } = await import("@/app/api/mcp/briefing/route")
     const res = await GET(makeRequest())
     expect(res.status).toBe(401)
+    expect(mockFindUnique).not.toHaveBeenCalled()
   })
 
   it("returns 401 when token not found in DB", async () => {
