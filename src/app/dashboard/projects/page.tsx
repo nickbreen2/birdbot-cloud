@@ -2,15 +2,34 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 const BRIEFING_COMMAND = `get_briefing({ project: "my-project" })`
 
+type Project = {
+  name: string
+  sessionCount: number
+  decisionCount: number
+  lastSessionAt: string | null
+}
+
 export default function ProjectsPage() {
+  const router = useRouter()
   const [connected, setConnected] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(true)
 
   useEffect(() => {
     setConnected(!!localStorage.getItem("bb_connected"))
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((r) => r.json())
+      .then((data) => setProjects(data.projects ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingProjects(false))
   }, [])
 
   function handleCopyCommand() {
@@ -75,17 +94,12 @@ export default function ProjectsPage() {
           <div
             key={step.num}
             className={`flex gap-4 p-4 rounded-xl border transition-colors ${
-              step.done
-                ? "border-emerald/30 bg-emerald/5"
-                : "border-border bg-panel"
+              step.done ? "border-emerald/30 bg-emerald/5" : "border-border bg-panel"
             }`}
           >
-            {/* Circle */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold font-sans border-2 ${
-                step.done
-                  ? "bg-emerald border-emerald text-white"
-                  : "border-border text-text-muted"
+                step.done ? "bg-emerald border-emerald text-white" : "border-border text-text-muted"
               }`}
             >
               {step.done ? (
@@ -96,8 +110,6 @@ export default function ProjectsPage() {
                 step.num
               )}
             </div>
-
-            {/* Content */}
             <div className="flex flex-col gap-1.5 min-w-0">
               <p className={`text-sm font-semibold font-sans ${step.done ? "text-emerald" : "text-text-base"}`}>
                 {step.title}
@@ -109,19 +121,47 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {/* Future projects list */}
+      {/* Projects */}
       <div className="border-t border-border pt-8">
         <h2 className="font-heading font-semibold text-base text-text-base mb-1">Your Projects</h2>
         <p className="text-text-muted text-sm font-sans mb-6">
-          Projects you log via birdbot-mcp will appear here once sync is available.
+          Projects you log via birdbot-mcp will appear here.
         </p>
-        <div className="flex flex-col items-center justify-center py-12 rounded-xl border border-border border-dashed text-center gap-2">
-          <span className="text-3xl select-none">🗂️</span>
-          <p className="text-sm font-semibold text-text-dim font-sans">No projects yet</p>
-          <p className="text-xs text-text-muted font-sans max-w-xs leading-relaxed">
-            Start logging sessions with birdbot-mcp — your project history will sync here in a future update.
-          </p>
-        </div>
+
+        {loadingProjects ? (
+          <div className="flex items-center justify-center py-12">
+            <p className="text-sm text-text-muted font-sans">Loading…</p>
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 rounded-xl border border-border border-dashed text-center gap-2">
+            <span className="text-3xl select-none">🗂️</span>
+            <p className="text-sm font-semibold text-text-dim font-sans">No projects yet</p>
+            <p className="text-xs text-text-muted font-sans max-w-xs leading-relaxed">
+              Start a session in Claude to see your project history here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {projects.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => router.push(`/dashboard/projects/${encodeURIComponent(p.name)}`)}
+                className="text-left p-4 rounded-xl border border-border bg-panel hover:border-blue/50 hover:bg-blue/5 transition-colors"
+              >
+                <p className="text-sm font-semibold text-text-base font-sans mb-2">{p.name}</p>
+                <div className="flex gap-3">
+                  <span className="text-xs text-text-muted font-sans">📋 {p.sessionCount}</span>
+                  <span className="text-xs text-text-muted font-sans">⚡ {p.decisionCount}</span>
+                </div>
+                {p.lastSessionAt && (
+                  <p className="text-xs text-text-muted font-sans mt-2">
+                    Last: {new Date(p.lastSessionAt).toLocaleDateString()}
+                  </p>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
