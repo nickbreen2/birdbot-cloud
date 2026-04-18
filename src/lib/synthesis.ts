@@ -32,9 +32,12 @@ export async function synthesizeBriefing(
     .map(d => `[${d.created_at}] ${d.decision}${d.reasoning ? ` — ${d.reasoning}` : ""}`)
     .join("\n")
 
+  const cappedSessionsText = sessionsText.length > 4000 ? sessionsText.slice(0, 4000) + "\n[truncated]" : sessionsText
+  const cappedDecisionsText = decisionsText.length > 6000 ? decisionsText.slice(0, 6000) + "\n[truncated]" : decisionsText
+
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 512,
+    max_tokens: 1024,
     system: `You are BirdBot, a project memory layer for vibe coders. Synthesize project history into a sharp, useful briefing for an AI coding assistant starting a new session.
 
 Rules:
@@ -48,10 +51,10 @@ Rules:
         content: `Project: ${project}
 
 Recent sessions (newest first):
-${sessionsText || "None yet."}
+${cappedSessionsText || "None yet."}
 
 Architectural decisions:
-${decisionsText || "None logged yet."}
+${cappedDecisionsText || "None logged yet."}
 
 Generate the session briefing.`,
       },
