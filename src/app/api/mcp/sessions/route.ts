@@ -40,6 +40,7 @@ export async function POST(request: Request) {
       },
       update: {
         summary: body.summary ?? null,
+        syncedAt: new Date(),
       },
     })
 
