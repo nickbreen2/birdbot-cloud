@@ -64,6 +64,25 @@ describe("GET /api/projects/[project]/sessions/[sessionId]", () => {
     expect(res.status).toBe(404)
   })
 
+  it("does not return decisions from other users with same sessionId", async () => {
+    mockMcpFindUnique.mockResolvedValueOnce({ userToken: "valid-token" })
+    mockSessionFindUnique.mockResolvedValueOnce({
+      sessionId: "uuid-1", userToken: "valid-token",
+      project: "birdbot-cloud", summary: "Built X", createdAt: new Date("2026-04-17"),
+    })
+    mockDecisionFindMany.mockResolvedValueOnce([])
+    const { GET } = await import("@/app/api/projects/[project]/sessions/[sessionId]/route")
+    const res = await GET(new Request("http://localhost"), makeCtx("birdbot-cloud", "uuid-1"))
+    const body = await res.json()
+    expect(res.status).toBe(200)
+    expect(mockDecisionFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userToken: "valid-token" }),
+      })
+    )
+    expect(body.session.decisions).toEqual([])
+  })
+
   it("returns session with decisions", async () => {
     mockMcpFindUnique.mockResolvedValueOnce({ userToken: "valid-token" })
     mockSessionFindUnique.mockResolvedValueOnce({

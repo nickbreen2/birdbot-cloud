@@ -31,7 +31,7 @@ export async function GET(
     }
 
     const decisions = await prisma.cloudDecision.findMany({
-      where: { sessionId },
+      where: { sessionId, userToken: connection.userToken },
       orderBy: { createdAt: "asc" },
     })
 
