@@ -13,43 +13,6 @@ model WaitlistEntry {
   createdAt DateTime @default(now())
 }
 
-model Agent {
-  id          String   @id @default(cuid())
-  clerkUserId String
-  name        String
-  model       String
-  traits      Json
-  focusAreas  String[]
-  channels    String[]
-  status      String   @default("incubating")
-  errorReason String?
-  serverId    String?
-  containerId String?
-  hostPort    Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  server      Server?  @relation(fields: [serverId], references: [id])
-
-  @@index([clerkUserId])
-}
-
-model Server {
-  id              String   @id @default(cuid())
-  hetznerServerId Int      @unique
-  ip              String
-  region          String   @default("us-east")
-  containerCount  Int      @default(0)
-  capacityLimit   Int      @default(6)
-  status          String   @default("active")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  agents          Agent[]
-
-  @@index([status])
-}
-
 model Subscription {
   id                     String   @id @default(cuid())
   clerkUserId            String   @unique
@@ -97,4 +60,25 @@ model CloudDecision {
 
   @@index([userToken, project])
   @@index([sessionId])
+}
+
+model CloudProject {
+  id        String   @id @default(cuid())
+  userToken String
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([userToken, name])
+  @@index([userToken])
+}
+
+model ProjectBrief {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  brief     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userToken, project])
+  @@index([userToken])
 }

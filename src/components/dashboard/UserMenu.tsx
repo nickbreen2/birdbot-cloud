@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
 import { LogOut, Settings, User } from "lucide-react"
-import { useWizard } from "@/components/dashboard/WizardContext"
+import { useWizard } from "@/components/onboarding/WizardContext"
 
 export function UserMenu() {
   const { user } = useUser()
