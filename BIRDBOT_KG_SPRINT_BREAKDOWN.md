@@ -51,8 +51,8 @@ Delete these files entirely:
 - `src/app/api/provision/[id]/route.ts`
 - `src/app/api/provision/[id]/status/route.ts`
 - `src/lib/deprovisionAgent.ts`
-- `src/lib/buildPrompt.ts`
-- `src/lib/synthesis.ts` (cloud-side scaffolding, distinct from birdbot-mcp's synthesis.ts — unused)
+
+> **Note:** `src/lib/buildPrompt.ts` and `src/lib/synthesis.ts` were originally listed here but are actively used — `buildPrompt` by the install modals, `synthesis` by `/api/mcp/briefing`. Both retained.
 
 Delete now-empty directories: `src/app/api/agents/`, `src/app/api/provision/`
 
