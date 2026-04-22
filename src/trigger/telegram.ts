@@ -5,6 +5,10 @@ import { runEntityExtraction } from "@/trigger/extractEntities"
 
 const PAIR_PREFIX = "/start "
 
+// Rate-limit "not paired" replies: one per telegramId per 10 minutes
+const unpairedCooldown = new Map<number, number>()
+const UNPAIRED_COOLDOWN_MS = 10 * 60 * 1000
+
 type TelegramProcessPayload = {
   telegramId: number
   chatId: number
@@ -19,6 +23,17 @@ async function handlePairing(
   token: string
 ): Promise<void> {
   const { chatId, telegramId, firstName, username } = payload
+
+  // Bug 3: already-paired user tapping /start again → warm welcome
+  const existing = await prisma.telegramUser.findUnique({
+    where: { telegramChatId: chatId.toString() },
+    select: { firstName: true, username: true },
+  })
+  if (existing) {
+    const name = existing.firstName ?? existing.username ?? "there"
+    await sendTelegramMessage(chatId, `You're already connected, ${name}! Send me your notes and I'll log them to your knowledge graph.`)
+    return
+  }
 
   const pairingToken = await prisma.telegramPairingToken.findUnique({
     where: { token },
@@ -99,6 +114,21 @@ export const telegramProcess = task({
   run: async (payload: TelegramProcessPayload) => {
     const { chatId, telegramId, text } = payload
 
+    // Bug 4: /start with no token
+    if (text === "/start") {
+      const existing = await prisma.telegramUser.findUnique({
+        where: { telegramChatId: chatId.toString() },
+        select: { firstName: true },
+      })
+      if (existing) {
+        const name = existing.firstName ?? "there"
+        await sendTelegramMessage(chatId, `You're already connected, ${name}! Send me your notes and I'll log them to your knowledge graph.`)
+      } else {
+        await sendTelegramMessage(chatId, "It looks like your pairing link didn't include a token — go back to your BirdBot dashboard and click the link again.")
+      }
+      return
+    }
+
     if (text.startsWith(PAIR_PREFIX)) {
       const token = text.slice(PAIR_PREFIX.length).trim()
       await handlePairing(payload, token)
@@ -111,11 +141,16 @@ export const telegramProcess = task({
     })
 
     if (!tgUser) {
-      console.warn("[telegram] unpaired message from telegramId:", telegramId)
-      await sendTelegramMessage(
-        chatId,
-        "I don't recognize this account yet. Visit your BirdBot dashboard → Integrations to get a pairing link."
-      )
+      // Bug 2: rate-limit to one "not recognized" reply per telegramId per 10 min
+      const lastSent = unpairedCooldown.get(telegramId) ?? 0
+      if (Date.now() - lastSent > UNPAIRED_COOLDOWN_MS) {
+        unpairedCooldown.set(telegramId, Date.now())
+        console.warn("[telegram] unpaired message from telegramId:", telegramId)
+        await sendTelegramMessage(
+          chatId,
+          "I don't recognize this account yet. Visit your BirdBot dashboard → Integrations to get a pairing link."
+        )
+      }
       return
     }
 
