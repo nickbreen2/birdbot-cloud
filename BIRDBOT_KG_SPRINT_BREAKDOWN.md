@@ -116,7 +116,9 @@ Both must succeed with zero errors. This is the gate — don't move to P1 until 
 
 ---
 
-## Sprint P1 — Graph Schema 📋 PLANNED
+## Sprint P1 — Graph Schema ✅ COMPLETE
+
+> Schema reviewed and corrected 2026-04-21. A full spec-vs-implementation diff was run after P1 landed; five mismatches were found and fixed in migration `20260421000003_p1_schema_corrections`. The confirmed schema below is the source of truth.
 
 **Owner:** Nick + Claude Code
 **Goal:** Lay down the database tables that everything else depends on. Schema only, no application logic. Stop and show Nick the full proposed schema before running the migration.
@@ -130,9 +132,13 @@ Three new models: `Entity`, `Relationship`, `Mention`.
 Key design decisions baked in:
 - `Entity` has both `userId` (Clerk) and `userToken` (MCP bearer token, nullable). Entities from MCP always have `userToken`; entities from Telegram may not (user hasn't installed MCP). Queries route through `userId` as the canonical key; MCP tools resolve `userToken → userId` via `McpConnection`. The dual-key is intentional — the tradeoff is slightly more complex join logic vs. a cleaner user model.
 - `Entity.project` is nullable. MCP-sourced entities always have a project. Telegram-sourced entities default to NULL (no project context). MCP tools filter by project; Memory/Goals tabs query by userId across all projects.
-- Entity types: `file`, `concept`, `decision`, `task`, `technology`, `person`, `goal` (7 types — `goal` is the seventh, added for the Bird companion direction)
-- `Relationship` gets a unique constraint on `(fromEntityId, toEntityId, type)` to enable idempotent upserts from the extraction pipeline
-- `MentionSourceType` includes `telegram` in addition to `session` and `decision`
+- Entity types: `file`, `concept`, `decision`, `task`, `technology`, `person`, `goal` (7 types exactly)
+- `Relationship` gets a unique constraint on `(userId, fromId, toId, label)` to enable idempotent upserts from the extraction pipeline
+- `MentionSourceType`: `session`, `decision`, `telegram` (three distinct values — kept separate so P3/P4 queries can filter by sub-type)
+- `Goal` uses `lastCheckinAt` (nullable) for the P8 cron overdue-ratio algorithm; also has `targetDate` (nullable)
+- `UserPreferences` has `personalityPreset TEXT DEFAULT 'assistant'` and `globalCheckinEnabled BOOLEAN DEFAULT true` (both required by P8)
+- `TelegramPairingToken` uses `usedAt TIMESTAMP` (nullable) instead of a boolean — records when the token was consumed, strictly better than a flag
+- `TelegramUser` uses `telegramChatId` (the chat ID used to send messages, semantically correct)
 
 **P1-02: Enable pgvector on Neon**
 - Run `CREATE EXTENSION IF NOT EXISTS vector;` in Neon SQL editor
@@ -162,9 +168,9 @@ Fields: `id`, `userId` (Clerk, unique), `userToken` (MCP bearer token, nullable 
 
 **P1-05: Add Telegram models**
 
-`TelegramUser`: `id`, `userId` (Clerk, unique), `telegramChatId` (unique), `createdAt`
+`TelegramUser`: `id`, `userId` (Clerk, unique), `telegramChatId` (unique), `username?`, `firstName?`, `lastName?`, `createdAt`, `updatedAt`
 
-`TelegramPairingToken`: `id`, `userId`, `token` (unique, 16-byte hex), `used` (bool, default false), `expiresAt` (15-minute TTL), `createdAt`
+`TelegramPairingToken`: `id`, `userId`, `token` (unique, 16-byte hex), `usedAt` (timestamp, nullable — records when consumed; better than a boolean flag), `expiresAt` (15-minute TTL), `createdAt`
 
 **P1-06: Write a smoke test for the new schema**
 

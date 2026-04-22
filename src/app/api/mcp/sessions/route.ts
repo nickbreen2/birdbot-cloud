@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { tasks } from "@trigger.dev/sdk"
+import type { regenerateProjectBrief } from "@/trigger/brief"
+import type { extractEntities } from "@/trigger/extractEntities"
 
 export async function POST(request: Request) {
   try {
@@ -29,11 +32,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "sessionId required" }, { status: 400 })
     }
 
+    const project = body.project ?? "default"
+
     await prisma.cloudSession.upsert({
       where: { sessionId: body.sessionId },
       create: {
         userToken: token,
-        project: body.project ?? "default",
+        project,
         sessionId: body.sessionId,
         summary: body.summary ?? null,
         createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
@@ -43,6 +48,24 @@ export async function POST(request: Request) {
         syncedAt: new Date(),
       },
     })
+
+    // Fire-and-forget background tasks
+    tasks.trigger<typeof regenerateProjectBrief>("regenerate-project-brief", {
+      userToken: token,
+      project,
+    }).catch(() => {})
+
+    if (body.summary) {
+      tasks.trigger<typeof extractEntities>("extract-entities", {
+        text: body.summary,
+        sourceType: "session",
+        userId: connection.clerkUserId,
+        userToken: token,
+        project,
+        sourceId: body.sessionId,
+        snippet: body.summary.slice(0, 300),
+      }).catch(() => {})
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err) {

@@ -3,14 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
-import { MessageSquare, Layers, Network, Coins, Gift, Plug } from "lucide-react"
+import { MessageSquare, Layers, Network, Coins, Gift, Plug, Link2 } from "lucide-react"
 import { useWizard } from "@/components/onboarding/WizardContext"
 
 const navItems = [
   { label: "Projects", href: "/dashboard/projects", icon: Layers },
   { label: "Chat",     href: "/dashboard/chat",     icon: MessageSquare },
   { label: "MCP",      href: "/dashboard/connect",  icon: Plug },
-  { label: "Graph",    href: "/dashboard/graph",    icon: Network },
+  { label: "Graph",        href: "/dashboard/graph",        icon: Network },
+  { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
 export function Sidebar() {

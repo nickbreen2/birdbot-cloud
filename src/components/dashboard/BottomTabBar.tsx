@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MessageSquare, Layers, Plug, Settings } from "lucide-react"
+import { MessageSquare, Layers, Network, Plug, Link2 } from "lucide-react"
 
 const tabs = [
-  { label: "Projects", href: "/dashboard/projects", icon: Layers },
-  { label: "Connect",  href: "/dashboard/connect",  icon: Plug },
-  { label: "Chat",     href: "/dashboard/chat",     icon: MessageSquare },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Projects",     href: "/dashboard/projects",     icon: Layers },
+  { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
+  { label: "MCP",          href: "/dashboard/connect",      icon: Plug },
+  { label: "Graph",        href: "/dashboard/graph",        icon: Network },
+  { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
 export function BottomTabBar() {

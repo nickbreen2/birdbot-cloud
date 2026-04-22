@@ -1,5 +1,12 @@
 @AGENTS.md
 
+# BirdBot Session Memory
+
+At the **start** of every session, call `get_briefing` via the BirdBot MCP with `project: "birdbot-cloud"` and read the output before doing anything else.
+
+At the **end** of every session, call `log_session_end` via the BirdBot MCP with a 2-3 sentence summary: what was built, what was decided, what is still open or blocked. Project: `"birdbot-cloud"`.
+
+When a significant technical or architectural decision is made during the session, call `log_decision` immediately with the decision and the reasoning behind it. Project: `"birdbot-cloud"`.
 
 <!-- TRIGGER.DEV basic START -->
 # Trigger.dev Basic Tasks (v4)

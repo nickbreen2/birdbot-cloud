@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { tasks } from "@trigger.dev/sdk"
+import type { extractEntities } from "@/trigger/extractEntities"
 
 export async function POST(request: Request) {
   try {
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "decision required" }, { status: 400 })
     }
 
-    await prisma.cloudDecision.create({
+    const record = await prisma.cloudDecision.create({
       data: {
         userToken: token,
         project: body.project ?? "default",
@@ -40,6 +42,20 @@ export async function POST(request: Request) {
         createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
       },
     })
+
+    const extractText = body.reasoning
+      ? `${body.decision} — ${body.reasoning}`
+      : body.decision
+
+    tasks.trigger<typeof extractEntities>("extract-entities", {
+      text: extractText,
+      sourceType: "decision",
+      userId: connection.clerkUserId,
+      userToken: token,
+      project: body.project ?? "default",
+      sourceId: record.id,
+      snippet: extractText.slice(0, 300),
+    }).catch(() => {})
 
     return NextResponse.json({ ok: true })
   } catch (err) {

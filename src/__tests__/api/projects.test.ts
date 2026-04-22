@@ -5,12 +5,16 @@ vi.mock("@clerk/nextjs/server", () => ({
 }))
 
 const mockMcpFindUnique = vi.fn()
+const mockCloudProjectFindMany = vi.fn()
 const mockSessionGroupBy = vi.fn()
 const mockDecisionGroupBy = vi.fn()
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     mcpConnection: {
       findUnique: (...args: unknown[]) => mockMcpFindUnique(...args),
+    },
+    cloudProject: {
+      findMany: (...args: unknown[]) => mockCloudProjectFindMany(...args),
     },
     cloudSession: {
       groupBy: (...args: unknown[]) => mockSessionGroupBy(...args),
@@ -45,6 +49,9 @@ describe("GET /api/projects", () => {
 
   it("returns aggregated project list with counts", async () => {
     mockMcpFindUnique.mockResolvedValueOnce({ userToken: "valid-token" })
+    mockCloudProjectFindMany.mockResolvedValueOnce([
+      { name: "birdbot-cloud", createdAt: new Date("2026-04-17") },
+    ])
     mockSessionGroupBy.mockResolvedValueOnce([
       { project: "birdbot-cloud", _count: { id: 12 }, _max: { createdAt: new Date("2026-04-17") } },
     ])

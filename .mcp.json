@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "birdbot": {
+      "command": "node",
+      "args": ["/Users/nicolasbreen/Projects/birdbot-mcp/dist/index.js"],
+      "env": {
+        "OPENAI_API_KEY": "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"
+      }
+    }
+  }
+}
