@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "trigger:dev": "npx trigger.dev@latest dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
