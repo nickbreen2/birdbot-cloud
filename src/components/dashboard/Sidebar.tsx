@@ -3,20 +3,16 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
-import { MessageSquare, Layers, Network, Coins, Gift, Plug, Link2 } from "lucide-react"
-import { useWizard } from "@/components/onboarding/WizardContext"
+import { Brain, Target, Link2 } from "lucide-react"
 
 const navItems = [
-  { label: "Projects", href: "/dashboard/projects", icon: Layers },
-  { label: "Chat",     href: "/dashboard/chat",     icon: MessageSquare },
-  { label: "MCP",      href: "/dashboard/connect",  icon: Plug },
-  { label: "Graph",        href: "/dashboard/graph",        icon: Network },
+  { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
+  { label: "Goals",        href: "/dashboard/goals",        icon: Target },
   { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { setSettingsOpen } = useWizard()
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 hidden lg:flex flex-col bg-surface border-r border-border z-40">
@@ -56,15 +52,6 @@ export function Sidebar() {
 
       {/* Bottom section */}
       <div className="px-3 pb-3 flex flex-col gap-1 border-t border-border pt-3">
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors w-full text-left">
-          <Coins size={16} className="text-amber-400 flex-shrink-0" />
-          Set Up AI Credits
-        </button>
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors w-full text-left">
-          <Gift size={16} className="text-emerald-400 flex-shrink-0" />
-          <span className="flex-1">Refer &amp; Earn</span>
-          <span className="text-[10px] font-bold font-sans px-1.5 py-0.5 rounded-full bg-blue/20 text-blue-bright">NEW</span>
-        </button>
         <UserMenu />
       </div>
     </aside>

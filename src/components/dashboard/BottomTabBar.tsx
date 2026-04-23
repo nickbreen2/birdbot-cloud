@@ -2,13 +2,11 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MessageSquare, Layers, Network, Plug, Link2 } from "lucide-react"
+import { Brain, Target, Link2 } from "lucide-react"
 
 const tabs = [
-  { label: "Projects",     href: "/dashboard/projects",     icon: Layers },
-  { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
-  { label: "MCP",          href: "/dashboard/connect",      icon: Plug },
-  { label: "Graph",        href: "/dashboard/graph",        icon: Network },
+  { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
+  { label: "Goals",        href: "/dashboard/goals",        icon: Target },
   { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
