@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "trigger:dev": "npx trigger.dev@latest dev"
+    "trigger:dev": "npx trigger.dev@latest dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run trigger:dev\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
@@ -40,6 +41,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/ssh2": "^1.15.5",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
