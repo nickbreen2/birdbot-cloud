@@ -41,12 +41,15 @@ interface GraphApiResponse {
 
 interface GraphViewProps {
   onNodeClick: (id: string) => void
+  selectedEntityId: string | null
 }
 
-export default function GraphView({ onNodeClick }: GraphViewProps) {
+export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const simulationRef = useRef<d3.Simulation<NodeDatum, EdgeDatum> | null>(null)
   const onNodeClickRef = useRef(onNodeClick)
+  const selectedIdRef = useRef(selectedEntityId)
+  const nodeSelRef = useRef<d3.Selection<SVGGElement, NodeDatum, SVGGElement, unknown> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [graphData, setGraphData] = useState<{ nodes: NodeDatum[]; edges: EdgeDatum[] } | null>(null)
@@ -54,6 +57,16 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
   useEffect(() => {
     onNodeClickRef.current = onNodeClick
   }, [onNodeClick])
+
+  // Sync selected ref and update ring without restarting simulation
+  useEffect(() => {
+    selectedIdRef.current = selectedEntityId
+    const nodeSel = nodeSelRef.current
+    if (!nodeSel) return
+    nodeSel.select("circle")
+      .attr("stroke-width", (n) => n.id === selectedEntityId ? 4 : 2)
+      .attr("stroke-opacity", (n) => n.id === selectedEntityId ? 1.0 : 0.35)
+  }, [selectedEntityId])
 
   useEffect(() => {
     fetch("/api/memory/graph")
@@ -104,6 +117,8 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
       .join("g")
       .style("cursor", "pointer")
 
+    nodeSelRef.current = nodeSel
+
     nodeSel
       .append("circle")
       .attr("r", nodeRadius)
@@ -122,7 +137,19 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
       .attr("font-family", "ui-sans-serif, system-ui, sans-serif")
       .text((d) => d.name)
 
+    function applyBaseStyles() {
+      const selId = selectedIdRef.current
+      linkSel.attr("stroke-opacity", 0.5)
+      nodeSel.select("circle")
+        .attr("fill-opacity", 0.85)
+        .attr("r", nodeRadius)
+        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.35)
+        .attr("stroke-width", (n) => n.id === selId ? 4 : 2)
+      nodeSel.select("text").attr("fill", "#a1a1aa")
+    }
+
     nodeSel.on("mouseover", (_, d) => {
+      const selId = selectedIdRef.current
       const neighbors = new Set<string>()
       edges.forEach((e) => {
         const src = (e.source as NodeDatum).id
@@ -138,10 +165,21 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
       })
 
       nodeSel.select("circle")
-        .attr("fill-opacity", (n) => (n.id === d.id ? 1.0 : neighbors.has(n.id) ? 0.85 : 0.12))
+        .attr("fill-opacity", (n) => {
+          if (n.id === d.id) return 1.0
+          if (neighbors.has(n.id)) return 0.85
+          return 0.12
+        })
         .attr("r", (n) => (n.id === d.id ? nodeRadius(n) + 2 : nodeRadius(n)))
-        .attr("stroke-opacity", (n) => (n.id === d.id ? 0.6 : neighbors.has(n.id) ? 0.35 : 0.05))
-        .attr("stroke-width", (n) => (n.id === d.id ? 3 : 2))
+        .attr("stroke-opacity", (n) => {
+          if (n.id === d.id) return 1.0
+          if (n.id === selId) return 0.8  // selected ring stays visible while others dim
+          return neighbors.has(n.id) ? 0.35 : 0.05
+        })
+        .attr("stroke-width", (n) => {
+          if (n.id === d.id) return n.id === selId ? 5 : 3
+          return n.id === selId ? 4 : 2
+        })
 
       nodeSel.select("text")
         .attr("fill", (n) =>
@@ -149,15 +187,7 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
         )
     })
 
-    nodeSel.on("mouseout", () => {
-      linkSel.attr("stroke-opacity", 0.5)
-      nodeSel.select("circle")
-        .attr("fill-opacity", 0.85)
-        .attr("r", nodeRadius)
-        .attr("stroke-opacity", 0.35)
-        .attr("stroke-width", 2)
-      nodeSel.select("text").attr("fill", "#a1a1aa")
-    })
+    nodeSel.on("mouseout", applyBaseStyles)
 
     const drag = d3.drag<SVGGElement, NodeDatum>()
       .on("start", (event, d) => {
@@ -189,11 +219,21 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
       )
       .force("charge", d3.forceManyBody<NodeDatum>().strength(-300))
       .force("center", d3.forceCenter(w / 2, h / 2))
+      // per-node gravity toward center — prevents disconnected nodes from drifting
+      .force("x", d3.forceX<NodeDatum>(w / 2).strength(0.05))
+      .force("y", d3.forceY<NodeDatum>(h / 2).strength(0.05))
       .force("collide", d3.forceCollide<NodeDatum>().radius((d) => nodeRadius(d) + 12))
 
     simulationRef.current = simulation
 
     simulation.on("tick", () => {
+      // Clamp positions within SVG bounds so nodes never leave the canvas
+      nodes.forEach((d) => {
+        const r = nodeRadius(d)
+        d.x = Math.max(r + 20, Math.min(w - r - 20, d.x ?? w / 2))
+        d.y = Math.max(r + 20, Math.min(h - r - 20, d.y ?? h / 2))
+      })
+
       linkSel
         .attr("x1", (d) => (d.source as NodeDatum).x ?? 0)
         .attr("y1", (d) => (d.source as NodeDatum).y ?? 0)
@@ -202,6 +242,14 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
 
       nodeSel.attr("transform", (d) => `translate(${d.x ?? 0},${d.y ?? 0})`)
     })
+
+    // Apply any pre-existing selection state after (re)building the graph
+    const selId = selectedIdRef.current
+    if (selId) {
+      nodeSel.select("circle")
+        .attr("stroke-width", (n) => n.id === selId ? 4 : 2)
+        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.35)
+    }
 
     return () => {
       simulation.stop()

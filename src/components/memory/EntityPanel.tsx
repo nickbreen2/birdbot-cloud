@@ -136,7 +136,7 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
       }`}
     >
       {isOpen && (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full min-h-0">
           {/* Header */}
           <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3 flex-shrink-0">
             <div className="flex-1 min-w-0">
