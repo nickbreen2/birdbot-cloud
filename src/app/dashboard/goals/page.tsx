@@ -33,18 +33,17 @@ function SkeletonCards() {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <p className="text-sm font-semibold font-sans text-text-base mb-1">
-        Bird hasn&apos;t spotted any commitments yet.
-      </p>
-      <p className="text-sm text-text-muted font-sans mb-6">
-        Text it something like &ldquo;I want to ship by Friday&rdquo; and it&apos;ll start
-        tracking.
+      <span className="text-3xl mb-4">🐦</span>
+      <p className="text-sm font-sans text-text-base leading-relaxed max-w-sm mb-6">
+        Bird hasn&apos;t spotted any goals yet. Text it something like &ldquo;I want to ship by
+        Friday&rdquo; or &ldquo;I&apos;m trying to run 5k every morning&rdquo; and it&apos;ll
+        start tracking.
       </p>
       <Link
         href="/dashboard/integrations"
         className="px-4 py-2 rounded-xl text-sm font-semibold font-sans bg-blue/10 border border-blue/20 text-blue-bright hover:bg-blue/20 transition-colors"
       >
-        Set up Telegram
+        Connect Telegram →
       </Link>
     </div>
   )
@@ -84,8 +83,8 @@ export default function GoalsPage() {
         <div className="flex flex-col gap-8">
           {data.pending.length > 0 && (
             <section>
-              <h2 className="text-[11px] font-bold font-sans text-text-muted uppercase tracking-widest mb-4">
-                Pending Confirmation
+              <h2 className="text-sm font-semibold font-sans text-text-base mb-4">
+                Needs your yes or no
               </h2>
               <div className="flex flex-col gap-3">
                 {data.pending.map((goal) => (
@@ -96,8 +95,8 @@ export default function GoalsPage() {
           )}
 
           <section>
-            <h2 className="text-[11px] font-bold font-sans text-text-muted uppercase tracking-widest mb-4">
-              Active Goals
+            <h2 className="text-sm font-semibold font-sans text-text-base mb-4">
+              Tracking
             </h2>
             {data.active.length === 0 ? (
               <p className="text-sm text-text-muted font-sans">No active goals.</p>
