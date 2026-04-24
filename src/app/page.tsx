@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { HeroSection } from "@/components/landing/HeroSection"
-import { DashboardDemo } from "@/components/landing/DashboardDemo"
+import { ConversationDemo } from "@/components/landing/ConversationDemo"
 import { WhyBirdBot } from "@/components/landing/WhyBirdBot"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
@@ -13,7 +13,7 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
       <HeroSection />
-      <DashboardDemo />
+      <ConversationDemo />
       <WhyBirdBot />
       <FeaturesSection />
       <HowItWorks />
