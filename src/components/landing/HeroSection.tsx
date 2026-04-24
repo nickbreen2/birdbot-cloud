@@ -91,6 +91,7 @@ export function HeroSection() {
               height={isIOS ? 116 : 179}
               priority
               unoptimized
+              className="w-24 h-auto sm:w-auto sm:h-auto"
               style={{
                 filter:
                   "drop-shadow(0 8px 32px rgba(125,211,252,0.55)) drop-shadow(0 2px 12px rgba(37,99,235,0.40))",
