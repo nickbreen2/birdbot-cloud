@@ -222,7 +222,7 @@ export function PhoneMockup() {
         {/* Chat area */}
         <div
           ref={chatRef}
-          className="flex-1 overflow-y-auto px-3 pt-4 pb-2 hide-scrollbar"
+          className="flex-1 overflow-y-hidden px-3 pt-4 pb-2"
           style={{ scrollBehavior: "smooth" }}
         >
           <div
