@@ -53,6 +53,9 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [graphData, setGraphData] = useState<{ nodes: NodeDatum[]; edges: EdgeDatum[] } | null>(null)
+  const [dismissed, setDismissed] = useState(() =>
+    localStorage.getItem("birdbot-graph-overlay-dismissed") === "true"
+  )
 
   useEffect(() => {
     onNodeClickRef.current = onNodeClick
@@ -294,9 +297,34 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
     )
   }
 
+  function handleDismiss() {
+    localStorage.setItem("birdbot-graph-overlay-dismissed", "true")
+    setDismissed(true)
+  }
+
+  const showOverlay = !dismissed && graphData !== null && graphData.nodes.length < 5
+
   return (
-    <div style={{ height: "calc(100vh - 160px)", minHeight: "400px" }}>
+    <div style={{ height: "calc(100vh - 160px)", minHeight: "400px" }} className="relative">
       <svg ref={svgRef} className="w-full h-full" />
+      {showOverlay && (
+        <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-depth/60">
+          <div className="max-w-sm w-full mx-6 text-center px-6 py-8 rounded-2xl bg-panel border border-border">
+            <h3 className="font-heading font-bold text-lg text-text-base mb-3">
+              Your knowledge graph is forming.
+            </h3>
+            <p className="text-sm font-sans text-text-muted leading-relaxed mb-6">
+              Every message you send Bird adds nodes and connections here. Keep going — the more you share, the clearer the picture gets.
+            </p>
+            <button
+              onClick={handleDismiss}
+              className="px-5 py-2 rounded-lg bg-blue text-white text-sm font-semibold font-sans hover:bg-blue/80 transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
