@@ -39,12 +39,21 @@ interface GraphApiResponse {
   edges: { id: string; fromId: string; toId: string; label: string }[]
 }
 
-export default function GraphView() {
+interface GraphViewProps {
+  onNodeClick: (id: string) => void
+}
+
+export default function GraphView({ onNodeClick }: GraphViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const simulationRef = useRef<d3.Simulation<NodeDatum, EdgeDatum> | null>(null)
+  const onNodeClickRef = useRef(onNodeClick)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [graphData, setGraphData] = useState<{ nodes: NodeDatum[]; edges: EdgeDatum[] } | null>(null)
+
+  useEffect(() => {
+    onNodeClickRef.current = onNodeClick
+  }, [onNodeClick])
 
   useEffect(() => {
     fetch("/api/memory/graph")
@@ -93,6 +102,7 @@ export default function GraphView() {
       .selectAll<SVGGElement, NodeDatum>("g")
       .data(nodes)
       .join("g")
+      .style("cursor", "pointer")
 
     nodeSel
       .append("circle")
@@ -111,6 +121,65 @@ export default function GraphView() {
       .attr("font-size", "11px")
       .attr("font-family", "ui-sans-serif, system-ui, sans-serif")
       .text((d) => d.name)
+
+    nodeSel.on("mouseover", (_, d) => {
+      const neighbors = new Set<string>()
+      edges.forEach((e) => {
+        const src = (e.source as NodeDatum).id
+        const tgt = (e.target as NodeDatum).id
+        if (src === d.id) neighbors.add(tgt)
+        if (tgt === d.id) neighbors.add(src)
+      })
+
+      linkSel.attr("stroke-opacity", (e) => {
+        const src = (e.source as NodeDatum).id
+        const tgt = (e.target as NodeDatum).id
+        return src === d.id || tgt === d.id ? 0.7 : 0.05
+      })
+
+      nodeSel.select("circle")
+        .attr("fill-opacity", (n) => (n.id === d.id ? 1.0 : neighbors.has(n.id) ? 0.85 : 0.12))
+        .attr("r", (n) => (n.id === d.id ? nodeRadius(n) + 2 : nodeRadius(n)))
+        .attr("stroke-opacity", (n) => (n.id === d.id ? 0.6 : neighbors.has(n.id) ? 0.35 : 0.05))
+        .attr("stroke-width", (n) => (n.id === d.id ? 3 : 2))
+
+      nodeSel.select("text")
+        .attr("fill", (n) =>
+          n.id === d.id ? "#e4e4e7" : neighbors.has(n.id) ? "#a1a1aa" : "#3f3f46"
+        )
+    })
+
+    nodeSel.on("mouseout", () => {
+      linkSel.attr("stroke-opacity", 0.5)
+      nodeSel.select("circle")
+        .attr("fill-opacity", 0.85)
+        .attr("r", nodeRadius)
+        .attr("stroke-opacity", 0.35)
+        .attr("stroke-width", 2)
+      nodeSel.select("text").attr("fill", "#a1a1aa")
+    })
+
+    const drag = d3.drag<SVGGElement, NodeDatum>()
+      .on("start", (event, d) => {
+        if (!event.active) simulationRef.current?.alphaTarget(0.3).restart()
+        d.fx = d.x
+        d.fy = d.y
+      })
+      .on("drag", (event, d) => {
+        d.fx = event.x
+        d.fy = event.y
+      })
+      .on("end", (event, d) => {
+        if (!event.active) simulationRef.current?.alphaTarget(0)
+        d.fx = null
+        d.fy = null
+      })
+
+    nodeSel.call(drag)
+
+    nodeSel.on("click", (_, d) => {
+      onNodeClickRef.current(d.id)
+    })
 
     const simulation = d3
       .forceSimulation(nodes)

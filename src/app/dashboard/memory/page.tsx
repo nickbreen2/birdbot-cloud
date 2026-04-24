@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import ListView from "@/components/memory/ListView"
@@ -37,9 +37,15 @@ function MemoryContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const view = (searchParams.get("view") ?? "graph") as "graph" | "list"
+  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
 
   function setView(v: "graph" | "list") {
     router.replace(`/dashboard/memory?view=${v}`)
+  }
+
+  function handleNodeClick(id: string) {
+    console.log("[Memory] node clicked:", id)
+    setSelectedEntityId(id)
   }
 
   if (view === "list") {
@@ -60,7 +66,7 @@ function MemoryContent() {
         <h1 className="font-heading font-bold text-2xl text-text-base">Memory</h1>
         <ViewToggle view={view} onChange={setView} />
       </div>
-      <GraphView />
+      <GraphView onNodeClick={handleNodeClick} />
     </div>
   )
 }
