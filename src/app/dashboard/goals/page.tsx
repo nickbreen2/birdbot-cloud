@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import ActiveCard, { type ActiveGoal } from "@/components/goals/ActiveCard"
+import PendingCard, { type PendingGoal } from "@/components/goals/PendingCard"
 
 interface GoalsData {
-  pending: unknown[]
+  pending: PendingGoal[]
   active: ActiveGoal[]
 }
 
@@ -80,20 +81,35 @@ export default function GoalsPage() {
       {!loading && !error && isEmpty && <EmptyState />}
 
       {!loading && !error && data && !isEmpty && (
-        <section>
-          <h2 className="text-[11px] font-bold font-sans text-text-muted uppercase tracking-widest mb-4">
-            Active Goals
-          </h2>
-          {data.active.length === 0 ? (
-            <p className="text-sm text-text-muted font-sans">No active goals.</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {data.active.map((goal) => (
-                <ActiveCard key={goal.id} goal={goal} />
-              ))}
-            </div>
+        <div className="flex flex-col gap-8">
+          {data.pending.length > 0 && (
+            <section>
+              <h2 className="text-[11px] font-bold font-sans text-text-muted uppercase tracking-widest mb-4">
+                Pending Confirmation
+              </h2>
+              <div className="flex flex-col gap-3">
+                {data.pending.map((goal) => (
+                  <PendingCard key={goal.id} goal={goal} />
+                ))}
+              </div>
+            </section>
           )}
-        </section>
+
+          <section>
+            <h2 className="text-[11px] font-bold font-sans text-text-muted uppercase tracking-widest mb-4">
+              Active Goals
+            </h2>
+            {data.active.length === 0 ? (
+              <p className="text-sm text-text-muted font-sans">No active goals.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {data.active.map((goal) => (
+                  <ActiveCard key={goal.id} goal={goal} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       )}
     </div>
   )
