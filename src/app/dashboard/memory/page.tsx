@@ -4,6 +4,7 @@ import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import ListView from "@/components/memory/ListView"
+import EntityPanel from "@/components/memory/EntityPanel"
 
 const GraphView = dynamic(() => import("@/components/memory/GraphView"), { ssr: false })
 
@@ -61,12 +62,18 @@ function MemoryContent() {
   }
 
   return (
-    <div className="px-6 md:px-8 pt-6 md:pt-8">
-      <div className="flex items-center justify-between pb-4">
-        <h1 className="font-heading font-bold text-2xl text-text-base">Memory</h1>
-        <ViewToggle view={view} onChange={setView} />
+    <div className="flex overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col px-6 md:px-8 pt-6 md:pt-8">
+        <div className="flex items-center justify-between pb-4 flex-shrink-0">
+          <h1 className="font-heading font-bold text-2xl text-text-base">Memory</h1>
+          <ViewToggle view={view} onChange={setView} />
+        </div>
+        <GraphView onNodeClick={handleNodeClick} />
       </div>
-      <GraphView onNodeClick={handleNodeClick} />
+      <EntityPanel
+        entityId={selectedEntityId}
+        onClose={() => setSelectedEntityId(null)}
+      />
     </div>
   )
 }
