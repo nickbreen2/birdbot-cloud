@@ -134,7 +134,7 @@ export function HeroSection() {
 
         {/* Subheadline */}
         <p
-          className="max-w-xl text-text-dim text-lg leading-relaxed font-sans"
+          className="max-w-xl text-text-dim text-sm sm:text-lg leading-relaxed font-sans"
           style={{ animation: "slide-up 0.5s 0.3s ease both", marginTop: "-4px" }}
         >
           The AI assistant that lives in your messages.<br />Text it, it remembers, it acts.
