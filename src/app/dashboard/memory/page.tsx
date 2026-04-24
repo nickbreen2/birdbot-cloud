@@ -20,6 +20,7 @@ function ViewToggle({
       {(["graph", "list"] as const).map((v) => (
         <button
           key={v}
+          type="button"
           onClick={() => onChange(v)}
           className={`px-3 py-1.5 text-xs font-semibold font-sans transition-colors ${
             view === v
@@ -45,7 +46,6 @@ function MemoryContent() {
   }
 
   function handleNodeClick(id: string) {
-    console.log("[Memory] node clicked:", id)
     setSelectedEntityId(id)
   }
 

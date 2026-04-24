@@ -230,6 +230,7 @@ export default function ListView() {
 
           {hasMore && (
             <button
+              type="button"
               onClick={() => {
                 if (nextCursor && !loadingMore) fetchFeed(false, debouncedQuery, nextCursor)
               }}

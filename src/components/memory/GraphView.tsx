@@ -308,15 +308,21 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
     <div style={{ height: "calc(100vh - 160px)", minHeight: "400px" }} className="relative">
       <svg ref={svgRef} className="w-full h-full" />
       {showOverlay && (
-        <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-depth/60">
+        <div
+          className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-depth/60"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sparse-overlay-heading"
+        >
           <div className="max-w-sm w-full mx-6 text-center px-6 py-8 rounded-2xl bg-panel border border-border">
-            <h3 className="font-heading font-bold text-lg text-text-base mb-3">
+            <h3 id="sparse-overlay-heading" className="font-heading font-bold text-lg text-text-base mb-3">
               Your knowledge graph is forming.
             </h3>
             <p className="text-sm font-sans text-text-muted leading-relaxed mb-6">
               Every message you send Bird adds nodes and connections here. Keep going — the more you share, the clearer the picture gets.
             </p>
             <button
+              type="button"
               onClick={handleDismiss}
               className="px-5 py-2 rounded-lg bg-blue text-white text-sm font-semibold font-sans hover:bg-blue/80 transition-colors"
             >

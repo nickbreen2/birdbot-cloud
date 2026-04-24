@@ -228,6 +228,7 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
                 ))}
                 {hasMore && (
                   <button
+                    type="button"
                     onClick={loadMore}
                     disabled={loadingMore}
                     className="w-full py-2.5 text-sm font-sans font-medium text-text-muted hover:text-text-dim border border-border rounded-xl hover:bg-panel transition-colors disabled:opacity-50"
