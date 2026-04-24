@@ -5,9 +5,14 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
 
+const WORDS = ["remembering.", "taking notes.", "scheduling.", "drafting emails.", "finding things."]
+const LONGEST_WORD = "drafting emails."
+
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
   const [isIOS, setIsIOS] = useState(false)
+  const [wordIndex, setWordIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     const ua = navigator.userAgent
@@ -16,6 +21,18 @@ export function HeroSection() {
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     setIsIOS(ios)
   }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setWordIndex(i => (i + 1) % WORDS.length)
+        setVisible(true)
+      }, 300)
+    }, 2000)
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-20 sm:pt-36 sm:pb-16 overflow-hidden">
       {/* Background atmosphere */}
@@ -82,62 +99,48 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* BirdBot wordmark */}
-        <div style={{ animation: "slide-up 0.5s 0.2s ease both", marginTop: "-12px" }}>
-          <span
-            className="font-heading font-black leading-none block select-none"
-            style={{
-              fontSize: "clamp(4.2rem, 12vw, 9rem)",
-              letterSpacing: "-0.035em",
-              background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            BirdBot
-          </span>
-        </div>
-
-        {/* Headline */}
+        {/* Headline with rotating word */}
         <h1
-          className="font-heading font-light tracking-widest"
+          className="font-heading font-bold text-white"
           style={{
-            fontSize: "clamp(0.85rem, 2vw, 1.15rem)",
-            color: "rgba(186,230,253,0.70)",
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            animation: "slide-up 0.5s 0.3s ease both",
-            marginTop: "-6px",
+            fontSize: "clamp(2.2rem, 5.5vw, 3.8rem)",
+            lineHeight: 1.15,
+            letterSpacing: "-0.02em",
+            animation: "slide-up 0.5s 0.2s ease both",
           }}
         >
-          Your AI Companion
+          Your AI assistant for
+          <br />
+          {/* Screen-reader static text — reads the current word in context without re-announcing on every cycle */}
+          <span className="sr-only">{WORDS[wordIndex]}</span>
+          {/* Visible rotating word — hidden from screen readers */}
+          <span className="relative inline-block" aria-hidden="true">
+            {/* Invisible longest word — locks container width to prevent layout shift */}
+            <span className="invisible select-none">{LONGEST_WORD}</span>
+            {/* Absolute overlay fades in/out */}
+            <span
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                color: "#eab308",
+                opacity: visible ? 1 : 0,
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              {WORDS[wordIndex]}
+            </span>
+          </span>
         </h1>
-
-        {/* Divider */}
-        <div
-          aria-hidden
-          style={{
-            width: "40px",
-            height: "1px",
-            background: "linear-gradient(90deg, transparent, rgba(125,211,252,0.35), transparent)",
-            animation: "slide-up 0.5s 0.35s ease both",
-            marginTop: "-4px",
-          }}
-        />
 
         {/* Subheadline */}
         <p
           className="max-w-xl text-text-dim text-lg leading-relaxed font-sans"
-          style={{ animation: "slide-up 0.5s 0.4s ease both", marginTop: "-4px" }}
+          style={{ animation: "slide-up 0.5s 0.3s ease both", marginTop: "-4px" }}
         >
-          Deploy your personal AI agent in seconds. It automates tasks, browses
-          the web, manages files, and connects to your apps — running 24/7, no
-          setup required.
+          The AI assistant that lives in your messages. Text it, it remembers, it acts.
         </p>
 
         {/* CTA */}
-        <div style={{ animation: "slide-up 0.5s 0.5s ease both" }}>
+        <div style={{ animation: "slide-up 0.5s 0.4s ease both" }}>
           <Link
             href={isLoaded && isSignedIn ? "/dashboard" : "/sign-up"}
             className="group inline-flex items-center gap-3 rounded-full font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
@@ -150,7 +153,7 @@ export function HeroSection() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-            {isLoaded && isSignedIn ? "Go to Dashboard" : "Create your BirdBot Agent"}
+            Try BirdBot free
             <span
               className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
               style={{
@@ -165,14 +168,6 @@ export function HeroSection() {
             </span>
           </Link>
         </div>
-
-        {/* Early-access text */}
-        <p
-          className="text-gold-light font-medium text-sm font-sans"
-          style={{ animation: "slide-up 0.5s 0.6s ease both" }}
-        >
-          Now accepting early access signups
-        </p>
       </div>
 
       {/* Bottom fade */}
