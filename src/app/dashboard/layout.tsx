@@ -3,7 +3,6 @@ import { MobileHeader } from "@/components/dashboard/MobileHeader"
 import { BottomTabBar } from "@/components/dashboard/BottomTabBar"
 import { SettingsModal } from "@/components/dashboard/SettingsModal"
 import { AccountModal } from "@/components/dashboard/AccountModal"
-import { NewProjectModalWrapper } from "@/components/dashboard/NewProjectModalWrapper"
 import { WizardProvider } from "@/components/onboarding/WizardContext"
 
 export default function DashboardLayout({
@@ -22,7 +21,6 @@ export default function DashboardLayout({
         <BottomTabBar />
         <SettingsModal />
         <AccountModal />
-        <NewProjectModalWrapper />
       </div>
     </WizardProvider>
   )
