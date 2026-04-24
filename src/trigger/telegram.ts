@@ -82,7 +82,7 @@ async function handleMessage(
     sourceType: "telegram",
     userId,
     sourceId: messageId.toString(),
-    snippet: text.length > 200 ? text.slice(0, 200) + "…" : text,
+    snippet: text,
   })
 
   if (result.error) {
