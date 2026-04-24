@@ -492,6 +492,8 @@ Active goals receive periodic check-ins via Telegram, capped at one per user per
 
 ## Sprint P5 — Dashboard + 2-Step Onboarding + Landing Page 📋 PLANNED
 
+> **Re-scope — 2026-04-24:** MVP shipping with 2 tabs (Memory + Integrations). Goals tab is fully built (API routes, page, components) but hidden from nav — will be re-enabled based on user feedback post-launch. Action wiring (pause/complete/abandon via ⋯ menu and pending card buttons) was never finished — stub state only. Reactivate by restoring the Goals nav item in `Sidebar.tsx` and `BottomTabBar.tsx`, then shipping the original commit 5 (action wiring). Rationale: post-launch decisions should be driven by user feedback, not pre-launch speculation.
+
 **Owner:** Nick + Claude Code
 **Goal:** Build the user-facing surfaces. The dashboard is for reviewing what the Bird captured. The landing page sells the Bird as a character. Onboarding is 2 steps and under 60 seconds.
 

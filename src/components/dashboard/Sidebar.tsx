@@ -3,11 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
-import { Brain, Target, Link2 } from "lucide-react"
+import { Brain, Link2 } from "lucide-react"
 
 const navItems = [
   { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
-  { label: "Goals",        href: "/dashboard/goals",        icon: Target },
   { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
