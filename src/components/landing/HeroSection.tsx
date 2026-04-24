@@ -34,7 +34,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-20 sm:pt-36 sm:pb-16 overflow-hidden">
+    <section className="relative min-h-[82vh] flex flex-col items-center justify-center px-4 pt-20 pb-8 sm:pt-24 sm:pb-8 overflow-hidden">
       {/* Background atmosphere */}
       <div
         aria-hidden
