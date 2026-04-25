@@ -66,7 +66,7 @@ export function ConversationDemo() {
     <section className="py-20 px-4 overflow-hidden" id="demo">
       {/* Sky scene card */}
       <div
-        className="relative mx-auto overflow-hidden h-[440px] md:h-[720px]"
+        className="relative mx-auto overflow-hidden h-[520px] md:h-[720px]"
         style={{
           maxWidth: 880,
           borderRadius: 28,
