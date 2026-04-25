@@ -117,7 +117,7 @@ export function ConversationDemo() {
             top: phoneTop,
             width: SCALED_W,
             height: SCALED_H,
-            overflow: 'visible',
+            overflow: 'hidden',
             zIndex: 2,
           }}
         >
