@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 
 const MESSAGES = [
   { from: "bird", text: "morning! you've got 16 unread emails and a meeting with Sarah at 2pm" },
@@ -15,7 +15,7 @@ const MESSAGES = [
 function TypingIndicator() {
   return (
     <div className="flex justify-start mb-1.5">
-      <div className="flex items-center gap-1 px-4 py-3 rounded-[18px] rounded-bl-[4px]" style={{ background: "#e5e5ea" }}>
+      <div className="flex items-center gap-1 px-3.5 py-3 rounded-[18px] rounded-bl-[4px]" style={{ background: "#e5e5ea" }}>
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "0ms" }} />
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "200ms" }} />
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "400ms" }} />
@@ -39,12 +39,12 @@ function MessageBubble({ msg, visible, isNewSender, tightBottom }: MessageBubble
       className={`flex ${isUser ? "justify-end" : "justify-start"} ${mb}`}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)",
-        transition: "opacity 0.2s ease, transform 0.2s ease",
+        transform: visible ? "translateY(0)" : "translateY(6px)",
+        transition: "opacity 0.25s ease, transform 0.25s ease",
       }}
     >
       <div
-        className={`max-w-[75%] px-4 py-2.5 text-[15px] leading-snug ${
+        className={`max-w-[70%] px-3.5 py-2 text-[14px] leading-snug ${
           isUser ? "rounded-[18px] rounded-br-[4px]" : "rounded-[18px] rounded-bl-[4px]"
         }`}
         style={{
@@ -62,7 +62,6 @@ function MessageBubble({ msg, visible, isNewSender, tightBottom }: MessageBubble
 export function PhoneMockup() {
   const [visibleMessages, setVisibleMessages] = useState<Set<number>>(new Set())
   const [showTyping, setShowTyping] = useState(false)
-  const chatRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -122,14 +121,9 @@ export function PhoneMockup() {
     return () => { cancelled = true }
   }, [])
 
-  useEffect(() => {
-    const el = chatRef.current
-    if (el) el.scrollTop = el.scrollHeight
-  }, [visibleMessages, showTyping])
-
   return (
     <div className="relative mx-auto select-none" style={{ width: "310px", maxWidth: "100%" }}>
-      {/* iPhone SVG frame */}
+      {/* iPhone frame — drop shadow lifts it off the dark page background */}
       <Image
         src="/iphone-frame.svg"
         alt=""
@@ -137,7 +131,12 @@ export function PhoneMockup() {
         height={3630}
         unoptimized
         aria-hidden
-        style={{ display: "block", width: "100%", height: "auto" }}
+        style={{
+          display: "block",
+          width: "100%",
+          height: "auto",
+          filter: "drop-shadow(0 28px 70px rgba(0,0,0,0.7)) drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
+        }}
       />
 
       {/* iMessage UI — overlaid on the screen area */}
@@ -155,18 +154,29 @@ export function PhoneMockup() {
           flexDirection: "column",
         }}
       >
-        {/* Dynamic Island */}
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0" style={{ background: "#f2f2f7" }}>
-          <div style={{ width: "120px", height: "34px", background: "#000", borderRadius: "20px" }} />
-        </div>
-
-        {/* Status bar */}
+        {/* Status bar — Dynamic Island centered, time left, icons right, all one row */}
         <div
-          className="flex items-center justify-between px-6 pb-1 flex-shrink-0"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif" }}
+          className="relative flex items-center flex-shrink-0 px-5"
+          style={{ height: "54px" }}
         >
-          <span style={{ fontSize: "15px", fontWeight: 600, color: "#000" }}>9:41</span>
-          <div className="flex items-center gap-1.5">
+          <span style={{ fontSize: "15px", fontWeight: 600, color: "#000", lineHeight: 1, position: "relative", zIndex: 1 }}>
+            9:41
+          </span>
+          {/* Dynamic Island pill — absolute center of the row */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "126px",
+              height: "37px",
+              background: "#000",
+              borderRadius: "22px",
+            }}
+          />
+          <div className="ml-auto flex items-center gap-1.5" style={{ position: "relative", zIndex: 1 }}>
             <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
               <rect x="0" y="8" width="3" height="4" rx="0.5" fill="#000" />
               <rect x="4.5" y="5.5" width="3" height="6.5" rx="0.5" fill="#000" />
@@ -186,42 +196,38 @@ export function PhoneMockup() {
           </div>
         </div>
 
-        {/* Header — three-column flex for true centering */}
+        {/* iMessage header — three-column, true center */}
         <div
-          className="flex items-center px-4 py-3 flex-shrink-0"
-          style={{ borderBottom: "1px solid rgba(0,0,0,0.12)" }}
+          className="flex items-center px-4 py-2 flex-shrink-0"
+          style={{ borderBottom: "1px solid rgba(0,0,0,0.1)" }}
         >
-          {/* Left: back arrow — fixed width */}
           <div style={{ width: "32px" }}>
-            <button className="flex items-center text-[#007AFF]" aria-label="Back" tabIndex={-1}>
+            <button className="flex items-center" aria-label="Back" tabIndex={-1}>
               <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
-                <path d="M9 1L1 8.5L9 16" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9 1L1 8.5L9 16" stroke="#007AFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           </div>
 
-          {/* Center: avatar + "Bird >" */}
           <div className="flex-1 flex flex-col items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden">
               <Image src="/birdbot-animated (1).svg" alt="Bird" width={32} height={32} unoptimized priority />
             </div>
-            <span style={{ fontSize: "11px", color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 500, marginTop: "2px" }}>
-              Bird &gt;
+            <span style={{ fontSize: "11px", color: "#007AFF", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400, marginTop: "1px" }}>
+              Bird ›
             </span>
           </div>
 
-          {/* Right: balanced spacer — no icons */}
           <div style={{ width: "32px" }} />
         </div>
 
-        {/* Chat area */}
+        {/* Chat area — white background, no auto-scroll so msg0 is always visible */}
         <div
-          ref={chatRef}
-          className="flex-1 overflow-y-hidden px-3 pt-4 pb-2"
-          style={{ scrollBehavior: "smooth" }}
+          className="flex-1 overflow-y-hidden px-3 pt-3 pb-2"
+          style={{ background: "#fff" }}
         >
           <div
-            className="text-center mb-4"
+            className="text-center mb-3"
             style={{ fontSize: "11px", fontWeight: 500, color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif" }}
           >
             Today 7:52 AM
@@ -245,7 +251,7 @@ export function PhoneMockup() {
                       fontWeight: 500,
                       color: "#8e8e93",
                       marginTop: "3px",
-                      marginBottom: "12px",
+                      marginBottom: "10px",
                       paddingRight: "4px",
                       fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
                     }}
@@ -263,7 +269,7 @@ export function PhoneMockup() {
         {/* Input bar */}
         <div
           className="flex items-center gap-2 px-3 py-2 flex-shrink-0"
-          style={{ borderTop: "1px solid rgba(0,0,0,0.12)", background: "#f2f2f7" }}
+          style={{ borderTop: "1px solid rgba(0,0,0,0.1)", background: "#f2f2f7" }}
         >
           <button aria-label="Add" tabIndex={-1}>
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
