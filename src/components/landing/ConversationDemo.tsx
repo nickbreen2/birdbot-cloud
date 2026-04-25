@@ -1,6 +1,8 @@
 "use client"
 
-import BirdbotIMessage from "@/components/birdbot/BirdbotIMessage"
+import { useState } from "react"
+import BirdbotIMessage, { type ActiveLogo } from "@/components/birdbot/BirdbotIMessage"
+import { IntegrationCallouts } from "@/components/landing/IntegrationCallouts"
 
 // ── Phone dimensions ───────────────────────────────────────────────────────────
 // Full device: 402 + 10px case on each side = 422 × 894
@@ -58,6 +60,7 @@ function Cloud({ scale, opacity, index }: { scale: number; opacity: number; inde
 export function ConversationDemo() {
   const phoneTop = Math.round((CONTAINER_H - SCALED_H) / 2) // 38px
   const phoneLeft = `calc(50% - ${Math.round(SCALED_W / 2)}px)`
+  const [activeLogo, setActiveLogo] = useState<ActiveLogo>(null)
 
   return (
     <section className="py-20 px-4 overflow-hidden" id="demo">
@@ -108,6 +111,9 @@ export function ConversationDemo() {
           </div>
         ))}
 
+        {/* Integration callouts — contextual logo pop-ins */}
+        <IntegrationCallouts key={activeLogo?.triggerId} activeLogo={activeLogo} />
+
         {/* Phone — in front of clouds */}
         <div
           aria-hidden
@@ -129,7 +135,7 @@ export function ConversationDemo() {
               transformOrigin: 'top left',
             }}
           >
-            <BirdbotIMessage />
+            <BirdbotIMessage onLogoTrigger={setActiveLogo} />
           </div>
         </div>
 

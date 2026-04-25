@@ -13,6 +13,12 @@ import {
 
 type Side = "me" | "them";
 
+export type ActiveLogo = {
+  logo: "gmail" | "drive" | "calendar"
+  side: "left" | "right"
+  triggerId: number
+} | null
+
 type ChatItem =
   | { id: string; kind: "msg"; from: Side; text: string }
   | { id: string; kind: "typing"; from: Side };
@@ -44,12 +50,14 @@ const SCRIPT: ScriptStep[] = [
   { kind: "restart", delay: 5000 },
 ];
 
-function useTimeline(autoplay: boolean) {
+function useTimeline(autoplay: boolean, onLogoTrigger?: (logo: ActiveLogo) => void) {
   const [chat, setChat] = useState<ChatItem[]>([]);
   const [composing, setComposing] = useState("");
   const [showRead, setShowRead] = useState(false);
   const idRef = useRef(0);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const onLogoTriggerRef = useRef(onLogoTrigger);
+  onLogoTriggerRef.current = onLogoTrigger;
 
   const clearAll = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -67,6 +75,7 @@ function useTimeline(autoplay: boolean) {
     };
 
     let t = 400;
+    let msgCount = 0;
     for (let i = 0; i < SCRIPT.length; i++) {
       const step = SCRIPT[i];
 
@@ -86,12 +95,16 @@ function useTimeline(autoplay: boolean) {
         t += 50;
         const id = `msg-${++idRef.current}`;
         const step_ = step;
+        const idx = msgCount++;
         schedule(() => {
           setChat((c) => [
             ...c,
             { id, kind: "msg", from: step_.from, text: step_.text },
           ]);
           if (step_.from === "me") setShowRead(false);
+          if (idx === 0) onLogoTriggerRef.current?.({ logo: "gmail", side: "left", triggerId: Date.now() });
+          if (idx === 2) onLogoTriggerRef.current?.({ logo: "drive", side: "right", triggerId: Date.now() });
+          if (idx === 4) onLogoTriggerRef.current?.({ logo: "calendar", side: "left", triggerId: Date.now() });
         }, t);
       } else if (step.kind === "compose") {
         t += step.delay;
@@ -126,6 +139,7 @@ interface MessagesScreenProps {
   agentAvatar?: string;
   bubbleColor?: string;
   autoplay?: boolean;
+  onLogoTrigger?: (logo: ActiveLogo) => void;
 }
 
 function MessagesScreen({
@@ -133,8 +147,9 @@ function MessagesScreen({
   agentAvatar = "🐦",
   bubbleColor = "#007AFF",
   autoplay = true,
+  onLogoTrigger,
 }: MessagesScreenProps) {
-  const { chat, composing, showRead } = useTimeline(autoplay);
+  const { chat, composing, showRead } = useTimeline(autoplay, onLogoTrigger);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -209,11 +224,11 @@ export interface BirdbotIMessageProps extends MessagesScreenProps {
   onDarkBackground?: boolean;
 }
 
-export default function BirdbotIMessage(props: BirdbotIMessageProps) {
+export default function BirdbotIMessage({ onLogoTrigger, ...props }: BirdbotIMessageProps) {
   return (
     <div className="flex w-full items-center justify-center">
       <IOSDevice width={402} height={874}>
-        <MessagesScreen {...props} />
+        <MessagesScreen onLogoTrigger={onLogoTrigger} {...props} />
       </IOSDevice>
     </div>
   );
