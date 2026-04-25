@@ -7,8 +7,8 @@ const SF = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-u
 const BUBBLE_GRAY = '#E9E9EB'
 const TEXT_SEC = 'rgba(60,60,67,0.6)'
 
-// Scale: reference design is 402×874px; we render at 250px wide
-const W = 250
+// Scale: reference design is 402×874px; we render at 310px wide
+const W = 310
 const H = Math.round(W * 874 / 402)  // 674
 const S = W / 402
 const p = (n: number) => Math.round(n * S)
