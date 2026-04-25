@@ -66,9 +66,8 @@ export function ConversationDemo() {
     <section className="py-20 px-4 overflow-hidden" id="demo">
       {/* Sky scene card */}
       <div
-        className="relative mx-auto overflow-hidden h-[520px] md:h-[720px]"
+        className="relative mx-auto overflow-hidden h-[520px] md:h-[720px] max-w-[880px] lg:max-w-[1100px]"
         style={{
-          maxWidth: 880,
           borderRadius: 28,
           background: 'linear-gradient(180deg, #4A9FE8 0%, #6FB4EE 30%, #9CCDF4 65%, #C8E2F8 100%)',
           border: '1px solid rgba(255,255,255,0.14)',
