@@ -92,14 +92,9 @@ html, body {
   100% { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
-@keyframes orbit-cw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-@keyframes orbit-ccw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
+@keyframes cloud-drift {
+  from { transform: translateX(1100px); }
+  to   { transform: translateX(-300px); }
 }
 
 /* ── Utility ── */
