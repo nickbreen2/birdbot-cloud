@@ -76,9 +76,9 @@ html, body {
   100% { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
-@keyframes logo-drift {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-4px); }
+@keyframes orbit-cw {
+  from { transform: rotate(0deg)   translateX(var(--orbit-r)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r)) rotate(-360deg); }
 }
 
 /* ── Utility ── */
