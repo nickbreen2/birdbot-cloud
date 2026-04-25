@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { OrbitalLogos, type ActiveIntegration } from "./OrbitalLogos"
+import { OrbitalLogos } from "./OrbitalLogos"
 
 const SF = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, sans-serif'
 const BUBBLE_GRAY = '#E9E9EB'
@@ -61,7 +61,6 @@ function useTimeline() {
   const [chat, setChat] = useState<ChatItem[]>([])
   const [composing, setComposing] = useState('')
   const [showRead, setShowRead] = useState(false)
-  const [activeIntegration, setActiveIntegration] = useState<ActiveIntegration>(null)
   const idRef = useRef(0)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const runRef = useRef<() => void>(() => {})
@@ -71,7 +70,7 @@ function useTimeline() {
 
   const run = useCallback(() => {
     clearTimers()
-    setChat([]); setComposing(''); setShowRead(false); setActiveIntegration(null)
+    setChat([]); setComposing(''); setShowRead(false)
 
     let t = 400
     for (let i = 0; i < SCRIPT.length; i++) {
@@ -90,14 +89,6 @@ function useTimeline() {
         after(() => {
           setChat(c => [...c, { id, kind: 'msg', from, text }])
           if (from === 'me') setShowRead(false)
-          const lower = text.toLowerCase()
-          if (lower.includes('gmail')) {
-            setActiveIntegration('gmail')
-            timers.current.push(setTimeout(() => setActiveIntegration(null), 1500))
-          } else if (lower.includes('calendar')) {
-            setActiveIntegration('calendar')
-            timers.current.push(setTimeout(() => setActiveIntegration(null), 1500))
-          }
         }, t)
       } else if (step.kind === 'compose') {
         t += step.delay
@@ -120,7 +111,7 @@ function useTimeline() {
   useEffect(() => { runRef.current = run })
   useEffect(() => { run(); return clearTimers }, [run])
 
-  return { chat, composing, showRead, activeIntegration }
+  return { chat, composing, showRead }
 }
 
 // ── Status bar ────────────────────────────────────────────────
@@ -355,7 +346,7 @@ function InputBar({ value }: { value: string }) {
 // ── Main component ────────────────────────────────────────────
 
 export function PhoneMockup() {
-  const { chat, composing, showRead, activeIntegration } = useTimeline()
+  const { chat, composing, showRead } = useTimeline()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -385,7 +376,7 @@ export function PhoneMockup() {
 
   return (
     <div className="select-none" style={{ position: 'relative', display: 'inline-block' }}>
-      <OrbitalLogos activeIntegration={activeIntegration} />
+      <OrbitalLogos />
       {/* Titanium case ring */}
       <div style={{
         padding: CT,
