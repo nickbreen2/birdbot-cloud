@@ -34,20 +34,20 @@ type ScriptStep =
   | { kind: "restart"; delay: number };
 
 const SCRIPT: ScriptStep[] = [
-  { kind: "typing", from: "them", delay: 600, dur: 1500 },
+  { kind: "typing", from: "them", delay: 450, dur: 1100 },
   { kind: "msg", from: "them", text: "morning! you've got 16 unread emails and a meeting with Sarah at 2pm" },
-  { kind: "typing", from: "them", delay: 700, dur: 1400 },
+  { kind: "typing", from: "them", delay: 500, dur: 1000 },
   { kind: "msg", from: "them", text: "want me to draft replies and send you a prep doc?" },
-  { kind: "compose", delay: 1200, text: "yes + find the q3 notes we talked about", dur: 1600 },
+  { kind: "compose", delay: 900, text: "yes + find the q3 notes we talked about", dur: 1200 },
   { kind: "msg", from: "me", text: "yes + find the q3 notes we talked about" },
-  { kind: "read", delay: 600 },
-  { kind: "typing", from: "them", delay: 1100, dur: 1700 },
+  { kind: "read", delay: 450 },
+  { kind: "typing", from: "them", delay: 800, dur: 1250 },
   { kind: "msg", from: "them", text: "✓ 3 drafts ready in Gmail" },
-  { kind: "typing", from: "them", delay: 600, dur: 1300 },
+  { kind: "typing", from: "them", delay: 450, dur: 950 },
   { kind: "msg", from: "them", text: "✓ prep doc saved to your calendar invite" },
-  { kind: "typing", from: "them", delay: 700, dur: 1900 },
+  { kind: "typing", from: "them", delay: 500, dur: 1400 },
   { kind: "msg", from: "them", text: 'q3 notes — you asked me to remember "pricing lands at $29" last Tuesday' },
-  { kind: "restart", delay: 5000 },
+  { kind: "restart", delay: 3500 },
 ];
 
 function useTimeline(autoplay: boolean, onLogoTrigger?: (logo: ActiveLogo) => void) {
@@ -74,7 +74,7 @@ function useTimeline(autoplay: boolean, onLogoTrigger?: (logo: ActiveLogo) => vo
       timeoutsRef.current.push(setTimeout(fn, t));
     };
 
-    let t = 400;
+    let t = 300;
     let msgCount = 0;
     for (let i = 0; i < SCRIPT.length; i++) {
       const step = SCRIPT[i];
