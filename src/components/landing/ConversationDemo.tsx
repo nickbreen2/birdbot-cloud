@@ -117,8 +117,8 @@ export function ConversationDemo() {
             top: phoneTop,
             width: SCALED_W,
             height: SCALED_H,
-            overflow: 'hidden',
-            zIndex: 2,
+            clipPath: 'inset(0px -200px -200px -200px)',
+            zIndex: 4,
           }}
         >
           <div
