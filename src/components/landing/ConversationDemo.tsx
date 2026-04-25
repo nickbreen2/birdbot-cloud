@@ -1,62 +1,53 @@
 "use client"
 
-import { OrbitalLogos, LogoRow } from "./OrbitalLogos"
-import { PhoneMockup } from "./PhoneMockup"
+import BirdbotIMessage from "@/components/birdbot/BirdbotIMessage"
+
+// Full device dimensions (402 wide + 10px case on each side, 874 tall + 10px case on each side)
+const DEVICE_W = 422
+const DEVICE_H = 894
+const SCALE = 0.64
 
 export function ConversationDemo() {
   return (
     <section className="py-20 px-4 overflow-hidden" id="demo">
-      {/* Section heading */}
-      <div className="text-center mb-12">
-        <h2
-          className="font-heading font-bold text-white"
+      <div aria-hidden="true" className="flex justify-center">
+        {/*
+          scale() doesn't affect layout dimensions, so we set the outer container
+          to the visual (scaled) size and position the phone absolutely inside it.
+        */}
+        <div
           style={{
-            fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-            letterSpacing: "-0.02em",
-            lineHeight: 1.2,
+            width: Math.round(DEVICE_W * SCALE),
+            height: Math.round(DEVICE_H * SCALE),
+            position: "relative",
+            flexShrink: 0,
           }}
         >
-          Bird in your messages
-        </h2>
-        <p
-          className="mt-3 font-sans text-text-dim text-base sm:text-lg max-w-md mx-auto"
-          style={{ lineHeight: 1.6 }}
-        >
-          Text it like a friend. It remembers everything and acts on your tools.
-        </p>
-      </div>
-
-      {/* Visual demo — aria-hidden, all animation is decorative */}
-      <div aria-hidden="true">
-        {/* Desktop orbital layout — lg+ only */}
-        <div
-          className="relative mx-auto hidden lg:block"
-          style={{ width: "740px", height: "700px" }}
-        >
-          {/* Phone — absolutely centered in the container */}
-          <div style={{ position: "absolute", left: "200px", top: "20px" }}>
-            <PhoneMockup />
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: DEVICE_W,
+              height: DEVICE_H,
+              transform: `scale(${SCALE})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <BirdbotIMessage />
           </div>
-          {/* Orbital logos + SVG connector lines */}
-          <OrbitalLogos />
-        </div>
-
-        {/* Mobile / tablet layout — below lg */}
-        <div className="flex flex-col items-center gap-10 lg:hidden">
-          <PhoneMockup />
-          <LogoRow />
         </div>
       </div>
 
       {/* Screen reader version of the conversation */}
       <div className="sr-only">
-        <p>Conversation between you and Bird:</p>
-        <p>Bird: morning! you&#39;ve got 16 unread emails and a meeting with Sarah at 2pm</p>
-        <p>Bird: want me to draft replies and send you a prep doc?</p>
+        <p>Conversation between you and Birdbot:</p>
+        <p>Birdbot: morning! you&#39;ve got 16 unread emails and a meeting with Sarah at 2pm</p>
+        <p>Birdbot: want me to draft replies and send you a prep doc?</p>
         <p>You: yes + find the q3 notes we talked about</p>
-        <p>Bird: ✓ 3 drafts ready in Gmail</p>
-        <p>Bird: ✓ prep doc saved to your calendar invite</p>
-        <p>Bird: q3 notes — you asked me to remember &quot;pricing lands at $29&quot; last Tuesday</p>
+        <p>Birdbot: ✓ 3 drafts ready in Gmail</p>
+        <p>Birdbot: ✓ prep doc saved to your calendar invite</p>
+        <p>Birdbot: q3 notes — you asked me to remember &quot;pricing lands at $29&quot; last Tuesday</p>
       </div>
     </section>
   )
