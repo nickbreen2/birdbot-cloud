@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 
 const MESSAGES = [
   { from: "bird", text: "morning! you've got 16 unread emails and a meeting with Sarah at 2pm" },
@@ -14,11 +14,8 @@ const MESSAGES = [
 
 function TypingIndicator() {
   return (
-    <div className="flex items-end gap-2 mb-2">
-      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0" style={{ background: "#e5e5ea" }}>
-        <Image src="/birdbot-animated (1).svg" alt="" width={32} height={32} unoptimized aria-hidden />
-      </div>
-      <div className="flex items-center gap-1 px-4 py-3 rounded-[20px] rounded-bl-[4px]" style={{ background: "#e5e5ea" }}>
+    <div className="flex justify-start mb-1.5">
+      <div className="flex items-center gap-1 px-4 py-3 rounded-[18px] rounded-bl-[4px]" style={{ background: "#e5e5ea" }}>
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "0ms" }} />
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "200ms" }} />
         <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "400ms" }} />
@@ -30,30 +27,29 @@ function TypingIndicator() {
 interface MessageBubbleProps {
   msg: (typeof MESSAGES)[number]
   visible: boolean
+  isNewSender: boolean
+  tightBottom?: boolean
 }
 
-function MessageBubble({ msg, visible }: MessageBubbleProps) {
+function MessageBubble({ msg, visible, isNewSender, tightBottom }: MessageBubbleProps) {
   const isUser = msg.from === "user"
+  const mb = tightBottom ? "mb-0" : isNewSender ? "mb-3" : "mb-1.5"
   return (
     <div
-      className={`flex items-end gap-2 mb-2 ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} ${mb}`}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(8px)",
         transition: "opacity 0.2s ease, transform 0.2s ease",
       }}
     >
-      {!isUser && (
-        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0" style={{ background: "#e5e5ea" }}>
-          <Image src="/birdbot-animated (1).svg" alt="" width={32} height={32} unoptimized aria-hidden />
-        </div>
-      )}
       <div
-        className="max-w-[75%] px-4 py-2.5 text-[15px] leading-snug"
+        className={`max-w-[75%] px-4 py-2.5 text-[15px] leading-snug ${
+          isUser ? "rounded-[18px] rounded-br-[4px]" : "rounded-[18px] rounded-bl-[4px]"
+        }`}
         style={{
           background: isUser ? "#007AFF" : "#e5e5ea",
           color: isUser ? "#fff" : "#000",
-          borderRadius: isUser ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         }}
       >
@@ -133,7 +129,7 @@ export function PhoneMockup() {
 
   return (
     <div className="relative mx-auto select-none" style={{ width: "310px", maxWidth: "100%" }}>
-      {/* iPhone SVG frame — sets container dimensions and provides phone chrome */}
+      {/* iPhone SVG frame */}
       <Image
         src="/iphone-frame.svg"
         alt=""
@@ -190,33 +186,32 @@ export function PhoneMockup() {
           </div>
         </div>
 
-        {/* iMessage chat header */}
+        {/* Header — three-column flex for true centering */}
         <div
-          className="flex items-center px-4 py-2 flex-shrink-0"
+          className="flex items-center px-4 py-3 flex-shrink-0"
           style={{ borderBottom: "1px solid rgba(0,0,0,0.12)" }}
         >
-          <button className="flex items-center gap-0.5 text-[#007AFF] mr-2" aria-label="Back" tabIndex={-1}>
-            <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
-              <path d="M9 1L1 8.5L9 16" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          {/* Left: back arrow — fixed width */}
+          <div style={{ width: "32px" }}>
+            <button className="flex items-center text-[#007AFF]" aria-label="Back" tabIndex={-1}>
+              <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
+                <path d="M9 1L1 8.5L9 16" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Center: avatar + "Bird >" */}
           <div className="flex-1 flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: "#e5e5ea" }}>
-              <Image src="/birdbot-animated (1).svg" alt="Bird" width={40} height={40} unoptimized priority />
+            <div className="w-8 h-8 rounded-full overflow-hidden">
+              <Image src="/birdbot-animated (1).svg" alt="Bird" width={32} height={32} unoptimized priority />
             </div>
-            <span style={{ fontSize: "12px", color: "#000", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400, marginTop: "2px" }}>
-              Bird
+            <span style={{ fontSize: "11px", color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 500, marginTop: "2px" }}>
+              Bird &gt;
             </span>
           </div>
-          <div className="flex items-center gap-4 ml-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.63 19.79 19.79 0 01.06 2 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-            </svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="23 7 16 12 23 17 23 7" />
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-            </svg>
-          </div>
+
+          {/* Right: balanced spacer — no icons */}
+          <div style={{ width: "32px" }} />
         </div>
 
         {/* Chat area */}
@@ -227,13 +222,41 @@ export function PhoneMockup() {
         >
           <div
             className="text-center mb-4"
-            style={{ fontSize: "12px", color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif" }}
+            style={{ fontSize: "11px", fontWeight: 500, color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif" }}
           >
             Today 7:52 AM
           </div>
-          {MESSAGES.map((msg, i) => (
-            <MessageBubble key={i} msg={msg} visible={visibleMessages.has(i)} />
-          ))}
+
+          {MESSAGES.map((msg, i) => {
+            const isNewSender = i === 0 || MESSAGES[i - 1].from !== msg.from
+            return (
+              <Fragment key={i}>
+                <MessageBubble
+                  msg={msg}
+                  visible={visibleMessages.has(i)}
+                  isNewSender={isNewSender}
+                  tightBottom={i === 2}
+                />
+                {i === 2 && visibleMessages.has(2) && !visibleMessages.has(3) && (
+                  <div
+                    className="text-right"
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 500,
+                      color: "#8e8e93",
+                      marginTop: "3px",
+                      marginBottom: "12px",
+                      paddingRight: "4px",
+                      fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+                    }}
+                  >
+                    Delivered
+                  </div>
+                )}
+              </Fragment>
+            )
+          })}
+
           {showTyping && <TypingIndicator />}
         </div>
 
