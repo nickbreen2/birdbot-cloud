@@ -65,12 +65,29 @@ html, body {
   40%           { transform: translateY(-5px); }
 }
 
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30%           { opacity: 1;    transform: translateY(-3px); }
+}
+
+@keyframes bubble-in {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(0)   scale(1.02); }
+  100% { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+@keyframes logo-drift {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
 /* ── Utility ── */
 .animate-pulse-dot  { animation: pulse-dot 2s ease-in-out infinite; }
 .animate-glow-breath { animation: glow-breath 3s ease-in-out infinite; }
 .animate-slide-up   { animation: slide-up 0.5s ease forwards; }
 .animate-float      { animation: float 4s ease-in-out infinite; }
 .animate-bounce-dot { animation: bounce-dot 1.2s ease-in-out infinite; }
+.animate-bubble-in  { animation: bubble-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
 
 /* gradient text */
 .text-gradient-blue {

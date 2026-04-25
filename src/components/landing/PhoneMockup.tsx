@@ -1,295 +1,482 @@
 "use client"
 
-import Image from "next/image"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { OrbitalLogos, type ActiveIntegration } from "./OrbitalLogos"
 
-const MESSAGES = [
-  { from: "bird", text: "morning! you've got 16 unread emails and a meeting with Sarah at 2pm" },
-  { from: "bird", text: "want me to draft replies and send you a prep doc?" },
-  { from: "user", text: "yes + find the q3 notes we talked about" },
-  { from: "bird", text: "✓ 3 drafts ready in Gmail" },
-  { from: "bird", text: "✓ prep doc saved to your calendar invite" },
-  { from: "bird", text: 'q3 notes — you asked me to remember "pricing lands at $29" last Tuesday' },
-] as const
+const SF = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, sans-serif'
+const BUBBLE_GRAY = '#E9E9EB'
+const TEXT_SEC = 'rgba(60,60,67,0.6)'
 
-function TypingIndicator() {
-  return (
-    <div className="flex justify-start mb-1.5">
-      <div className="flex items-center gap-1 px-3.5 py-3 rounded-[18px] rounded-bl-[4px]" style={{ background: "#e5e5ea" }}>
-        <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "0ms" }} />
-        <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "200ms" }} />
-        <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce-dot" style={{ animationDelay: "400ms" }} />
-      </div>
-    </div>
-  )
+// Scale: reference design is 402×874px; we render at 310px wide
+const W = 310
+const H = Math.round(W * 874 / 402)  // 674
+const S = W / 402
+const p = (n: number) => Math.round(n * S)
+
+const CT      = p(10)                  // titanium case thickness
+const HOME_H  = p(22)                  // home spacer height
+const BAR_H   = p(7) + p(33) + p(10)  // input bar height
+const COVER_H = HOME_H + BAR_H        // total opaque cover at bottom
+
+// ── Script ────────────────────────────────────────────────────
+
+type ScriptStep =
+  | { kind: 'typing'; from: 'them'; delay: number; dur: number }
+  | { kind: 'msg'; from: 'me' | 'them'; text: string }
+  | { kind: 'compose'; delay: number; text: string; dur: number }
+  | { kind: 'read'; delay: number }
+  | { kind: 'restart'; delay: number }
+
+const SCRIPT: ScriptStep[] = [
+  { kind: 'typing', from: 'them', delay: 600, dur: 1500 },
+  { kind: 'msg', from: 'them', text: "morning! you've got 16 unread emails and a meeting with Sarah at 2pm" },
+  { kind: 'typing', from: 'them', delay: 700, dur: 1400 },
+  { kind: 'msg', from: 'them', text: 'want me to draft replies and send you a prep doc?' },
+  { kind: 'compose', delay: 1200, text: 'yes + find the q3 notes we talked about', dur: 1600 },
+  { kind: 'msg', from: 'me', text: 'yes + find the q3 notes we talked about' },
+  { kind: 'read', delay: 600 },
+  { kind: 'typing', from: 'them', delay: 1100, dur: 1700 },
+  { kind: 'msg', from: 'them', text: '✓ 3 drafts ready in Gmail' },
+  { kind: 'typing', from: 'them', delay: 600, dur: 1300 },
+  { kind: 'msg', from: 'them', text: '✓ prep doc saved to your calendar invite' },
+  { kind: 'typing', from: 'them', delay: 700, dur: 1900 },
+  { kind: 'msg', from: 'them', text: 'q3 notes — you asked me to remember "pricing lands at $29" last Tuesday' },
+  { kind: 'restart', delay: 5000 },
+]
+
+// ── Chat state ────────────────────────────────────────────────
+
+type ChatItem = {
+  id: string
+  kind: 'msg' | 'typing'
+  from: 'me' | 'them'
+  text?: string
 }
 
-interface MessageBubbleProps {
-  msg: (typeof MESSAGES)[number]
-  visible: boolean
-  isNewSender: boolean
-  tightBottom?: boolean
-}
+type RichItem = ChatItem & { tail: boolean; grouped: boolean }
 
-function MessageBubble({ msg, visible, isNewSender, tightBottom }: MessageBubbleProps) {
-  const isUser = msg.from === "user"
-  const mb = tightBottom ? "mb-0" : isNewSender ? "mb-3" : "mb-1.5"
-  return (
-    <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} ${mb}`}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(6px)",
-        transition: "opacity 0.25s ease, transform 0.25s ease",
-      }}
-    >
-      <div
-        className={`max-w-[70%] px-3.5 py-2 text-[14px] leading-snug ${
-          isUser ? "rounded-[18px] rounded-br-[4px]" : "rounded-[18px] rounded-bl-[4px]"
-        }`}
-        style={{
-          background: isUser ? "#007AFF" : "#e5e5ea",
-          color: isUser ? "#fff" : "#000",
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        }}
-      >
-        {msg.text}
-      </div>
-    </div>
-  )
-}
+// ── Timeline hook ─────────────────────────────────────────────
 
-export function PhoneMockup() {
-  const [visibleMessages, setVisibleMessages] = useState<Set<number>>(new Set())
-  const [showTyping, setShowTyping] = useState(false)
+function useTimeline() {
+  const [chat, setChat] = useState<ChatItem[]>([])
+  const [composing, setComposing] = useState('')
+  const [showRead, setShowRead] = useState(false)
+  const [activeIntegration, setActiveIntegration] = useState<ActiveIntegration>(null)
+  const idRef = useRef(0)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const runRef = useRef<() => void>(() => {})
 
-  useEffect(() => {
-    let cancelled = false
+  const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = [] }
+  const after = (fn: () => void, ms: number) => { timers.current.push(setTimeout(fn, ms)) }
 
-    function delay(ms: number): Promise<void> {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
+  const run = useCallback(() => {
+    clearTimers()
+    setChat([]); setComposing(''); setShowRead(false); setActiveIntegration(null)
 
-    async function runLoop() {
-      while (!cancelled) {
-        setVisibleMessages(new Set())
-        setShowTyping(false)
+    let t = 400
+    for (let i = 0; i < SCRIPT.length; i++) {
+      const step = SCRIPT[i]
 
-        await delay(400);  if (cancelled) return
-        setShowTyping(true)
-
-        await delay(1000); if (cancelled) return
-        setShowTyping(false)
-        setVisibleMessages(new Set([0]))
-
-        await delay(800);  if (cancelled) return
-        setShowTyping(true)
-
-        await delay(1000); if (cancelled) return
-        setShowTyping(false)
-        setVisibleMessages(prev => new Set([...prev, 1]))
-
-        await delay(1800); if (cancelled) return
-        setVisibleMessages(prev => new Set([...prev, 2]))
-
-        await delay(800);  if (cancelled) return
-        setShowTyping(true)
-
-        await delay(1200); if (cancelled) return
-        setShowTyping(false)
-        setVisibleMessages(prev => new Set([...prev, 3]))
-
-        await delay(800);  if (cancelled) return
-        setShowTyping(true)
-
-        await delay(1000); if (cancelled) return
-        setShowTyping(false)
-        setVisibleMessages(prev => new Set([...prev, 4]))
-
-        await delay(800);  if (cancelled) return
-        setShowTyping(true)
-
-        await delay(1400); if (cancelled) return
-        setShowTyping(false)
-        setVisibleMessages(prev => new Set([...prev, 5]))
-
-        await delay(4000); if (cancelled) return
+      if (step.kind === 'typing') {
+        t += step.delay
+        const tid = `t${i}`
+        after(() => setChat(c => [...c, { id: tid, kind: 'typing', from: 'them' }]), t)
+        t += step.dur
+        after(() => setChat(c => c.filter(x => x.id !== tid)), t)
+      } else if (step.kind === 'msg') {
+        t += 50
+        const id = `m${++idRef.current}`
+        const { from, text } = step
+        after(() => {
+          setChat(c => [...c, { id, kind: 'msg', from, text }])
+          if (from === 'me') setShowRead(false)
+          const lower = text.toLowerCase()
+          if (lower.includes('gmail')) {
+            setActiveIntegration('gmail')
+            timers.current.push(setTimeout(() => setActiveIntegration(null), 1500))
+          } else if (lower.includes('calendar')) {
+            setActiveIntegration('calendar')
+            timers.current.push(setTimeout(() => setActiveIntegration(null), 1500))
+          }
+        }, t)
+      } else if (step.kind === 'compose') {
+        t += step.delay
+        const { text, dur } = step
+        const pc = dur / text.length
+        for (let k = 1; k <= text.length; k++)
+          after(() => setComposing(text.slice(0, k)), t + k * pc)
+        t += dur
+        after(() => setComposing(''), t + 30)
+      } else if (step.kind === 'read') {
+        t += step.delay
+        after(() => setShowRead(true), t)
+      } else if (step.kind === 'restart') {
+        t += step.delay
+        after(() => runRef.current(), t)
       }
     }
-
-    runLoop()
-    return () => { cancelled = true }
   }, [])
 
+  useEffect(() => { runRef.current = run })
+  useEffect(() => { run(); return clearTimers }, [run])
+
+  return { chat, composing, showRead, activeIntegration }
+}
+
+// ── Status bar ────────────────────────────────────────────────
+
+function StatusBar() {
   return (
-    <div className="relative mx-auto select-none" style={{ width: "310px", maxWidth: "100%" }}>
-      {/* iPhone frame — drop shadow lifts it off the dark page background */}
-      <Image
-        src="/iphone-frame.svg"
-        alt=""
-        width={1800}
-        height={3630}
-        unoptimized
-        aria-hidden
-        style={{
-          display: "block",
-          width: "100%",
-          height: "auto",
-          filter: "drop-shadow(0 28px 70px rgba(0,0,0,0.7)) drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
-        }}
-      />
+    <div style={{
+      position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+      display: 'flex', gap: p(154), alignItems: 'center', justifyContent: 'center',
+      padding: `${p(21)}px ${p(24)}px ${p(19)}px`,
+      boxSizing: 'border-box',
+    }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: SF, fontWeight: 590, fontSize: p(17), color: '#000', lineHeight: 1 }}>9:41</span>
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: p(7) }}>
+        <svg width={p(19)} height={p(12)} viewBox="0 0 19 12">
+          <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#000"/>
+          <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#000"/>
+          <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#000"/>
+          <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#000"/>
+        </svg>
+        <svg width={p(17)} height={p(12)} viewBox="0 0 17 12">
+          <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#000"/>
+          <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#000"/>
+          <circle cx="8.5" cy="10.5" r="1.5" fill="#000"/>
+        </svg>
+        <svg width={p(27)} height={p(13)} viewBox="0 0 27 13">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#000" strokeOpacity="0.35" fill="none"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/>
+          <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#000" fillOpacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+  )
+}
 
-      {/* iMessage UI — overlaid on the screen area */}
-      <div
-        style={{
-          position: "absolute",
-          left: "5.64%",
-          top: "2.36%",
-          width: "88.71%",
-          height: "95.28%",
-          borderRadius: "35px",
-          overflow: "hidden",
-          background: "#f2f2f7",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Status bar — Dynamic Island centered, time left, icons right, all one row */}
-        <div
-          className="relative flex items-center flex-shrink-0 px-5"
-          style={{ height: "54px" }}
-        >
-          <span style={{ fontSize: "15px", fontWeight: 600, color: "#000", lineHeight: 1, position: "relative", zIndex: 1 }}>
-            9:41
-          </span>
-          {/* Dynamic Island pill — absolute center of the row */}
-          <div
-            aria-hidden
+// ── Messages header ───────────────────────────────────────────
+
+function MessagesHeader() {
+  return (
+    <div style={{
+      padding: `${p(56)}px ${p(14)}px ${p(10)}px`,
+      display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+      borderBottom: '0.5px solid rgba(60,60,67,0.18)',
+      background: 'rgba(248,248,248,0.92)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      flexShrink: 0,
+      position: 'relative', zIndex: 5,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: p(2), width: p(60), paddingBottom: p(12) }}>
+        <svg width={p(13)} height={p(22)} viewBox="0 0 13 22" fill="none">
+          <path d="M11 2L2 11l9 9" stroke="#007AFF" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span style={{ color: '#007AFF', fontFamily: SF, fontSize: p(17), letterSpacing: -0.4, marginLeft: p(2) }}>4</span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: p(3) }}>
+        <div style={{
+          width: p(50), height: p(50), borderRadius: '50%',
+          background: '#F2F2F7',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: p(30), lineHeight: 1,
+          boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.06)',
+        }}>🐦</div>
+        <div style={{ fontFamily: SF, fontSize: p(11), color: '#000', letterSpacing: -0.1 }}>
+          Birdbot
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: p(60), paddingBottom: p(12), paddingRight: p(6) }}>
+        <svg width={p(22)} height={p(22)} viewBox="0 0 22 22" fill="none">
+          <path d="M19.5 15.5l-3.2-1.4a1.4 1.4 0 00-1.6.3l-1 1c-2.6-1.3-4.7-3.4-6-6l1-1a1.4 1.4 0 00.3-1.6L7.6 3.6a1.4 1.4 0 00-1.6-.8l-2.9.7A1.4 1.4 0 002 4.9c.4 8.6 7.5 15.6 16 16a1.4 1.4 0 001.4-1.1l.7-2.9a1.4 1.4 0 00-.7-1.5z" fill="#007AFF"/>
+        </svg>
+      </div>
+    </div>
+  )
+}
+
+// ── Bubble ────────────────────────────────────────────────────
+
+interface BubbleProps {
+  text: string
+  sent: boolean
+  tail: boolean
+  grouped: boolean
+}
+
+function Bubble({ text, sent, tail, grouped }: BubbleProps) {
+  const fill = sent ? '#007AFF' : BUBBLE_GRAY
+  const color = sent ? '#fff' : '#000'
+  return (
+    <div className="animate-bubble-in" style={{
+      display: 'flex', justifyContent: sent ? 'flex-end' : 'flex-start',
+      padding: `0 ${p(9)}px`,
+      marginTop: grouped ? 2 : p(8),
+    }}>
+      <div style={{ position: 'relative', maxWidth: '74%' }}>
+        {tail && (
+          <svg
+            width={p(13)} height={p(19)} viewBox="0 0 13 19"
             style={{
-              position: "absolute",
-              top: "10px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "126px",
-              height: "37px",
-              background: "#000",
-              borderRadius: "22px",
+              position: 'absolute', bottom: -0.5,
+              ...(sent ? { right: -p(5.5) } : { left: -p(5.5) }),
+              transform: sent ? 'scaleX(-1)' : 'none',
+              display: 'block',
             }}
-          />
-          <div className="ml-auto flex items-center gap-1.5" style={{ position: "relative", zIndex: 1 }}>
-            <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
-              <rect x="0" y="8" width="3" height="4" rx="0.5" fill="#000" />
-              <rect x="4.5" y="5.5" width="3" height="6.5" rx="0.5" fill="#000" />
-              <rect x="9" y="3" width="3" height="9" rx="0.5" fill="#000" />
-              <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="#000" opacity="0.3" />
-            </svg>
-            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-              <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#000" />
-              <path d="M3.5 6.5A6.5 6.5 0 0 1 8 4.5a6.5 6.5 0 0 1 4.5 2" stroke="#000" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-              <path d="M1 3.5A10.5 10.5 0 0 1 8 1a10.5 10.5 0 0 1 7 2.5" stroke="#000" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-            </svg>
-            <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
-              <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#000" strokeOpacity="0.35" />
-              <rect x="2" y="2" width="17" height="8" rx="2" fill="#000" />
-              <path d="M23 4v4a2 2 0 0 0 0-4z" fill="#000" fillOpacity="0.4" />
-            </svg>
-          </div>
+          >
+            <path d="M12 19c-3 0-6-1-8-3-1.5-1.5-2-3-2-5 0 4 4 8 10 8z" fill={fill}/>
+          </svg>
+        )}
+        <div style={{
+          background: fill, color,
+          borderRadius: p(18),
+          padding: `${p(8)}px ${p(13)}px ${p(9)}px`,
+          fontFamily: SF,
+          fontSize: p(16.5),
+          lineHeight: `${p(21)}px`,
+          letterSpacing: -0.2,
+          wordWrap: 'break-word',
+          position: 'relative', zIndex: 1,
+        }}>
+          {text}
         </div>
+      </div>
+    </div>
+  )
+}
 
-        {/* iMessage header — three-column, true center */}
-        <div
-          className="flex items-center px-4 py-2 flex-shrink-0"
-          style={{ borderBottom: "1px solid rgba(0,0,0,0.1)" }}
+// ── Typing indicator ──────────────────────────────────────────
+
+function TypingBubble({ grouped }: { grouped: boolean }) {
+  return (
+    <div className="animate-bubble-in" style={{
+      display: 'flex', justifyContent: 'flex-start',
+      padding: `0 ${p(9)}px`, marginTop: grouped ? 2 : p(8),
+    }}>
+      <div style={{ position: 'relative' }}>
+        <svg
+          width={p(13)} height={p(19)} viewBox="0 0 13 19"
+          style={{ position: 'absolute', bottom: -0.5, left: -p(5.5), display: 'block' }}
         >
-          <div style={{ width: "32px" }}>
-            <button className="flex items-center" aria-label="Back" tabIndex={-1}>
-              <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
-                <path d="M9 1L1 8.5L9 16" stroke="#007AFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
+          <path d="M12 19c-3 0-6-1-8-3-1.5-1.5-2-3-2-5 0 4 4 8 10 8z" fill={BUBBLE_GRAY}/>
+        </svg>
+        <div style={{
+          background: BUBBLE_GRAY, borderRadius: p(18),
+          padding: `${p(11)}px ${p(14)}px`,
+          display: 'flex', gap: p(4), alignItems: 'center',
+          position: 'relative', zIndex: 1,
+          minWidth: p(50),
+        }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{
+              width: p(8), height: p(8), borderRadius: '50%',
+              background: 'rgba(60,60,67,0.45)',
+              animation: `typing-dot 1.3s ${i * 0.18}s ease-in-out infinite`,
+            }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
-          <div className="flex-1 flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full overflow-hidden">
-              <Image src="/birdbot-animated (1).svg" alt="Bird" width={32} height={32} unoptimized priority />
+// ── Date separator ────────────────────────────────────────────
+
+function DateSeparator() {
+  return (
+    <div style={{
+      textAlign: 'center', padding: `${p(8)}px ${p(16)}px ${p(6)}px`,
+      fontFamily: SF, fontSize: p(11), color: TEXT_SEC, letterSpacing: -0.1,
+    }}>
+      <span style={{ fontWeight: 600 }}>Today</span>{' '}
+      <span style={{ fontWeight: 400 }}>7:52 AM</span>
+    </div>
+  )
+}
+
+// ── Read receipt ──────────────────────────────────────────────
+
+function ReadReceipt() {
+  return (
+    <div style={{
+      textAlign: 'right', padding: `2px ${p(14)}px 0 0`,
+      fontFamily: SF, fontSize: p(11), color: TEXT_SEC, letterSpacing: -0.05,
+    }}>Read</div>
+  )
+}
+
+// ── Input bar ─────────────────────────────────────────────────
+
+function InputBar({ value }: { value: string }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-end', gap: p(8),
+      padding: `${p(7)}px ${p(8)}px ${p(10)}px`,
+      background: '#f9f9f9',
+    }}>
+      <div style={{
+        width: p(33), height: p(33), borderRadius: '50%',
+        background: '#E5E5EA',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        <svg width={p(15)} height={p(15)} viewBox="0 0 15 15">
+          <path d="M7.5 1.5v12M1.5 7.5h12" stroke="rgba(60,60,67,0.7)" strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div style={{
+        flex: 1, minHeight: p(33), borderRadius: p(18),
+        border: '0.5px solid rgba(60,60,67,0.25)',
+        background: '#fff',
+        display: 'flex', alignItems: 'center',
+        padding: `${p(6)}px ${p(6)}px ${p(6)}px ${p(14)}px`,
+        fontFamily: SF, fontSize: p(16.5),
+        color: value ? '#000' : 'rgba(60,60,67,0.5)',
+        letterSpacing: -0.2,
+      }}>
+        <div style={{ flex: 1 }}>{value || 'iMessage'}</div>
+        <div style={{ width: p(24), height: p(24), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width={p(14)} height={p(20)} viewBox="0 0 14 20" fill="none">
+            <rect x="3" y="1" width="8" height="12" rx="4" stroke="rgba(60,60,67,0.7)" strokeWidth="1.4"/>
+            <path d="M1 9c0 3.5 2.5 6 6 6s6-2.5 6-6M7 15v3M4 18.5h6" stroke="rgba(60,60,67,0.7)" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────
+
+export function PhoneMockup() {
+  const { chat, composing, showRead, activeIntegration } = useTimeline()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [chat, showRead])
+
+  const items = useMemo<RichItem[]>(() => {
+    return chat.map((c, i) => {
+      const next = chat[i + 1]
+      const prev = chat[i - 1]
+      const from = c.kind === 'typing' ? 'them' : c.from
+      const prevFrom = prev ? (prev.kind === 'typing' ? 'them' : prev.from) : null
+      const grouped = prevFrom === from
+      if (c.kind === 'typing') return { ...c, tail: true, grouped }
+      const nextFrom = next ? (next.kind === 'typing' ? 'them' : next.from) : null
+      return { ...c, tail: nextFrom !== from, grouped }
+    })
+  }, [chat])
+
+  const lastMeIdx = useMemo(() => {
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (items[i].kind === 'msg' && items[i].from === 'me') return i
+    }
+    return -1
+  }, [items])
+
+  return (
+    <div className="select-none" style={{ position: 'relative', display: 'inline-block' }}>
+      <OrbitalLogos activeIntegration={activeIntegration} />
+      {/* Titanium case ring */}
+      <div style={{
+        padding: CT,
+        borderRadius: p(48) + CT,
+        background: 'linear-gradient(145deg, #4a4a4f 0%, #1e1e22 45%, #2f2f34 75%, #0d0d10 100%)',
+        boxShadow: [
+          `0 ${p(40)}px ${p(80)}px rgba(0,0,0,0.45)`,
+          '0 0 0 1px rgba(255,255,255,0.08)',
+          'inset 0 1px 0 rgba(255,255,255,0.15)',
+          'inset 0 -1px 0 rgba(0,0,0,0.6)',
+        ].join(', '),
+        position: 'relative',
+      }}>
+        {/* Phone screen */}
+        <div style={{
+          width: W, height: H,
+          borderRadius: p(48),
+          overflow: 'hidden',
+          position: 'relative',
+          background: '#F2F2F7',
+          boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.04)',
+          fontFamily: SF,
+        }}>
+          {/* Dynamic Island */}
+          <div aria-hidden style={{
+            position: 'absolute',
+            top: p(11), left: '50%', transform: 'translateX(-50%)',
+            width: p(126), height: p(37), borderRadius: p(24),
+            background: '#000', zIndex: 50,
+          }} />
+
+          <StatusBar />
+
+          {/* Chat scroll — full height; bottom padding reserves space for the cover below */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          }}>
+            <MessagesHeader />
+            <div
+              ref={scrollRef}
+              style={{
+                flex: 1, minHeight: 0, overflowY: 'auto',
+                padding: `${p(8)}px 0 ${COVER_H + p(4)}px`,
+                background: '#fff',
+              }}
+            >
+              <DateSeparator />
+
+              {items.map((item, i) => (
+                <Fragment key={item.id}>
+                  {item.kind === 'typing' ? (
+                    <TypingBubble grouped={item.grouped} />
+                  ) : (
+                    <Bubble
+                      text={item.text!}
+                      sent={item.from === 'me'}
+                      tail={item.tail}
+                      grouped={item.grouped}
+                    />
+                  )}
+                  {showRead && i === lastMeIdx && <ReadReceipt />}
+                </Fragment>
+              ))}
             </div>
-            <span style={{ fontSize: "11px", color: "#007AFF", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400, marginTop: "1px" }}>
-              Bird ›
-            </span>
           </div>
 
-          <div style={{ width: "32px" }} />
-        </div>
-
-        {/* Chat area — white background, no auto-scroll so msg0 is always visible */}
-        <div
-          className="flex-1 overflow-y-hidden px-3 pt-3 pb-2"
-          style={{ background: "#fff" }}
-        >
-          <div
-            className="text-center mb-3"
-            style={{ fontSize: "11px", fontWeight: 500, color: "#8e8e93", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif" }}
-          >
-            Today 7:52 AM
+          {/* Opaque cover — sits on top of the chat scroll at all times,
+              hiding any content that leaks past the scroll area.
+              The InputBar and home spacer render inside it. */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            height: COVER_H,
+            zIndex: 30,
+            display: 'flex', flexDirection: 'column',
+          }}>
+            <InputBar value={composing} />
+            <div aria-hidden style={{ flex: 1, background: '#f9f9f9' }} />
           </div>
 
-          {MESSAGES.map((msg, i) => {
-            const isNewSender = i === 0 || MESSAGES[i - 1].from !== msg.from
-            return (
-              <Fragment key={i}>
-                <MessageBubble
-                  msg={msg}
-                  visible={visibleMessages.has(i)}
-                  isNewSender={isNewSender}
-                  tightBottom={i === 2}
-                />
-                {i === 2 && visibleMessages.has(2) && !visibleMessages.has(3) && (
-                  <div
-                    className="text-right"
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 500,
-                      color: "#8e8e93",
-                      marginTop: "3px",
-                      marginBottom: "10px",
-                      paddingRight: "4px",
-                      fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    }}
-                  >
-                    Delivered
-                  </div>
-                )}
-              </Fragment>
-            )
-          })}
-
-          {showTyping && <TypingIndicator />}
-        </div>
-
-        {/* Input bar */}
-        <div
-          className="flex items-center gap-2 px-3 py-2 flex-shrink-0"
-          style={{ borderTop: "1px solid rgba(0,0,0,0.1)", background: "#f2f2f7" }}
-        >
-          <button aria-label="Add" tabIndex={-1}>
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <circle cx="14" cy="14" r="13" stroke="#8e8e93" strokeWidth="1.5" />
-              <path d="M14 9v10M9 14h10" stroke="#8e8e93" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-          <div
-            className="flex-1 flex items-center px-3"
-            style={{ height: "34px", border: "1px solid #c7c7cc", borderRadius: "17px", background: "#fff", fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif", fontSize: "15px", color: "#8e8e93" }}
-          >
-            iMessage
+          {/* Home indicator pill — above the cover */}
+          <div aria-hidden style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 60,
+            height: p(34), display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+            paddingBottom: p(8), pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: p(139), height: p(5), borderRadius: 100,
+              background: 'rgba(0,0,0,0.25)',
+            }} />
           </div>
-          <button aria-label="Camera" tabIndex={-1}>
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <circle cx="14" cy="14" r="13" stroke="#8e8e93" strokeWidth="1.5" />
-              <path d="M9 11a1 1 0 011-1h1l1.5-2h3L17 10h1a1 1 0 011 1v6a1 1 0 01-1 1H9a1 1 0 01-1-1v-6z" stroke="#8e8e93" strokeWidth="1.2" fill="none" />
-              <circle cx="14" cy="14" r="2" stroke="#8e8e93" strokeWidth="1.2" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
