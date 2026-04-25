@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
 const NAV_LINKS = [
-  { label: "How We Differ", href: "/#how-we-differ" },
   { label: "Features", href: "/#features" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Pricing", href: "/#pricing" },
