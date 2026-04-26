@@ -2,8 +2,7 @@ import { Navbar } from "@/components/landing/Navbar"
 import { HeroSection } from "@/components/landing/HeroSection"
 import { ConversationDemo } from "@/components/landing/ConversationDemo"
 import { UseCasesSection } from "@/components/landing/UseCasesSection"
-import { FeaturesSection } from "@/components/landing/FeaturesSection"
-import { HowItWorks } from "@/components/landing/HowItWorks"
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection"
 import { PricingSection } from "@/components/landing/PricingSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
@@ -15,8 +14,7 @@ export default function Home() {
       <HeroSection />
       <ConversationDemo />
       <UseCasesSection />
-      <FeaturesSection />
-      <HowItWorks />
+      <HowItWorksSection />
       <PricingSection />
       <WaitlistCTA />
       <Footer />
