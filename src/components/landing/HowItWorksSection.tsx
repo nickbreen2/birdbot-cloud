@@ -1,6 +1,7 @@
 import { StepCard } from "./StepCard"
 import { PickHomeVisual } from "./visuals/PickHomeVisual"
 import { IntegrateVisual } from "./visuals/IntegrateVisual"
+import { SaveTimeVisual } from "./visuals/SaveTimeVisual"
 
 export function HowItWorksSection() {
   return (
@@ -59,6 +60,12 @@ export function HowItWorksSection() {
             title="Integrate your tools"
             body="Connect Bird to the apps you already use. It handles the rest."
             visual={<IntegrateVisual />}
+          />
+          <StepCard
+            number="3"
+            title="Start saving time."
+            body="The busywork's done. Bird tells you what's handled and what needs you."
+            visual={<SaveTimeVisual />}
           />
         </div>
 
