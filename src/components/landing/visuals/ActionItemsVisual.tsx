@@ -2,17 +2,17 @@ import { ListChecks } from "lucide-react"
 
 const ITEMS = [
   {
-    text: "Send Matt the pricing breakdown doc",
+    text: "Draft proposal for Sarah's team",
     due: "Due Today EOD",
     dueColor: "#dc2626",
   },
   {
-    text: "Confirm pilot scope with Matt's team",
-    due: "Due August 16th",
+    text: "Send proposal to Sarah",
+    due: "Due August 18th",
     dueColor: "#6b7280",
   },
   {
-    text: "Security doc to Matt's engineering team",
+    text: "Follow up with Sarah next week",
     due: null,
     dueColor: null,
   },
@@ -25,7 +25,7 @@ export function ActionItemsVisual() {
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)",
         borderRadius: "24px",
-        padding: "48px",
+        padding: "8px 48px 48px 48px",
       }}
     >
       {/* Bird iMessage bubble — left-aligned (Bird initiating) */}
@@ -43,7 +43,7 @@ export function ActionItemsVisual() {
             fontFamily: "var(--font-dm-sans)",
           }}
         >
-          Reminder: pricing breakdown due to Matt today.
+          Reminder: proposal draft due to Sarah today.
         </div>
       </div>
 
@@ -83,7 +83,7 @@ export function ActionItemsVisual() {
             fontFamily: "var(--font-outfit)",
           }}
         >
-          Action Items · Matt
+          Action Items · Sarah
         </p>
 
         {/* Checklist */}
