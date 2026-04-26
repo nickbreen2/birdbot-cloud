@@ -48,9 +48,7 @@ export function HowItWorksSection() {
         </div>
 
         {/* Cards row — three columns on desktop, stacked on mobile */}
-        <div
-          className="grid gap-6 grid-cols-1 lg:grid-cols-3"
-        >
+        <div className="hiw-cards">
           <StepCard
             number="1"
             title="Pick a home for Bird"

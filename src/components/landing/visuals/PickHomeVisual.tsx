@@ -89,55 +89,16 @@ export function PickHomeVisual() {
               position: "absolute",
               left: RADIUS,
               top: -(ICON_SIZE / 2),
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 5,
               animationDelay: `${icon.delay}s`,
             }}
           >
-            {/* Icon bubble */}
-            <div
-              style={{
-                width: ICON_SIZE,
-                height: ICON_SIZE,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.09)",
-                border: "1px solid rgba(255,255,255,0.16)",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.35)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Image
-                src={icon.src}
-                alt={icon.alt}
-                width={30}
-                height={30}
-                unoptimized
-              />
-            </div>
-
-            {/* Coming soon pill */}
-            {icon.comingSoon && (
-              <span
-                style={{
-                  fontSize: 8,
-                  fontWeight: 500,
-                  color: "#94a3b8",
-                  background: "rgba(255,255,255,0.10)",
-                  borderRadius: 9999,
-                  padding: "2px 6px",
-                  lineHeight: 1.4,
-                  whiteSpace: "nowrap",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                Coming soon
-              </span>
-            )}
+            <Image
+              src={icon.src}
+              alt={icon.alt}
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              unoptimized
+            />
           </div>
         </div>
       ))}
