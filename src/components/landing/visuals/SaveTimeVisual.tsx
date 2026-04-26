@@ -3,9 +3,12 @@ export function SaveTimeVisual() {
     <div
       style={{
         width: "100%",
+        height: 150,
+        overflow: "hidden",
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
+        paddingTop: 16,
         background:
           "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.08) 0%, transparent 70%)",
       }}
