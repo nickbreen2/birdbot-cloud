@@ -3,12 +3,12 @@ import Image from "next/image"
 const CONTAINER = 280
 const RADIUS = 105
 const ICON_SIZE = 52
-const DURATION = 30
 
+// Pre-positioned at 0°, 120°, 240° CW from the right — no animation delays needed
 const ICONS = [
-  { id: "telegram",  src: "/Telegram.svg",  alt: "Telegram",  comingSoon: false, delay: 0   },
-  { id: "imessage",  src: "/IMessage.svg",   alt: "iMessage",  comingSoon: true,  delay: -10 },
-  { id: "whatsapp",  src: "/Whatsapp.svg",  alt: "WhatsApp",  comingSoon: true,  delay: -20 },
+  { id: "telegram", src: "/Telegram.svg", alt: "Telegram", angle: 0   },
+  { id: "imessage", src: "/IMessage.svg", alt: "iMessage", angle: 120 },
+  { id: "whatsapp", src: "/Whatsapp.svg", alt: "WhatsApp", angle: 240 },
 ]
 
 export function PickHomeVisual() {
@@ -66,43 +66,48 @@ export function PickHomeVisual() {
         />
       </div>
 
-      {/* Orbiting icons */}
-      {ICONS.map((icon) => (
-        <div
-          key={icon.id}
-          aria-label={icon.alt}
-          className="animate-orbit-cw"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: 0,
-            height: 0,
-            transformOrigin: "0 0",
-            animationDelay: `${icon.delay}s`,
-            zIndex: 3,
-          }}
-        >
-          <div
-            className="animate-orbit-ccw"
-            style={{
-              position: "absolute",
-              left: RADIUS,
-              top: -(ICON_SIZE / 2),
-              animationDelay: `${icon.delay}s`,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={icon.src}
-              alt={icon.alt}
-              width={ICON_SIZE}
-              height={ICON_SIZE}
-              style={{ display: "block" }}
-            />
-          </div>
-        </div>
-      ))}
+      {/* Rotating ring — carries all icons; negative margins center it without transform conflict */}
+      <div
+        className="animate-orbit-cw"
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: RADIUS * 2,
+          height: RADIUS * 2,
+          marginLeft: -RADIUS,
+          marginTop: -RADIUS,
+          zIndex: 3,
+        }}
+      >
+        {ICONS.map((icon) => {
+          const rad = (icon.angle * Math.PI) / 180
+          const x = RADIUS + RADIUS * Math.cos(rad) - ICON_SIZE / 2
+          const y = RADIUS + RADIUS * Math.sin(rad) - ICON_SIZE / 2
+          return (
+            <div
+              key={icon.id}
+              className="animate-orbit-ccw"
+              style={{
+                position: "absolute",
+                left: x,
+                top: y,
+                width: ICON_SIZE,
+                height: ICON_SIZE,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={icon.src}
+                alt={icon.alt}
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                style={{ display: "block" }}
+              />
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
