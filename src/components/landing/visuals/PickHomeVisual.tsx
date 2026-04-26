@@ -92,12 +92,13 @@ export function PickHomeVisual() {
               animationDelay: `${icon.delay}s`,
             }}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={icon.src}
               alt={icon.alt}
               width={ICON_SIZE}
               height={ICON_SIZE}
-              unoptimized
+              style={{ display: "block" }}
             />
           </div>
         </div>
