@@ -3,12 +3,12 @@ export function SaveTimeVisual() {
     <div
       style={{
         width: "100%",
-        height: 150,
+        height: 240,
         overflow: "hidden",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        paddingTop: 16,
+        paddingTop: 72,
         background:
           "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.08) 0%, transparent 70%)",
       }}
@@ -16,9 +16,9 @@ export function SaveTimeVisual() {
       {/* Phone outer frame */}
       <div
         style={{
-          width: 165,
-          height: 260,
-          borderRadius: 28,
+          width: 200,
+          height: 330,
+          borderRadius: 30,
           background: "#1c1c1e",
           padding: 12,
           flexShrink: 0,
