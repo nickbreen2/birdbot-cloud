@@ -3,7 +3,7 @@ import Image from "next/image"
 export function MeetingSchedulingVisual() {
   return (
     <div
-      className="relative w-full aspect-[3/4] sm:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 sm:p-12"
+      className="relative w-full aspect-[2/3] sm:aspect-[4/3] overflow-hidden flex flex-col justify-start sm:justify-center lg:block p-5 sm:p-12"
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
         borderRadius: "24px",

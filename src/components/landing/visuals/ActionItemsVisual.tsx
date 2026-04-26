@@ -21,7 +21,7 @@ const ITEMS = [
 export function ActionItemsVisual() {
   return (
     <div
-      className="relative w-full aspect-[3/4] sm:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 sm:pt-8 sm:px-12 sm:pb-12"
+      className="relative w-full aspect-[2/3] sm:aspect-[4/3] overflow-hidden flex flex-col justify-start sm:justify-center lg:block p-5 sm:pt-8 sm:px-12 sm:pb-12"
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)",
         borderRadius: "24px",
