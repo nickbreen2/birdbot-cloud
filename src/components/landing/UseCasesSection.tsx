@@ -1,5 +1,6 @@
 import { UseCaseCard } from "@/components/landing/UseCaseCard"
 import { MeetingSchedulingVisual } from "@/components/landing/visuals/MeetingSchedulingVisual"
+import { EmailTriageVisual } from "@/components/landing/visuals/EmailTriageVisual"
 
 export function UseCasesSection() {
   return (
@@ -22,18 +23,13 @@ export function UseCasesSection() {
               marginBottom: "16px",
             }}
           >
-            WHAT BIRD DOES
+            WHAT YOUR BIRD CAN DO FOR YOU
           </p>
           <h2
-            className="font-heading font-bold"
-            style={{
-              fontSize: "clamp(2.5rem, 5vw, 4rem)",
-              color: "#f1f5f9",
-              lineHeight: 1.1,
-              marginBottom: "12px",
-            }}
+            className="font-heading font-bold text-3xl md:text-4xl text-text-base leading-tight"
+            style={{ marginBottom: "12px" }}
           >
-            Three ways Bird helps.
+            Ways Your Bird can Assist you
           </h2>
           <p
             className="font-sans"
@@ -47,7 +43,7 @@ export function UseCasesSection() {
         </div>
 
         {/* Cards stack */}
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <UseCaseCard
             eyebrow="MEETING SCHEDULING"
             eyebrowColor="gold"
@@ -55,7 +51,14 @@ export function UseCasesSection() {
             body="Just text Bird the meeting details. It adds it to your calendar, sets reminders, and reschedules when plans change. No more back-and-forth."
             visual={<MeetingSchedulingVisual />}
           />
-          {/* Cards 2 and 3 added in subsequent turns */}
+          <UseCaseCard
+            eyebrow="EMAIL TRIAGE & DRAFTING"
+            eyebrowColor="blue"
+            headline="Your inbox, organized. Your replies, drafted."
+            body="Bird labels every email and drafts replies in your voice. Just review, edit if needed, and hit send. Important emails get surfaced straight to you via text so you never miss what matters."
+            visual={<EmailTriageVisual />}
+          />
+          {/* Card 3 added in subsequent turn */}
         </div>
       </div>
     </section>
