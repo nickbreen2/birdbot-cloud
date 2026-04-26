@@ -16,9 +16,9 @@ export function SaveTimeVisual() {
       {/* Phone outer frame */}
       <div
         style={{
-          width: 200,
-          height: 330,
-          borderRadius: 30,
+          width: 222,
+          height: 362,
+          borderRadius: 32,
           background: "#1c1c1e",
           padding: 12,
           flexShrink: 0,
