@@ -88,7 +88,7 @@ export function ActionItemsVisual() {
         {/* Checklist */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {ITEMS.map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+            <div key={i} className={i === 2 ? "hidden sm:flex" : "flex"} style={{ alignItems: "flex-start", gap: "10px" }}>
               {/* Checkbox */}
               <div
                 style={{
