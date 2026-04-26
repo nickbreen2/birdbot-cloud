@@ -1,17 +1,17 @@
 import Image from "next/image"
 
 const INBOX_ROWS = [
-  { sender: "Deel",        label: "Urgent",      labelType: "urgent",      preview: "Need your contract signed by..." },
-  { sender: "Eric, me",    label: "Needs reply",  labelType: "needs-reply", preview: "Quick input on the Q3 plan?" },
-  { sender: "Mariah",      label: "Urgent",      labelType: "urgent",      preview: "Blocking issue, awaiting your direction" },
-  { sender: "Flo Crivello",label: "Urgent",      labelType: "urgent",      preview: "Time-sensitive: please review" },
-  { sender: "Carpenco",    label: "Urgent",      labelType: "urgent",      preview: "Following up on this" },
+  { sender: "Alex Rivera",  label: "Urgent",      labelType: "urgent",      preview: "Client deal closing today, need you" },
+  { sender: "Jamie, me",    label: "Needs reply", labelType: "needs-reply", preview: "Can you review the updated proposal?" },
+  { sender: "Stripe",       label: "Urgent",      labelType: "urgent",      preview: "Action required on your account" },
+  { sender: "Priya Nair",   label: "Urgent",      labelType: "urgent",      preview: "Legal doc needs your sign-off ASAP" },
+  { sender: "Notion",       label: "Urgent",      labelType: "urgent",      preview: "Your workspace export is ready" },
 ] as const
 
 export function EmailTriageVisual() {
   return (
     <div
-      className="relative w-full aspect-[4/3] overflow-hidden"
+      className="relative w-full aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block"
       style={{
         background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
         borderRadius: "24px",
@@ -19,7 +19,7 @@ export function EmailTriageVisual() {
       }}
     >
       {/* User iMessage bubble — top right */}
-      <div className="flex justify-end mb-4">
+      <div className="hidden lg:flex justify-end mb-4">
         <div
           style={{
             background: "#007AFF",
@@ -37,9 +37,10 @@ export function EmailTriageVisual() {
       </div>
 
       {/* Composition: inbox card + drafted email card */}
-      <div className="relative">
+      <div className="relative flex justify-center lg:block">
         {/* Inbox card — ~60% width, in flow */}
         <div
+          className="hidden lg:block"
           style={{
             width: "62%",
             background: "#ffffff",
@@ -161,14 +162,12 @@ export function EmailTriageVisual() {
           ))}
         </div>
 
-        {/* Drafted email card — absolute, vertically centered, right overlap */}
+        {/* Drafted email card — absolute on desktop, full-width centered on mobile */}
         <div
+          className="w-full lg:absolute lg:-translate-y-1/2 lg:w-[42%]"
           style={{
-            position: "absolute",
             right: "-8px",
             top: "50%",
-            transform: "translateY(-50%)",
-            width: "42%",
             background: "#ffffff",
             borderRadius: "18px",
             padding: "14px 16px",
@@ -178,23 +177,13 @@ export function EmailTriageVisual() {
         >
           {/* Header: logos + meta */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-            {/* Stacked logos */}
-            <div style={{ position: "relative", width: "44px", height: "32px", flexShrink: 0 }}>
-              <Image
-                src="/google-gmail.svg"
-                alt="Gmail"
-                width={32}
-                height={32}
-                style={{ position: "absolute", left: 0, top: 0 }}
-              />
-              <Image
-                src="/Microsoft_Outlook.svg"
-                alt="Outlook"
-                width={28}
-                height={28}
-                style={{ position: "absolute", left: "14px", top: "2px" }}
-              />
-            </div>
+            <Image
+              src="/google-gmail.svg"
+              alt="Gmail"
+              width={32}
+              height={32}
+              style={{ flexShrink: 0 }}
+            />
             <div>
               <p
                 style={{

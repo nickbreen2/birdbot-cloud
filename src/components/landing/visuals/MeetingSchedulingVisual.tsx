@@ -3,7 +3,7 @@ import Image from "next/image"
 export function MeetingSchedulingVisual() {
   return (
     <div
-      className="relative w-full aspect-[4/3] overflow-hidden"
+      className="relative w-full aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block"
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
         borderRadius: "24px",
@@ -11,20 +11,20 @@ export function MeetingSchedulingVisual() {
       }}
     >
       {/* iMessage bubble — top right */}
-      <div className="flex justify-end mb-3">
+      <div className="hidden lg:flex justify-end mb-3">
         <div
           style={{
             background: "#007AFF",
             borderRadius: "18px 18px 4px 18px",
             padding: "10px 14px",
-            maxWidth: "70%",
+            maxWidth: "80%",
             color: "#ffffff",
             fontSize: "15px",
             lineHeight: "1.4",
             fontFamily: "var(--font-dm-sans)",
           }}
         >
-          Set up time with Matt this week
+          Can you add my interview on Thursday at 10am to my calendar?
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export function MeetingSchedulingVisual() {
             fontFamily: "var(--font-outfit)",
           }}
         >
-          Added Thursday
+          Added to Thursday
         </p>
 
         {/* Event row */}
@@ -77,7 +77,7 @@ export function MeetingSchedulingVisual() {
               fontFamily: "var(--font-outfit)",
             }}
           >
-            Sync with Matt
+            Interview
           </p>
           <p
             style={{
@@ -87,9 +87,9 @@ export function MeetingSchedulingVisual() {
               fontFamily: "var(--font-dm-sans)",
             }}
           >
-            Thursday 2:30 – 3:30 PM
+            Thursday 10:00 – 11:00 AM
           </p>
-          {/* Avatar + attendees */}
+          {/* Checkmark confirmation */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div
               style={{
@@ -100,14 +100,12 @@ export function MeetingSchedulingVisual() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "10px",
-                fontWeight: 700,
-                color: "#ffffff",
                 flexShrink: 0,
-                fontFamily: "var(--font-outfit)",
               }}
             >
-              MP
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <span
               style={{
@@ -116,7 +114,7 @@ export function MeetingSchedulingVisual() {
                 fontFamily: "var(--font-dm-sans)",
               }}
             >
-              You + Matt
+              Done! Reminder set for 9:45 AM
             </span>
           </div>
         </div>
