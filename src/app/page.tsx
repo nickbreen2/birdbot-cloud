@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/landing/HeroSection"
 import { ConversationDemo } from "@/components/landing/ConversationDemo"
 import { UseCasesSection } from "@/components/landing/UseCasesSection"
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection"
-import { PricingSection } from "@/components/landing/PricingSection"
+import { FAQSection } from "@/components/landing/FAQSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
 
@@ -15,7 +15,7 @@ export default function Home() {
       <ConversationDemo />
       <UseCasesSection />
       <HowItWorksSection />
-      <PricingSection />
+      <FAQSection />
       <WaitlistCTA />
       <Footer />
     </main>
