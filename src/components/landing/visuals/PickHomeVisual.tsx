@@ -2,7 +2,7 @@ import Image from "next/image"
 
 const CONTAINER = 200
 const RADIUS = 75
-const ICON_SIZE = 40
+const ICON_SIZE = 30
 
 // Pre-positioned at 0°, 120°, 240° CW from the right — no animation delays needed
 const ICONS = [
