@@ -1,6 +1,7 @@
 import { UseCaseCard } from "@/components/landing/UseCaseCard"
 import { MeetingSchedulingVisual } from "@/components/landing/visuals/MeetingSchedulingVisual"
 import { EmailTriageVisual } from "@/components/landing/visuals/EmailTriageVisual"
+import { ActionItemsVisual } from "@/components/landing/visuals/ActionItemsVisual"
 
 export function UseCasesSection() {
   return (
@@ -58,7 +59,13 @@ export function UseCasesSection() {
             body="Bird labels every email and drafts replies in your voice. Just review, edit if needed, and hit send. Important emails get surfaced straight to you via text so you never miss what matters."
             visual={<EmailTriageVisual />}
           />
-          {/* Card 3 added in subsequent turn */}
+          <UseCaseCard
+            eyebrow="REMINDERS & ACTION ITEMS"
+            eyebrowColor="gold"
+            headline="Your to-dos tracked. Your follow-ups sent."
+            body="Bird pulls action items from your conversations, reminds you what's due, and follows up so nothing slips through. Tell it once, and it remembers forever."
+            visual={<ActionItemsVisual />}
+          />
         </div>
       </div>
     </section>
