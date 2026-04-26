@@ -10,7 +10,7 @@ export function MeetingSchedulingVisual() {
       }}
     >
       {/* iMessage bubble — top right */}
-      <div className="hidden lg:flex justify-end mb-3">
+      <div className="hidden sm:flex justify-end mb-3">
         <div
           style={{
             background: "#007AFF",

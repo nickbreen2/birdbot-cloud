@@ -28,7 +28,7 @@ export function ActionItemsVisual() {
       }}
     >
       {/* Bird iMessage bubble — left-aligned (Bird initiating) */}
-      <div className="hidden lg:block" style={{ marginBottom: "16px" }}>
+      <div className="hidden sm:block" style={{ marginBottom: "16px" }}>
         <div
           style={{
             display: "inline-block",

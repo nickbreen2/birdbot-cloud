@@ -18,7 +18,7 @@ export function EmailTriageVisual() {
       }}
     >
       {/* User iMessage bubble — top right */}
-      <div className="hidden lg:flex justify-end mb-4">
+      <div className="hidden sm:flex justify-end mb-4">
         <div
           style={{
             background: "#007AFF",
