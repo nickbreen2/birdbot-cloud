@@ -1,5 +1,6 @@
 import { StepCard } from "./StepCard"
 import { PickHomeVisual } from "./visuals/PickHomeVisual"
+import { IntegrateVisual } from "./visuals/IntegrateVisual"
 
 export function HowItWorksSection() {
   return (
@@ -22,10 +23,8 @@ export function HowItWorksSection() {
             HOW IT WORKS
           </p>
           <h2
-            className="font-heading"
+            className="font-heading font-bold text-3xl md:text-4xl"
             style={{
-              fontSize: "clamp(40px, 5vw, 60px)",
-              fontWeight: 700,
               color: "#f1f5f9",
               lineHeight: 1.1,
               marginBottom: 16,
@@ -54,6 +53,12 @@ export function HowItWorksSection() {
             title="Pick a home for Bird"
             body="Bird lives in your messaging app. Just text it like a friend."
             visual={<PickHomeVisual />}
+          />
+          <StepCard
+            number="2"
+            title="Integrate your tools"
+            body="Connect Bird to the apps you already use. It handles the rest."
+            visual={<IntegrateVisual />}
           />
         </div>
 
