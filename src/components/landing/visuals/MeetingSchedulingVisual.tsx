@@ -3,14 +3,14 @@ import Image from "next/image"
 export function MeetingSchedulingVisual() {
   return (
     <div
-      className="relative w-full sm:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 sm:p-12"
+      className="relative w-full aspect-[3/4] sm:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 sm:p-12"
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
         borderRadius: "24px",
       }}
     >
       {/* iMessage bubble — top right */}
-      <div className="hidden sm:flex justify-end mb-3">
+      <div className="flex justify-end mb-3">
         <div
           style={{
             background: "#007AFF",
