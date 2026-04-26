@@ -49,11 +49,7 @@ export function HowItWorksSection() {
 
         {/* Cards row — three columns on desktop, stacked on mobile */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: 24,
-          }}
+          className="grid gap-6 grid-cols-1 lg:grid-cols-3"
         >
           <StepCard
             number="1"

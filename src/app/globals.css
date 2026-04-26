@@ -188,6 +188,8 @@ html, body {
   from { transform: rotate(0deg); }
   to   { transform: rotate(-360deg); }
 }
+.animate-orbit-cw  { animation: orbit-cw  30s linear infinite; }
+.animate-orbit-ccw { animation: orbit-ccw 30s linear infinite; }
 
 /* scrollbar */
 ::-webkit-scrollbar { width: 6px; }

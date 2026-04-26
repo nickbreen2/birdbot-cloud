@@ -71,6 +71,7 @@ export function PickHomeVisual() {
         <div
           key={icon.id}
           aria-label={icon.alt}
+          className="animate-orbit-cw"
           style={{
             position: "absolute",
             top: "50%",
@@ -78,11 +79,12 @@ export function PickHomeVisual() {
             width: 0,
             height: 0,
             transformOrigin: "0 0",
-            animation: `orbit-cw ${DURATION}s linear ${icon.delay}s infinite`,
+            animationDelay: `${icon.delay}s`,
             zIndex: 3,
           }}
         >
           <div
+            className="animate-orbit-ccw"
             style={{
               position: "absolute",
               left: RADIUS,
@@ -91,7 +93,7 @@ export function PickHomeVisual() {
               flexDirection: "column",
               alignItems: "center",
               gap: 5,
-              animation: `orbit-ccw ${DURATION}s linear ${icon.delay}s infinite`,
+              animationDelay: `${icon.delay}s`,
             }}
           >
             {/* Icon bubble */}
