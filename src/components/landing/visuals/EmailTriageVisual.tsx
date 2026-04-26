@@ -11,11 +11,10 @@ const INBOX_ROWS = [
 export function EmailTriageVisual() {
   return (
     <div
-      className="relative w-full aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block"
+      className="relative w-full lg:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 lg:p-12"
       style={{
         background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
         borderRadius: "24px",
-        padding: "48px",
       }}
     >
       {/* User iMessage bubble — top right */}

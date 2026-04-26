@@ -21,11 +21,10 @@ const ITEMS = [
 export function ActionItemsVisual() {
   return (
     <div
-      className="relative w-full aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block"
+      className="relative w-full lg:aspect-[4/3] overflow-hidden flex flex-col justify-center lg:block p-5 lg:pt-8 lg:px-12 lg:pb-12"
       style={{
         background: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)",
         borderRadius: "24px",
-        padding: "32px 48px 48px 48px",
       }}
     >
       {/* Bird iMessage bubble — left-aligned (Bird initiating) */}
