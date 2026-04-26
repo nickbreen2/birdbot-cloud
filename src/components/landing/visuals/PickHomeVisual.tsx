@@ -1,8 +1,8 @@
 import Image from "next/image"
 
-const CONTAINER = 280
-const RADIUS = 105
-const ICON_SIZE = 52
+const CONTAINER = 200
+const RADIUS = 75
+const ICON_SIZE = 40
 
 // Pre-positioned at 0°, 120°, 240° CW from the right — no animation delays needed
 const ICONS = [
@@ -56,8 +56,8 @@ export function PickHomeVisual() {
         <Image
           src="/birdbot-animated (1).svg"
           alt="BirdBot"
-          width={96}
-          height={96}
+          width={70}
+          height={70}
           unoptimized
           style={{
             filter:

@@ -15,7 +15,7 @@ export function StepCard({ number, title, body, visual }: StepCardProps) {
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 24,
         overflow: "hidden",
-        minHeight: 500,
+        minHeight: 420,
         display: "flex",
         flexDirection: "column",
       }}
@@ -24,7 +24,7 @@ export function StepCard({ number, title, body, visual }: StepCardProps) {
       <div
         style={{
           flexShrink: 0,
-        height: 320,
+        height: 260,
           padding: "32px 32px 28px",
           display: "flex",
           alignItems: "center",
