@@ -59,10 +59,6 @@ export function PickHomeVisual() {
           width={70}
           height={70}
           unoptimized
-          style={{
-            filter:
-              "drop-shadow(0 0 18px rgba(125,211,252,0.55)) drop-shadow(0 2px 8px rgba(37,99,235,0.40))",
-          }}
         />
       </div>
 

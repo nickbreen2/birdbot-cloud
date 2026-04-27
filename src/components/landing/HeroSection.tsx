@@ -10,17 +10,8 @@ const LONGEST_WORD = "drafting emails."
 
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
-  const [isIOS, setIsIOS] = useState(false)
   const [wordIndex, setWordIndex] = useState(0)
   const [visible, setVisible] = useState(true)
-
-  useEffect(() => {
-    const ua = navigator.userAgent
-    const ios =
-      /iPad|iPhone|iPod/.test(ua) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-    setIsIOS(ios)
-  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,7 +57,6 @@ export function HeroSection() {
               background:
                 "radial-gradient(circle, rgba(125,211,252,0.20) 0%, rgba(59,130,246,0.10) 50%, transparent 72%)",
               filter: "blur(20px)",
-              ...(isIOS && { transform: "translateZ(0)" }),
             }}
           />
           {/* Inner bright spot */}
@@ -79,7 +69,6 @@ export function HeroSection() {
               borderRadius: "50%",
               background: "radial-gradient(circle, rgba(186,230,253,0.18) 0%, transparent 70%)",
               filter: "blur(10px)",
-              ...(isIOS && { transform: "translateZ(0)" }),
             }}
           />
           {/* Floating icon */}
