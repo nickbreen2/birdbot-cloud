@@ -154,7 +154,7 @@ export function HeroSection() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-            Try BirdBot free
+            {isLoaded && isSignedIn ? "Go to Dashboard" : "Try BirdBot free"}
             <span
               className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
               style={{

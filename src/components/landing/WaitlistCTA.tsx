@@ -1,6 +1,10 @@
+"use client"
+
 import Link from "next/link"
+import { useAuth } from "@clerk/nextjs"
 
 export function WaitlistCTA() {
+  const { isLoaded, isSignedIn } = useAuth()
   return (
     <section className="pt-14 pb-16 px-5 md:pt-24 md:pb-28 md:px-4 bg-surface relative overflow-hidden" id="cta">
       {/* Radial blue glow */}
@@ -45,7 +49,7 @@ export function WaitlistCTA() {
 
         {/* CTA Button */}
         <Link
-          href="/sign-up"
+          href={isLoaded && isSignedIn ? "/dashboard" : "/sign-up"}
           className="group inline-flex items-center gap-3 rounded-2xl font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
           style={{
             padding: "13px 24px",
@@ -55,7 +59,7 @@ export function WaitlistCTA() {
             boxShadow: "0 0 36px rgba(37,99,235,0.32), 0 2px 10px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
           }}
         >
-          Try BirdBot free
+          {isLoaded && isSignedIn ? "Go to Dashboard" : "Try BirdBot free"}
           <span
             className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
             style={{

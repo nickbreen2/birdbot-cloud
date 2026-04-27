@@ -82,8 +82,8 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-7">
+        {/* Desktop nav links — absolutely centered so logo/CTA width doesn't shift them */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-7">
           {NAV_LINKS.map(({ label, id }) => (
             <button
               key={id}
