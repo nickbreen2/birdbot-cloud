@@ -1,17 +1,21 @@
-import Image from "next/image"
 import Link from "next/link"
 
 export function AuthBrand() {
   return (
     <Link href="/">
-      <Image
-        src="/birdbot-full-logo-mark3.svg"
-        alt="BirdBot"
-        width={220}
-        height={66}
-        priority
-        style={{ height: "auto" }}
-      />
+      <span
+        className="font-heading font-black leading-none select-none"
+        style={{
+          fontSize: "2.8rem",
+          letterSpacing: "-0.035em",
+          background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        BirdBot
+      </span>
     </Link>
   )
 }

@@ -1,10 +1,9 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { HeroSection } from "@/components/landing/HeroSection"
-import { DashboardDemo } from "@/components/landing/DashboardDemo"
-import { WhyBirdBot } from "@/components/landing/WhyBirdBot"
-import { FeaturesSection } from "@/components/landing/FeaturesSection"
-import { HowItWorks } from "@/components/landing/HowItWorks"
-import { PricingSection } from "@/components/landing/PricingSection"
+import { ConversationDemo } from "@/components/landing/ConversationDemo"
+import { UseCasesSection } from "@/components/landing/UseCasesSection"
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection"
+import { FAQSection } from "@/components/landing/FAQSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
 
@@ -13,11 +12,10 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
       <HeroSection />
-      <DashboardDemo />
-      <WhyBirdBot />
-      <FeaturesSection />
-      <HowItWorks />
-      <PricingSection />
+      <ConversationDemo />
+      <UseCasesSection />
+      <HowItWorksSection />
+      <FAQSection />
       <WaitlistCTA />
       <Footer />
     </main>

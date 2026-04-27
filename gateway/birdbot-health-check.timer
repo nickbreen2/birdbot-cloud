@@ -1,0 +1,13 @@
+[Unit]
+Description=Run BirdBot agent health check every 60 seconds
+Requires=birdbot-health-check.service
+
+[Timer]
+# Wait 30 seconds after boot before the first check (gives Caddy time to start)
+OnBootSec=30
+# Then fire every 60 seconds after the last activation
+OnUnitActiveSec=60
+Unit=birdbot-health-check.service
+
+[Install]
+WantedBy=timers.target

@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { StarField } from "@/components/StarField"
 import "./globals.css"
+import "./custom.css"
 
 const outfit = Outfit({
   subsets: ["latin"],

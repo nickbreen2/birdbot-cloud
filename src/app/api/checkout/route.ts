@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@clerk/nextjs/server"
+import { auth, clerkClient } from "@clerk/nextjs/server"
 import { getStripe, PLANS } from "@/lib/stripe"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
@@ -27,6 +27,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid priceId" }, { status: 400 })
   }
 
+  const clerk = await clerkClient()
+  const user = await clerk.users.getUser(userId)
+  const email = user.emailAddresses.find(
+    (e) => e.id === user.primaryEmailAddressId
+  )?.emailAddress
+
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
@@ -34,8 +40,7 @@ export async function POST(request: Request) {
       success_url: `${APP_URL}/dashboard?checkout=success&step=2`,
       cancel_url: `${APP_URL}/dashboard`,
       metadata: { userId },
-      // Pre-fill email if available from Clerk via customer_email
-      // (would require fetching user data — left as TODO)
+      ...(email ? { customer_email: email } : {}),
     })
 
     return NextResponse.json({ url: session.url })

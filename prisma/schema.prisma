@@ -1,29 +1,219 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
-model WaitlistEntry {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+enum EntityType {
+  file
+  concept
+  decision
+  task
+  technology
+  person
+  goal
 }
 
-model Agent {
-  id          String   @id @default(cuid())
-  clerkUserId String
+enum MentionSourceType {
+  session
+  decision
+  telegram
+}
+
+enum GoalStatus {
+  active
+  completed
+  paused
+  abandoned
+  pending_confirmation
+}
+
+enum CheckinCadence {
+  daily
+  weekly
+  biweekly
+  monthly
+}
+
+model Entity {
+  id          String     @id @default(cuid())
+  userId      String
+  userToken   String?
+  project     String?
   name        String
-  model       String
-  traits      Json
-  focusAreas  String[]
-  channels    String[]
-  status      String   @default("incubating")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  type        EntityType
+  description String?
+  embedding   Unsupported("vector(1536)")?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  relationshipsFrom Relationship[] @relation("RelFrom")
+  relationshipsTo   Relationship[] @relation("RelTo")
+  mentions          Mention[]
+  goal              Goal?
+
+  @@unique([userId, project, name, type])
+  @@index([userId])
+  @@index([userToken])
+}
+
+model Relationship {
+  id        String   @id @default(cuid())
+  userId    String
+  fromId    String
+  toId      String
+  label     String
+  weight    Float    @default(1.0)
+  createdAt DateTime @default(now())
+
+  from Entity @relation("RelFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to   Entity @relation("RelTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fromId, toId, label])
+  @@index([userId])
+  @@index([fromId])
+  @@index([toId])
+}
+
+model Mention {
+  id         String            @id @default(cuid())
+  userId     String
+  entityId   String
+  sourceType MentionSourceType
+  sourceId   String
+  snippet    String?
+  createdAt  DateTime          @default(now())
+
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([entityId])
+  @@index([sourceId])
+}
+
+model Goal {
+  id          String         @id @default(cuid())
+  userId      String
+  entityId    String         @unique
+  title       String
+  description String?
+  status      GoalStatus     @default(active)
+  cadence     CheckinCadence @default(weekly)
+  lastCheckinAt DateTime?
+  targetDate    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, lastCheckinAt])
+}
+
+model UserPreferences {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  userToken            String?  @unique
+  personalityPreset    String   @default("assistant")
+  personalitySliders   Json?
+  globalCheckinEnabled Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model TelegramUser {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  telegramChatId String   @unique
+  username       String?
+  firstName      String?
+  lastName       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TelegramPairingToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Subscription {
+  id                     String   @id @default(cuid())
+  clerkUserId            String   @unique
+  stripeCustomerId       String   @unique
+  stripeSubscriptionId   String   @unique
+  stripePriceId          String
+  status                 String
+  currentPeriodEnd       DateTime
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   @@index([clerkUserId])
+  @@index([stripeCustomerId])
+}
+
+model McpConnection {
+  id          String    @id @default(cuid())
+  clerkUserId String    @unique
+  userToken   String    @unique
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model CloudSession {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  sessionId String   @unique
+  summary   String?
+  createdAt DateTime
+  syncedAt  DateTime @default(now())
+
+  @@index([userToken, project])
+}
+
+model CloudDecision {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  sessionId String?
+  decision  String
+  reasoning String?
+  createdAt DateTime
+  syncedAt  DateTime @default(now())
+
+  @@index([userToken, project])
+  @@index([sessionId])
+}
+
+model CloudProject {
+  id        String   @id @default(cuid())
+  userToken String
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([userToken, name])
+  @@index([userToken])
+}
+
+model ProjectBrief {
+  id        String   @id @default(cuid())
+  userToken String
+  project   String
+  brief     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userToken, project])
+  @@index([userToken])
 }

@@ -7,7 +7,7 @@ import { useUser, useClerk, useSignIn, useSessionList, useSession } from "@clerk
 
 type SessionActivity = { browserName?: string; deviceType?: string; isMobile?: boolean; city?: string; country?: string }
 type SessionWithActivitiesResource = { id: string; status: string; lastActiveAt: Date; latestActivity?: SessionActivity; revoke: () => Promise<unknown> }
-import { useWizard } from "@/components/dashboard/WizardContext"
+import { useWizard } from "@/components/onboarding/WizardContext"
 
 type AccountSection = "profile" | "security" | "danger"
 
