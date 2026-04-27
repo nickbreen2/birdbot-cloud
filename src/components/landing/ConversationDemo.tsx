@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import BirdbotIMessage, { type ActiveLogo } from "@/components/birdbot/BirdbotIMessage"
 import { IntegrationCallouts } from "@/components/landing/IntegrationCallouts"
 
@@ -61,17 +61,33 @@ export function ConversationDemo() {
   const phoneTop = Math.round((CONTAINER_H - SCALED_H) / 2) // 38px
   const phoneLeft = `calc(50% - ${Math.round(SCALED_W / 2)}px)`
   const [activeLogo, setActiveLogo] = useState<ActiveLogo>(null)
+  const [entered, setEntered] = useState(false)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setEntered(true); observer.disconnect() } },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <section className="py-20 px-4 overflow-hidden" id="demo">
+    <section ref={sectionRef} className="py-20 px-4 overflow-hidden" id="demo">
       {/* Sky scene card */}
       <div
         className="relative mx-auto overflow-hidden h-[520px] md:h-[600px] max-w-[880px] lg:max-w-[1100px]"
         style={{
           borderRadius: 28,
+          opacity: entered ? undefined : 0,
+          ...(entered && { animation: "slide-up 0.6s ease-out both" }),
           background: 'linear-gradient(180deg, #4A9FE8 0%, #6FB4EE 30%, #9CCDF4 65%, #C8E2F8 100%)',
           border: '1px solid rgba(255,255,255,0.14)',
           boxShadow: '0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.3)',
+          transform: 'translateZ(0)',
         }}
       >
         {/* Sun bloom — upper-left */}

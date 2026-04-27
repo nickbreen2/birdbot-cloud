@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 
 const FOOTER_HREFS: Record<string, string> = {
@@ -24,7 +23,7 @@ export function Footer() {
         aria-hidden
         className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
         style={{
-          width: "480px",
+          width: "min(480px, 100%)",
           height: "1px",
           boxShadow: "0 0 32px 8px rgba(59,130,246,0.12)",
         }}
@@ -37,22 +36,19 @@ export function Footer() {
           className="flex items-center gap-2.5 group flex-shrink-0"
           aria-label="BirdBot home"
         >
-          <div
-            className="relative"
+          <span
+            className="font-heading font-black leading-none select-none"
             style={{
-              filter:
-                "drop-shadow(0 0 8px rgba(96,165,250,0.35))",
-              transition: "filter 0.25s ease",
+              fontSize: "1.4rem",
+              letterSpacing: "-0.035em",
+              background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
             }}
           >
-            <Image
-              src="/birdbot-full-logo-mark3.svg"
-              alt="BirdBot"
-              width={124}
-              height={29}
-              style={{ height: "29px", width: "auto" }}
-            />
-          </div>
+            BirdBot
+          </span>
         </Link>
 
         {/* Copyright */}

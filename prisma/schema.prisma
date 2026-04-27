@@ -148,12 +148,6 @@ model TelegramPairingToken {
   @@index([userId])
 }
 
-model WaitlistEntry {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
-
 model Subscription {
   id                     String   @id @default(cuid())
   clerkUserId            String   @unique

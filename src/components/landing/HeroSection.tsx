@@ -29,7 +29,7 @@ export function HeroSection() {
         setWordIndex(i => (i + 1) % WORDS.length)
         setVisible(true)
       }, 300)
-    }, 2000)
+    }, 4500)
     return () => clearInterval(timer)
   }, [])
 
@@ -53,7 +53,7 @@ export function HeroSection() {
         {/* Icon with glow halo */}
         <div
           className="relative flex items-center justify-center"
-          style={{ animation: "slide-up 0.5s ease both", marginTop: "-20px" }}
+          style={{ animation: "slide-up 0.6s ease-out both", marginTop: "-20px" }}
         >
           {/* Atmospheric glow ring */}
           <div
@@ -107,7 +107,7 @@ export function HeroSection() {
             fontSize: "clamp(2.2rem, 5.5vw, 3.8rem)",
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
-            animation: "slide-up 0.5s 0.2s ease both",
+            animation: "slide-up 0.6s 0.15s ease-out both",
           }}
         >
           Your AI assistant for
@@ -135,16 +135,16 @@ export function HeroSection() {
         {/* Subheadline */}
         <p
           className="max-w-xl text-text-dim text-sm sm:text-lg leading-relaxed font-sans"
-          style={{ animation: "slide-up 0.5s 0.3s ease both", marginTop: "-4px" }}
+          style={{ animation: "slide-up 0.6s 0.25s ease-out both", marginTop: "-4px" }}
         >
           The AI assistant that lives in your messages.<br />Text it, it remembers, it acts.
         </p>
 
         {/* CTA */}
-        <div style={{ animation: "slide-up 0.5s 0.4s ease both" }}>
+        <div style={{ animation: "slide-up 0.6s 0.35s ease-out both" }}>
           <Link
             href={isLoaded && isSignedIn ? "/dashboard" : "/sign-up"}
-            className="group inline-flex items-center gap-3 rounded-full font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
+            className="group inline-flex items-center gap-3 rounded-2xl font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
             style={{
               padding: "15px 28px",
               fontSize: "clamp(0.95rem, 1.8vw, 1.05rem)",

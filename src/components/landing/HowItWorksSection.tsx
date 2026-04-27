@@ -5,11 +5,11 @@ import { SaveTimeVisual } from "./visuals/SaveTimeVisual"
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" style={{ padding: "96px 32px 112px" }}>
+    <section id="how-it-works" className="pt-16 pb-20 px-6 md:pt-24 md:pb-28 md:px-8">
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
         {/* Section header */}
-        <div style={{ textAlign: "center", marginBottom: 88 }}>
+        <div className="text-center mb-12 md:mb-[88px]">
           <p
             className="font-sans"
             style={{

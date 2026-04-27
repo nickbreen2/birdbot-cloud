@@ -48,12 +48,20 @@ export function MobileHeader() {
   return (
     <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-surface border-b border-border">
       {/* Left: BirdBot wordmark */}
-      <div className="flex items-center gap-2.5 px-1 py-1">
-        <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-6 h-6" />
-        <span className="text-[11px] font-semibold text-text-base font-sans uppercase tracking-wide">
-          BirdBot
-        </span>
-      </div>
+      <span
+        className="font-heading font-black select-none"
+        style={{
+          fontSize: "1.35rem",
+          letterSpacing: "-0.04em",
+          lineHeight: 1,
+          background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        BirdBot
+      </span>
 
       {/* Right: Profile avatar + dropdown */}
       <div ref={menuRef} className="relative">

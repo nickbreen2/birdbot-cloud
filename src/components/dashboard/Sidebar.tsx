@@ -15,15 +15,25 @@ export function Sidebar() {
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 hidden lg:flex flex-col bg-surface border-r border-border z-40">
-      {/* Logo slot */}
-      <div className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border flex items-center gap-3">
-        <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-6 h-6 flex-shrink-0" />
-        <span className="text-xs font-semibold text-text-base font-sans uppercase tracking-wide">
+      {/* Logo */}
+      <div className="px-5 py-5">
+        <span
+          className="font-heading font-black select-none"
+          style={{
+            fontSize: "1.85rem",
+            letterSpacing: "-0.04em",
+            lineHeight: 1,
+            background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
           BirdBot
         </span>
       </div>
 
-      <div className="mt-3 border-t border-border" />
+      <div className="border-t border-border mx-5" />
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-0.5">
