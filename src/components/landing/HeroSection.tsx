@@ -1,9 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
+import { BirdbotIcon } from "@/components/ui/BirdbotIcon"
 
 const WORDS = ["remembering.", "taking notes.", "scheduling.", "drafting emails.", "finding things."]
 const LONGEST_WORD = "drafting emails."
@@ -71,22 +71,14 @@ export function HeroSection() {
               filter: "blur(10px)",
             }}
           />
-          {/* Floating icon */}
-          <div style={{ animation: "float 4.5s 0.55s ease-in-out infinite", position: "relative" }}>
-            <Image
-              src="/birdbot-animated (1).svg"
-              alt="BirdBot icon"
-              width={192}
-              height={179}
-              priority
-              unoptimized
-              className="w-32 h-auto sm:w-48"
-              style={{
-                filter:
-                  "drop-shadow(0 8px 32px rgba(125,211,252,0.55)) drop-shadow(0 2px 12px rgba(37,99,235,0.40))",
-              }}
-            />
-          </div>
+          {/* Floating icon — inline SVG so iOS Safari plays the wing/blink/float animations */}
+          <BirdbotIcon
+            className="w-32 h-auto sm:w-48 relative"
+            style={{
+              filter:
+                "drop-shadow(0 8px 32px rgba(125,211,252,0.55)) drop-shadow(0 2px 12px rgba(37,99,235,0.40))",
+            }}
+          />
         </div>
 
         {/* Headline with rotating word */}
