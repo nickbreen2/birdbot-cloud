@@ -87,8 +87,8 @@ export function HeroSection() {
             <Image
               src="/birdbot-animated (1).svg"
               alt="BirdBot icon"
-              width={isIOS ? 125 : 192}
-              height={isIOS ? 116 : 179}
+              width={192}
+              height={179}
               priority
               unoptimized
               className="w-32 h-auto sm:w-48"

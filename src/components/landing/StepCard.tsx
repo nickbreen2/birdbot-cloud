@@ -24,8 +24,8 @@ export function StepCard({ number, title, body, visual }: StepCardProps) {
       <div
         style={{
           flexShrink: 0,
-        height: 260,
-          padding: "32px 32px 28px",
+        height: 280,
+        padding: "32px 32px 28px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
