@@ -1,15 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuth, SignOutButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
 const NAV_LINKS = [
-  { label: "Features", href: "/#use-cases" },
-  { label: "How It Works", href: "/#how-it-works" },
-  { label: "FAQ", href: "/#faq" },
+  { label: "Features", id: "use-cases" },
+  { label: "How It Works", id: "how-it-works" },
+  { label: "FAQ", id: "faq" },
 ]
 
 export function Navbar() {
@@ -18,6 +19,30 @@ export function Navbar() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'sign-in' | 'sign-up'>('sign-in')
   const { isLoaded, isSignedIn } = useAuth()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  // When we navigate to "/" from a sub-page, pick up the pending scroll target
+  useEffect(() => {
+    if (pathname === '/') {
+      const target = sessionStorage.getItem('pendingScroll')
+      if (target) {
+        sessionStorage.removeItem('pendingScroll')
+        setTimeout(() => {
+          document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })
+        }, 150)
+      }
+    }
+  }, [pathname])
+
+  function handleNavClick(id: string) {
+    if (pathname === '/') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      sessionStorage.setItem('pendingScroll', id)
+      router.push('/')
+    }
+  }
 
   const openModal = useCallback((mode: 'sign-in' | 'sign-up') => {
     setModalMode(mode)
@@ -80,14 +105,14 @@ export function Navbar() {
 
         {/* Desktop nav links — absolutely centered so logo/CTA width doesn't shift them */}
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-7">
-          {NAV_LINKS.map(({ label, href }) => (
-            <Link
-              key={href}
-              href={href}
+          {NAV_LINKS.map(({ label, id }) => (
+            <button
+              key={id}
+              onClick={() => handleNavClick(id)}
               className="text-sm text-text-dim hover:text-text-base transition-colors font-sans"
             >
               {label}
-            </Link>
+            </button>
           ))}
         </nav>
 
@@ -175,15 +200,14 @@ export function Navbar() {
           }}
         >
           <nav className="flex flex-col p-3 gap-0.5">
-            {NAV_LINKS.map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
+            {NAV_LINKS.map(({ label, id }) => (
+              <button
+                key={id}
+                onClick={() => { handleNavClick(id); setOpen(false) }}
                 className="text-sm text-text-dim hover:text-text-base transition-colors font-sans px-3 py-2.5 rounded-xl hover:bg-panel text-left"
               >
                 {label}
-              </Link>
+              </button>
             ))}
             <div className="mt-2 pt-2 border-t border-border px-1 flex flex-col gap-2">
               {isLoaded && isSignedIn ? (
