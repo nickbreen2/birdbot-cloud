@@ -7,14 +7,10 @@ import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
 const NAV_LINKS = [
-  { label: "Features", id: "use-cases" },
-  { label: "How It Works", id: "how-it-works" },
-  { label: "FAQ", id: "faq" },
+  { label: "Features", href: "/#use-cases" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
 ]
-
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
-}
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -84,14 +80,14 @@ export function Navbar() {
 
         {/* Desktop nav links — absolutely centered so logo/CTA width doesn't shift them */}
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-7">
-          {NAV_LINKS.map(({ label, id }) => (
-            <button
-              key={id}
-              onClick={() => scrollToSection(id)}
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
               className="text-sm text-text-dim hover:text-text-base transition-colors font-sans"
             >
               {label}
-            </button>
+            </Link>
           ))}
         </nav>
 
@@ -179,14 +175,15 @@ export function Navbar() {
           }}
         >
           <nav className="flex flex-col p-3 gap-0.5">
-            {NAV_LINKS.map(({ label, id }) => (
-              <button
-                key={id}
-                onClick={() => { scrollToSection(id); setOpen(false) }}
+            {NAV_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
                 className="text-sm text-text-dim hover:text-text-base transition-colors font-sans px-3 py-2.5 rounded-xl hover:bg-panel text-left"
               >
                 {label}
-              </button>
+              </Link>
             ))}
             <div className="mt-2 pt-2 border-t border-border px-1 flex flex-col gap-2">
               {isLoaded && isSignedIn ? (
