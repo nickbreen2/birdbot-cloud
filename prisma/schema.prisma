@@ -12,6 +12,7 @@ datasource db {
 enum EntityType {
   file
   concept
+  date
   decision
   task
   technology
