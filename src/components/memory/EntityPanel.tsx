@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { X } from "lucide-react"
 
-type EntityTypeName = "file" | "concept" | "decision" | "task" | "technology" | "person" | "goal"
+type EntityTypeName = "file" | "concept" | "date" | "decision" | "task" | "technology" | "person" | "goal"
 
 interface EntityDetail {
   id: string
@@ -24,6 +24,7 @@ const TYPE_BADGE: Record<EntityTypeName, string> = {
   goal:       "bg-amber-500/15 text-amber-300 border-amber-500/25",
   task:       "bg-blue-500/15 text-blue-300 border-blue-500/25",
   concept:    "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  date:       "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
   file:       "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
   technology: "bg-violet-500/15 text-violet-300 border-violet-500/25",
   person:     "bg-rose-500/15 text-rose-300 border-rose-500/25",
