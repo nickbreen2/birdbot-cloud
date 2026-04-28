@@ -5,6 +5,7 @@ html, body {
   background-color: #0a0e1a;
   color: #f1f5f9;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 /* ── Birdbot iMessage component ── */
