@@ -2,6 +2,7 @@ import { task } from "@trigger.dev/sdk"
 import { prisma } from "@/lib/prisma"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { runEntityExtraction } from "@/trigger/extractEntities"
+import { generateBirdReply } from "@/lib/replyPrompt"
 
 const PAIR_PREFIX = "/start "
 
@@ -87,20 +88,35 @@ async function handleMessage(
 
   if (result.error) {
     console.warn("[telegram] extraction error:", result.error, "for message", messageId)
-    await sendTelegramMessage(chatId, "Got it — but I had trouble reading that one. Try rephrasing.")
+    const reply = await generateBirdReply(
+      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: true },
+      "Got that — something glitched on my end. Try again?"
+    )
+    await sendTelegramMessage(chatId, reply)
     return
   }
 
   const total = result.entitiesCreated + result.entitiesReused
+
   if (total === 0) {
-    await sendTelegramMessage(chatId, "Noted. Nothing specific to log from that one.")
+    const reply = await generateBirdReply(
+      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: false },
+      "Got that."
+    )
+    await sendTelegramMessage(chatId, reply)
     return
   }
 
-  const parts: string[] = []
-  if (result.entitiesCreated > 0) parts.push(`${result.entitiesCreated} new`)
-  if (result.entitiesReused > 0) parts.push(`${result.entitiesReused} updated`)
-  await sendTelegramMessage(chatId, `Noted. Logged ${parts.join(", ")} ${total === 1 ? "entity" : "entities"}.`)
+  const reply = await generateBirdReply(
+    {
+      text,
+      entities: result.entities,
+      counts: { entitiesCreated: result.entitiesCreated, entitiesUpdated: result.entitiesReused, totalEntities: total },
+      error: false,
+    },
+    "Got it."
+  )
+  await sendTelegramMessage(chatId, reply)
 }
 
 export const telegramProcess = task({
