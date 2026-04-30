@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { runEntityExtraction } from "@/trigger/extractEntities"
 import { generateBirdReply } from "@/lib/replyPrompt"
+import { getGraphContext } from "@/lib/graphContext"
 
 const PAIR_PREFIX = "/start "
 
@@ -78,18 +79,21 @@ async function handleMessage(
 ): Promise<void> {
   const { chatId, messageId, text } = payload
 
-  const result = await runEntityExtraction({
-    text,
-    sourceType: "telegram",
-    userId,
-    sourceId: messageId.toString(),
-    snippet: text,
-  })
+  const [result, context] = await Promise.all([
+    runEntityExtraction({
+      text,
+      sourceType: "telegram",
+      userId,
+      sourceId: messageId.toString(),
+      snippet: text,
+    }),
+    getGraphContext(userId),
+  ])
 
   if (result.error) {
     console.warn("[telegram] extraction error:", result.error, "for message", messageId)
     const reply = await generateBirdReply(
-      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: true },
+      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: true, ...context },
       "Got that — something glitched on my end. Try again?"
     )
     await sendTelegramMessage(chatId, reply)
@@ -100,7 +104,7 @@ async function handleMessage(
 
   if (total === 0) {
     const reply = await generateBirdReply(
-      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: false },
+      { text, entities: [], counts: { entitiesCreated: 0, entitiesUpdated: 0, totalEntities: 0 }, error: false, ...context },
       "Got that."
     )
     await sendTelegramMessage(chatId, reply)
@@ -113,6 +117,7 @@ async function handleMessage(
       entities: result.entities,
       counts: { entitiesCreated: result.entitiesCreated, entitiesUpdated: result.entitiesReused, totalEntities: total },
       error: false,
+      ...context,
     },
     "Got it."
   )

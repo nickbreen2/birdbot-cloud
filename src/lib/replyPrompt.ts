@@ -9,7 +9,7 @@ export interface ReplyInput {
   entities: { name: string; type: string }[]
   counts: { entitiesCreated: number; entitiesUpdated: number; totalEntities: number }
   error: boolean
-  recentEntities?: { name: string; type: string }[]
+  recentEntities?: { name: string; type: string; description?: string }[]
   activeGoals?: { name: string; description?: string }[]
   softGoals?: { name: string; description?: string }[]
 }
@@ -233,7 +233,7 @@ function buildReplyUserMessage(input: ReplyInput): string {
 
   const recentContext =
     input.recentEntities && input.recentEntities.length > 0
-      ? input.recentEntities.map((e) => `${e.name} (${e.type})`).join(", ")
+      ? input.recentEntities.map((e) => `${e.name} (${e.type})${e.description ? ` — ${e.description}` : ""}`).join(", ")
       : "none"
 
   const activeGoalList =
