@@ -3,13 +3,13 @@
 import { useRef, useState, useEffect } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
-import { LogOut, Settings, User } from "lucide-react"
+import { LogOut, User } from "lucide-react"
 import { useWizard } from "@/components/onboarding/WizardContext"
 
 export function UserMenu() {
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { setSettingsOpen, setAccountOpen } = useWizard()
+  const { setAccountOpen } = useWizard()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -50,10 +50,10 @@ export function UserMenu() {
       {/* Floating dropdown */}
       {open && (
         <div
-          className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-border overflow-hidden z-50"
+          className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border overflow-hidden z-50"
           style={{
             background: "#141a2c",
-            boxShadow: "0 0 0 1px rgba(37,99,235,0.12), 0 -8px 32px rgba(0,0,0,0.5)",
+            boxShadow: "0 0 0 1px rgba(37,99,235,0.12), 0 8px 32px rgba(0,0,0,0.5)",
           }}
         >
           {/* Header row — non-interactive */}
@@ -81,16 +81,6 @@ export function UserMenu() {
           </div>
 
           <div className="h-px bg-border mx-2" />
-
-          {/* BirdBot Settings */}
-          <button
-            type="button"
-            onClick={() => { setOpen(false); setSettingsOpen(true) }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-colors text-left"
-          >
-            <Settings size={14} className="flex-shrink-0" />
-            BirdBot Settings
-          </button>
 
           {/* Manage Account */}
           <button
