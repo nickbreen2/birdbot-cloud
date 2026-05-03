@@ -99,9 +99,9 @@ export default function GraphCanvas({
       </div>
 
       <div className="gc__zoom">
-        <button onClick={onZoomIn} aria-label="Zoom in">+</button>
-        <button onClick={onZoomOut} aria-label="Zoom out">−</button>
-        <button onClick={onFit} aria-label="Fit to view">⤢</button>
+        <button type="button" onClick={onZoomIn} aria-label="Zoom in">+</button>
+        <button type="button" onClick={onZoomOut} aria-label="Zoom out">−</button>
+        <button type="button" onClick={onFit} aria-label="Fit to view">⤢</button>
       </div>
 
       <div className="gc__canvas">{children}</div>
