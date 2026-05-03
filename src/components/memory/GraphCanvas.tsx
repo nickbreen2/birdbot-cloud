@@ -58,7 +58,7 @@ function MiniMapSvg({ data }: { data: MiniMapData }) {
           key={i}
           x1={e.sourceX} y1={e.sourceY}
           x2={e.targetX} y2={e.targetY}
-          stroke="rgba(255,255,255,0.07)"
+          style={{ stroke: "var(--graph-minimap-edge)" }}
           strokeWidth={strokeW}
         />
       ))}
