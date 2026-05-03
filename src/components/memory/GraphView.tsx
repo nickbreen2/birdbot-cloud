@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
-
-type EntityTypeName = "file" | "concept" | "date" | "decision" | "task" | "technology" | "person" | "goal"
+import { EntityTypeName, NODE_COLORS } from "./graphConstants"
 
 interface NodeDatum extends d3.SimulationNodeDatum {
   id: string
@@ -20,19 +19,28 @@ interface EdgeDatum extends d3.SimulationLinkDatum<NodeDatum> {
   label: string
 }
 
-const NODE_COLORS: Record<EntityTypeName, string> = {
-  goal:       "#d97706",
-  task:       "#3b82f6",
-  concept:    "#71717a",
-  date:       "#d946ef",
-  technology: "#8b5cf6",
-  person:     "#f43f5e",
-  decision:   "#f97316",
-  file:       "#10b981",
-}
-
 function nodeRadius(d: NodeDatum): number {
   return 6 + Math.sqrt(Math.max(1, d.mentionCount)) * 4
+}
+
+function glowFilter(d: NodeDatum): string {
+  if (d.mentionCount >= 6) return "url(#glow-strong)"
+  if (d.mentionCount >= 2) return "url(#glow-mid)"
+  return "url(#glow-soft)"
+}
+
+function edgePath(d: EdgeDatum): string {
+  const sx = (d.source as NodeDatum).x ?? 0
+  const sy = (d.source as NodeDatum).y ?? 0
+  const tx = (d.target as NodeDatum).x ?? 0
+  const ty = (d.target as NodeDatum).y ?? 0
+  const dx = tx - sx
+  const dy = ty - sy
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1
+  const curve = Math.min(dist * 0.25, 50)
+  const mx = (sx + tx) / 2 - (dy / dist) * curve
+  const my = (sy + ty) / 2 + (dx / dist) * curve
+  return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`
 }
 
 interface GraphApiResponse {
@@ -40,17 +48,24 @@ interface GraphApiResponse {
   edges: { id: string; fromId: string; toId: string; label: string }[]
 }
 
+export interface GraphNodeInfo { id: string; name: string; type: EntityTypeName }
+export interface GraphEdgeInfo { fromId: string; toId: string }
+
 interface GraphViewProps {
   onNodeClick: (id: string) => void
   selectedEntityId: string | null
+  query?: string
+  onDataLoaded?: (nodes: GraphNodeInfo[], edges: GraphEdgeInfo[]) => void
 }
 
-export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewProps) {
+export default function GraphView({ onNodeClick, selectedEntityId, query = "", onDataLoaded }: GraphViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const simulationRef = useRef<d3.Simulation<NodeDatum, EdgeDatum> | null>(null)
   const onNodeClickRef = useRef(onNodeClick)
   const selectedIdRef = useRef(selectedEntityId)
   const nodeSelRef = useRef<d3.Selection<SVGGElement, NodeDatum, SVGGElement, unknown> | null>(null)
+  const applyBaseRef = useRef<(() => void) | null>(null)
+  const applySearchRef = useRef<((q: string) => void) | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [graphData, setGraphData] = useState<{ nodes: NodeDatum[]; edges: EdgeDatum[] } | null>(null)
@@ -58,11 +73,12 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
     localStorage.getItem("birdbot-graph-overlay-dismissed") === "true"
   )
 
-  useEffect(() => {
-    onNodeClickRef.current = onNodeClick
-  }, [onNodeClick])
+  useEffect(() => { onNodeClickRef.current = onNodeClick }, [onNodeClick])
 
-  // Sync selected ref and update ring without restarting simulation
+  useEffect(() => {
+    if (applySearchRef.current) applySearchRef.current(query)
+  }, [query])
+
   useEffect(() => {
     selectedIdRef.current = selectedEntityId
     const nodeSel = nodeSelRef.current
@@ -70,6 +86,7 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
     nodeSel.select("circle")
       .attr("stroke-width", (n) => n.id === selectedEntityId ? 4 : 2)
       .attr("stroke-opacity", (n) => n.id === selectedEntityId ? 1.0 : 0.35)
+      .attr("filter", (n) => n.id === selectedEntityId ? "url(#glow-hover)" : glowFilter(n))
   }, [selectedEntityId])
 
   useEffect(() => {
@@ -84,6 +101,7 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
           .filter((e) => nodeIds.has(e.fromId) && nodeIds.has(e.toId))
           .map((e) => ({ ...e, source: e.fromId, target: e.toId }))
         setGraphData({ nodes, edges: validEdges })
+        onDataLoaded?.(nodes, edges.map((e) => ({ fromId: e.fromId, toId: e.toId })))
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Something went wrong"))
       .finally(() => setLoading(false))
@@ -102,19 +120,53 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
 
     if (graphData.nodes.length === 0) return
 
+    // ── SVG filters ──────────────────────────────────────────────────────────
+    const defs = svg.append("defs")
+
+    function makeGlow(id: string, std: number) {
+      const f = defs.append("filter")
+        .attr("id", id)
+        .attr("x", "-200%").attr("y", "-200%")
+        .attr("width", "500%").attr("height", "500%")
+      f.append("feGaussianBlur")
+        .attr("in", "SourceGraphic")
+        .attr("stdDeviation", std)
+        .attr("result", "blur")
+      const merge = f.append("feMerge")
+      merge.append("feMergeNode").attr("in", "blur")
+      merge.append("feMergeNode").attr("in", "SourceGraphic")
+    }
+
+    makeGlow("glow-soft",   2.5)
+    makeGlow("glow-mid",    4)
+    makeGlow("glow-strong", 6)
+    makeGlow("glow-hover",  9)
+
+    // ── Zoom + pan ────────────────────────────────────────────────────────────
+    const container = svg.append("g")
+
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.15, 5])
+      .on("zoom", (event) => container.attr("transform", event.transform.toString()))
+
+    svg.call(zoom).on("dblclick.zoom", null)
+
+    // ── Data ──────────────────────────────────────────────────────────────────
     const nodes: NodeDatum[] = graphData.nodes.map((n) => ({ ...n }))
     const edges: EdgeDatum[] = graphData.edges.map((e) => ({ ...e }))
 
-    const linkSel = svg
+    // ── Edges (curved paths) ──────────────────────────────────────────────────
+    const linkSel = container
       .append("g")
-      .selectAll("line")
+      .selectAll<SVGPathElement, EdgeDatum>("path")
       .data(edges)
-      .join("line")
-      .attr("stroke", "#3f3f46")
+      .join("path")
+      .attr("fill", "none")
+      .attr("stroke", "rgba(148,163,184,0.18)")
       .attr("stroke-width", 1.5)
-      .attr("stroke-opacity", 0.5)
 
-    const nodeSel = svg
+    // ── Nodes ─────────────────────────────────────────────────────────────────
+    const nodeSel = container
       .append("g")
       .selectAll<SVGGElement, NodeDatum>("g")
       .data(nodes)
@@ -127,10 +179,11 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
       .append("circle")
       .attr("r", nodeRadius)
       .attr("fill", (d) => NODE_COLORS[d.type])
-      .attr("fill-opacity", 0.85)
+      .attr("fill-opacity", 0.88)
       .attr("stroke", (d) => NODE_COLORS[d.type])
       .attr("stroke-width", 2)
-      .attr("stroke-opacity", 0.35)
+      .attr("stroke-opacity", 0.4)
+      .attr("filter", glowFilter)
 
     nodeSel
       .append("text")
@@ -139,19 +192,46 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
       .attr("fill", "#a1a1aa")
       .attr("font-size", "11px")
       .attr("font-family", "ui-sans-serif, system-ui, sans-serif")
+      .attr("pointer-events", "none")
       .text((d) => d.name)
 
+    // ── Style helpers ─────────────────────────────────────────────────────────
     function applyBaseStyles() {
       const selId = selectedIdRef.current
-      linkSel.attr("stroke-opacity", 0.5)
+      linkSel.attr("stroke", "rgba(148,163,184,0.18)").attr("stroke-width", 1.5)
       nodeSel.select("circle")
-        .attr("fill-opacity", 0.85)
+        .attr("fill-opacity", 0.88)
         .attr("r", nodeRadius)
-        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.35)
+        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.4)
         .attr("stroke-width", (n) => n.id === selId ? 4 : 2)
+        .attr("filter", (n) => n.id === selId ? "url(#glow-hover)" : glowFilter(n))
       nodeSel.select("text").attr("fill", "#a1a1aa")
     }
 
+    function applySearchHighlight(q: string) {
+      if (!q) { applyBaseStyles(); return }
+      const lower = q.toLowerCase()
+      const matchIds = new Set(nodes.filter((n) => n.name.toLowerCase().includes(lower)).map((n) => n.id))
+      linkSel
+        .attr("stroke", (e) => {
+          const src = (e.source as NodeDatum).id
+          const tgt = (e.target as NodeDatum).id
+          return matchIds.has(src) || matchIds.has(tgt) ? "rgba(148,163,184,0.5)" : "rgba(148,163,184,0.04)"
+        })
+      nodeSel.select("circle")
+        .attr("fill-opacity", (n) => matchIds.has(n.id) ? 1.0 : 0.08)
+        .attr("r", (n) => matchIds.has(n.id) ? nodeRadius(n) + 2 : nodeRadius(n))
+        .attr("stroke-opacity", (n) => matchIds.has(n.id) ? 1.0 : 0.05)
+        .attr("stroke-width", (n) => matchIds.has(n.id) ? 3 : 2)
+        .attr("filter", (n) => matchIds.has(n.id) ? "url(#glow-hover)" : "url(#glow-soft)")
+      nodeSel.select("text")
+        .attr("fill", (n) => matchIds.has(n.id) ? "#e4e4e7" : "#27272a")
+    }
+
+    applyBaseRef.current = applyBaseStyles
+    applySearchRef.current = applySearchHighlight
+
+    // ── Hover ─────────────────────────────────────────────────────────────────
     nodeSel.on("mouseover", (_, d) => {
       const selId = selectedIdRef.current
       const neighbors = new Set<string>()
@@ -162,27 +242,38 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
         if (tgt === d.id) neighbors.add(src)
       })
 
-      linkSel.attr("stroke-opacity", (e) => {
-        const src = (e.source as NodeDatum).id
-        const tgt = (e.target as NodeDatum).id
-        return src === d.id || tgt === d.id ? 0.7 : 0.05
-      })
+      linkSel
+        .attr("stroke", (e) => {
+          const src = (e.source as NodeDatum).id
+          const tgt = (e.target as NodeDatum).id
+          return src === d.id || tgt === d.id ? NODE_COLORS[d.type] + "55" : "rgba(148,163,184,0.04)"
+        })
+        .attr("stroke-width", (e) => {
+          const src = (e.source as NodeDatum).id
+          const tgt = (e.target as NodeDatum).id
+          return src === d.id || tgt === d.id ? 2 : 1.5
+        })
 
       nodeSel.select("circle")
         .attr("fill-opacity", (n) => {
           if (n.id === d.id) return 1.0
-          if (neighbors.has(n.id)) return 0.85
-          return 0.12
+          if (neighbors.has(n.id)) return 0.88
+          return 0.1
         })
-        .attr("r", (n) => (n.id === d.id ? nodeRadius(n) + 2 : nodeRadius(n)))
+        .attr("r", (n) => n.id === d.id ? nodeRadius(n) + 3 : nodeRadius(n))
         .attr("stroke-opacity", (n) => {
           if (n.id === d.id) return 1.0
-          if (n.id === selId) return 0.8  // selected ring stays visible while others dim
-          return neighbors.has(n.id) ? 0.35 : 0.05
+          if (n.id === selId) return 0.8
+          return neighbors.has(n.id) ? 0.4 : 0.05
         })
         .attr("stroke-width", (n) => {
           if (n.id === d.id) return n.id === selId ? 5 : 3
           return n.id === selId ? 4 : 2
+        })
+        .attr("filter", (n) => {
+          if (n.id === d.id) return "url(#glow-hover)"
+          if (neighbors.has(n.id)) return glowFilter(n)
+          return "url(#glow-soft)"
         })
 
       nodeSel.select("text")
@@ -193,79 +284,56 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
 
     nodeSel.on("mouseout", applyBaseStyles)
 
+    // ── Drag ──────────────────────────────────────────────────────────────────
     const drag = d3.drag<SVGGElement, NodeDatum>()
       .on("start", (event, d) => {
         if (!event.active) simulationRef.current?.alphaTarget(0.3).restart()
-        d.fx = d.x
-        d.fy = d.y
+        d.fx = d.x; d.fy = d.y
       })
-      .on("drag", (event, d) => {
-        d.fx = event.x
-        d.fy = event.y
-      })
+      .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y })
       .on("end", (event, d) => {
         if (!event.active) simulationRef.current?.alphaTarget(0)
-        d.fx = null
-        d.fy = null
+        d.fx = null; d.fy = null
       })
 
     nodeSel.call(drag)
+    nodeSel.on("click", (_, d) => { onNodeClickRef.current(d.id) })
 
-    nodeSel.on("click", (_, d) => {
-      onNodeClickRef.current(d.id)
-    })
-
+    // ── Simulation ────────────────────────────────────────────────────────────
     const simulation = d3
       .forceSimulation(nodes)
-      .force(
-        "link",
-        d3.forceLink<NodeDatum, EdgeDatum>(edges).id((d) => d.id).distance(120)
-      )
-      .force("charge", d3.forceManyBody<NodeDatum>().strength(-300))
+      .force("link", d3.forceLink<NodeDatum, EdgeDatum>(edges).id((d) => d.id).distance(130))
+      .force("charge", d3.forceManyBody<NodeDatum>().strength(-350))
       .force("center", d3.forceCenter(w / 2, h / 2))
-      // per-node gravity toward center — prevents disconnected nodes from drifting
-      .force("x", d3.forceX<NodeDatum>(w / 2).strength(0.05))
-      .force("y", d3.forceY<NodeDatum>(h / 2).strength(0.05))
-      .force("collide", d3.forceCollide<NodeDatum>().radius((d) => nodeRadius(d) + 12))
+      .force("x", d3.forceX<NodeDatum>(w / 2).strength(0.04))
+      .force("y", d3.forceY<NodeDatum>(h / 2).strength(0.04))
+      .force("collide", d3.forceCollide<NodeDatum>().radius((d) => nodeRadius(d) + 14))
 
     simulationRef.current = simulation
 
     simulation.on("tick", () => {
-      // Clamp positions within SVG bounds so nodes never leave the canvas
-      nodes.forEach((d) => {
-        const r = nodeRadius(d)
-        d.x = Math.max(r + 20, Math.min(w - r - 20, d.x ?? w / 2))
-        d.y = Math.max(r + 20, Math.min(h - r - 20, d.y ?? h / 2))
-      })
-
-      linkSel
-        .attr("x1", (d) => (d.source as NodeDatum).x ?? 0)
-        .attr("y1", (d) => (d.source as NodeDatum).y ?? 0)
-        .attr("x2", (d) => (d.target as NodeDatum).x ?? 0)
-        .attr("y2", (d) => (d.target as NodeDatum).y ?? 0)
-
+      linkSel.attr("d", edgePath)
       nodeSel.attr("transform", (d) => `translate(${d.x ?? 0},${d.y ?? 0})`)
     })
 
-    // Apply any pre-existing selection state after (re)building the graph
+    // Restore selection ring after rebuild
     const selId = selectedIdRef.current
     if (selId) {
       nodeSel.select("circle")
         .attr("stroke-width", (n) => n.id === selId ? 4 : 2)
-        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.35)
+        .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.4)
+        .attr("filter", (n) => n.id === selId ? "url(#glow-hover)" : glowFilter(n))
     }
 
     return () => {
       simulation.stop()
+      svg.on(".zoom", null)
     }
   }, [graphData])
 
   if (loading) {
     return (
-      <div
-        className="flex items-center justify-center"
-        style={{ height: "calc(100vh - 160px)", minHeight: "400px" }}
-      >
+      <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
         <p className="text-sm text-text-muted font-sans">Loading graph…</p>
       </div>
     )
@@ -273,10 +341,7 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
 
   if (error) {
     return (
-      <div
-        className="flex items-center justify-center"
-        style={{ height: "calc(100vh - 160px)", minHeight: "400px" }}
-      >
+      <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
         <p className="text-sm text-red-400 font-sans">{error}</p>
       </div>
     )
@@ -284,16 +349,9 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
 
   if (graphData?.nodes.length === 0) {
     return (
-      <div
-        className="flex flex-col items-center justify-center text-center"
-        style={{ height: "calc(100vh - 160px)", minHeight: "400px" }}
-      >
-        <p className="text-sm font-semibold font-sans text-text-base mb-1">
-          No entities yet.
-        </p>
-        <p className="text-sm text-text-muted font-sans">
-          Send Bird a message from Telegram to start building your graph.
-        </p>
+      <div className="w-full h-full flex flex-col items-center justify-center text-center" style={{ minHeight: "400px" }}>
+        <p className="text-sm font-semibold font-sans text-text-base mb-1">No entities yet.</p>
+        <p className="text-sm text-text-muted font-sans">Send Bird a message from Telegram to start building your graph.</p>
       </div>
     )
   }
@@ -306,14 +364,18 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
   const showOverlay = !dismissed && graphData !== null && graphData.nodes.length < 5
 
   return (
-    <div style={{ height: "calc(100vh - 160px)", minHeight: "400px" }} className="relative">
+    <div className="relative w-full h-full" style={{ minHeight: "400px" }}>
       <svg ref={svgRef} className="w-full h-full" />
+
+      {/* Zoom hint */}
+      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 pointer-events-none">
+        <span className="text-[10px] font-mono text-text-muted opacity-40">scroll to zoom · drag to pan</span>
+      </div>
+
       {showOverlay && (
         <div
           className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-depth/60"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="sparse-overlay-heading"
+          role="dialog" aria-modal="true" aria-labelledby="sparse-overlay-heading"
         >
           <div className="max-w-sm w-full mx-6 text-center px-6 py-8 rounded-2xl bg-panel border border-border">
             <h3 id="sparse-overlay-heading" className="font-heading font-bold text-lg text-text-base mb-3">
@@ -323,8 +385,7 @@ export default function GraphView({ onNodeClick, selectedEntityId }: GraphViewPr
               Every message you send Bird adds nodes and connections here. Keep going — the more you share, the clearer the picture gets.
             </p>
             <button
-              type="button"
-              onClick={handleDismiss}
+              type="button" onClick={handleDismiss}
               className="px-5 py-2 rounded-lg bg-blue text-white text-sm font-semibold font-sans hover:bg-blue/80 transition-colors"
             >
               Got it
