@@ -20,6 +20,10 @@ interface EdgeDatum extends d3.SimulationLinkDatum<NodeDatum> {
   label: string
 }
 
+function cssVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
 function nodeRadius(d: NodeDatum): number {
   return 6 + Math.sqrt(Math.max(1, d.mentionCount)) * 4
 }
@@ -65,6 +69,8 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
   const onNodeClickRef = useRef(onNodeClick)
   const selectedIdRef = useRef(selectedEntityId)
   const nodeSelRef = useRef<d3.Selection<SVGGElement, NodeDatum, SVGGElement, unknown> | null>(null)
+  const linkSelRef = useRef<d3.Selection<SVGPathElement, EdgeDatum, SVGGElement, unknown> | null>(null)
+  const applyThemeRef = useRef<(() => void) | null>(null)
   const applyBaseRef = useRef<(() => void) | null>(null)
   const applySearchRef = useRef<((q: string) => void) | null>(null)
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
@@ -78,6 +84,17 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
   const [miniMapData, setMiniMapData] = useState<MiniMapData | null>(null)
 
   useEffect(() => { onNodeClickRef.current = onNodeClick }, [onNodeClick])
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      applyThemeRef.current?.()
+    })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    })
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (applySearchRef.current) applySearchRef.current(query)
@@ -209,8 +226,10 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
       .data(edges)
       .join("path")
       .attr("fill", "none")
-      .attr("stroke", "rgba(148,163,184,0.18)")
+      .attr("stroke", cssVar("--graph-edge-base"))
       .attr("stroke-width", 1.5)
+
+    linkSelRef.current = linkSel
 
     // ── Nodes ─────────────────────────────────────────────────────────────────
     const nodeSel = container
@@ -236,7 +255,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
       .append("text")
       .attr("dy", (d) => nodeRadius(d) + 13)
       .attr("text-anchor", "middle")
-      .attr("fill", "#a1a1aa")
+      .attr("fill", cssVar("--graph-label"))
       .attr("font-size", "11px")
       .attr("font-family", "ui-sans-serif, system-ui, sans-serif")
       .attr("pointer-events", "none")
@@ -245,25 +264,31 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
     // ── Style helpers ─────────────────────────────────────────────────────────
     function applyBaseStyles() {
       const selId = selectedIdRef.current
-      linkSel.attr("stroke", "rgba(148,163,184,0.18)").attr("stroke-width", 1.5)
+      linkSel.attr("stroke", cssVar("--graph-edge-base")).attr("stroke-width", 1.5)
       nodeSel.select("circle")
         .attr("fill-opacity", 0.88)
         .attr("r", nodeRadius)
         .attr("stroke-opacity", (n) => n.id === selId ? 1.0 : 0.4)
         .attr("stroke-width", (n) => n.id === selId ? 4 : 2)
         .attr("filter", (n) => n.id === selId ? "url(#glow-hover)" : glowFilter(n))
-      nodeSel.select("text").attr("fill", "#a1a1aa")
+      nodeSel.select("text").attr("fill", cssVar("--graph-label"))
     }
+
+    applyThemeRef.current = applyBaseStyles
 
     function applySearchHighlight(q: string) {
       if (!q) { applyBaseStyles(); return }
       const lower = q.toLowerCase()
       const matchIds = new Set(nodes.filter((n) => n.name.toLowerCase().includes(lower)).map((n) => n.id))
+      const edgeHi = cssVar("--graph-edge-hi")
+      const edgeLo = cssVar("--graph-edge-lo")
+      const labelHi = cssVar("--graph-label-hi")
+      const labelLo = cssVar("--graph-label-lo")
       linkSel
         .attr("stroke", (e) => {
           const src = (e.source as NodeDatum).id
           const tgt = (e.target as NodeDatum).id
-          return matchIds.has(src) || matchIds.has(tgt) ? "rgba(148,163,184,0.5)" : "rgba(148,163,184,0.04)"
+          return matchIds.has(src) || matchIds.has(tgt) ? edgeHi : edgeLo
         })
       nodeSel.select("circle")
         .attr("fill-opacity", (n) => matchIds.has(n.id) ? 1.0 : 0.08)
@@ -272,7 +297,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
         .attr("stroke-width", (n) => matchIds.has(n.id) ? 3 : 2)
         .attr("filter", (n) => matchIds.has(n.id) ? "url(#glow-hover)" : "url(#glow-soft)")
       nodeSel.select("text")
-        .attr("fill", (n) => matchIds.has(n.id) ? "#e4e4e7" : "#27272a")
+        .attr("fill", (n) => matchIds.has(n.id) ? labelHi : labelLo)
     }
 
     applyBaseRef.current = applyBaseStyles
@@ -325,7 +350,11 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
       nodeSel.select("text")
         .attr("fill", (n) =>
-          n.id === d.id ? "#e4e4e7" : neighbors.has(n.id) ? "#a1a1aa" : "#3f3f46"
+          n.id === d.id
+            ? cssVar("--graph-label-hi")
+            : neighbors.has(n.id)
+              ? cssVar("--graph-label")
+              : cssVar("--graph-label-lo")
         )
     })
 
