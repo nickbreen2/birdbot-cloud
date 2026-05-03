@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
-  background-color: #0a0e1a;
+  background-color: #000000;
   color: #f1f5f9;
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -116,31 +116,31 @@ html, body {
 
 /* card glow on hover */
 .card-glow {
-  border: 1px solid #1e2a45;
+  border: 1px solid #3d3d3d;
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 .card-glow:hover {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 24px rgba(37, 99, 235, 0.15), inset 0 0 0 1px rgba(59, 130, 246, 0.1);
-  background-color: #1a2340;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background-color: #1a1a1a;
 }
 
 /* Auth card */
 .auth-card {
-  background-color: #111827;
+  background-color: #111111;
 }
 @media (min-width: 640px) {
   .auth-card {
     border-radius: 1rem;
-    border: 1px solid rgba(59, 130, 246, 0.6);
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 32px rgba(0, 0, 0, 0.8);
   }
 }
 
-/* blue glow border */
+/* subtle highlight border */
 .glow-border-blue {
-  border: 1px solid rgba(59, 130, 246, 0.6);
-  box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 /* gold glow border */
@@ -152,7 +152,7 @@ html, body {
 .glow-border-gold:hover {
   border-color: rgba(234, 179, 8, 0.75);
   box-shadow: 0 0 36px rgba(234, 179, 8, 0.28), inset 0 0 0 1px rgba(234, 179, 8, 0.15);
-  background-color: #1c1d2e;
+  background-color: #1a1a1a;
 }
 
 /* Prevent iOS Safari from auto-zooming inputs */
@@ -199,8 +199,302 @@ html, body {
   }
 }
 
+/* bird status dot pulse */
+@keyframes bird-pulse {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1; }
+}
+.animate-bird-pulse { animation: bird-pulse 2.4s ease-in-out infinite; }
+
 /* scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0e1a; }
-::-webkit-scrollbar-thumb { background: #1e2a45; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555555; }
+
+/* ── Memory Timeline ── */
+
+.mem-timeline { display: flex; flex-direction: column; }
+.mem-group    { margin-bottom: 32px; }
+
+.mem-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.mem-group__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: #EDEDED;
+}
+.mem-group__sub {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: #666666;
+  font-variant-numeric: tabular-nums;
+}
+.mem-group__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+}
+.mem-group__count {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+  color: #555555;
+  font-variant-numeric: tabular-nums;
+}
+
+.mem-group__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card */
+.mem-card {
+  background: #0e0e10;
+  border: 1px solid #232328;
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.mem-card:hover {
+  background: #111114;
+  border-color: #2e2e35;
+}
+
+.mem-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mem-card__time {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #666666;
+  font-variant-numeric: tabular-nums;
+}
+.mem-card__menu {
+  margin-left: auto;
+  background: transparent;
+  border: 0;
+  color: #555555;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 3px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mem-card__menu:hover { color: #AAAAAA; background: rgba(255,255,255,0.06); }
+
+/* TL;DR block */
+.mem-card__summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.022);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-left: 2px solid #DDDDDD;
+  border-radius: 4px;
+}
+.mem-card__summary-tag {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.10em;
+  color: #DDDDDD;
+}
+.mem-card__summary-text {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #EDEDED;
+}
+
+/* Body */
+.mem-card__body {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #BBBBBB;
+}
+
+/* Entity chips row */
+.mem-card__entities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+/* Source pill (rounded capsule) */
+.mem-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.04);
+  color: #CCCCCC;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.mem-pill__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mem-pill--telegram { background: rgba(34,158,217,0.08);  border-color: rgba(34,158,217,0.22); color: #5BB8E0; }
+.mem-pill--session  { background: rgba(139,92,246,0.08);  border-color: rgba(139,92,246,0.22); color: #A78BFA; }
+.mem-pill--decision { background: rgba(245,158,11,0.08);  border-color: rgba(245,158,11,0.22); color: #FCD34D; }
+
+/* Entity chip (slightly rounded rectangle) */
+.mem-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 7px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.mem-chip__icon {
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+/* ── Graph Canvas Chrome ── */
+
+.gc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 720px;
+  border: 1px solid #1A1A1E;
+  border-radius: 14px;
+  background: rgba(8, 8, 11, 0.6);
+  overflow: hidden;
+  font-family: 'Geist', -apple-system, sans-serif;
+}
+
+.gc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.gc__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.gc__overview {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 6px;
+  background: rgba(11, 11, 14, 0.85);
+  border: 1px solid #232328;
+  border-radius: 8px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gc__overview-label {
+  padding: 0 4px 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #7A7A82;
+}
+
+.gc__overview-frame {
+  width: 120px;
+  height: 84px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.gc__overview-frame > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gc__zoom {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: rgba(11, 11, 14, 0.85);
+  border: 1px solid #232328;
+  border-radius: 8px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.gc__zoom button {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  color: #C8C8CE;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.gc__zoom button:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.gc__zoom button + button {
+  border-top: 1px solid #232328;
+}
+
+.gc__zoom button:last-child {
+  font-size: 10px;
+}
