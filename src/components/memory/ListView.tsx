@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { Search } from "lucide-react"
+import { EntityTypeName } from "./graphConstants"
 
 type SourceType = "session" | "decision" | "telegram"
-type EntityTypeName = "file" | "concept" | "date" | "decision" | "task" | "technology" | "person" | "goal"
 
 interface EntityChip {
   id: string
@@ -17,8 +16,16 @@ interface MessageData {
   sourceId: string
   sourceType: SourceType
   snippet: string | null
+  summary?: string | null
   createdAt: string
   entities: EntityChip[]
+}
+
+interface DateGroup {
+  label: string
+  sub: string
+  key: string
+  entries: MessageData[]
 }
 
 const SOURCE_LABELS: Record<SourceType, string> = {
@@ -27,21 +34,38 @@ const SOURCE_LABELS: Record<SourceType, string> = {
   decision: "Decision",
 }
 
-const SOURCE_COLORS: Record<SourceType, string> = {
-  telegram: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-  session: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  decision: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+const SOURCE_DOT: Record<SourceType, string> = {
+  telegram: "#229ED9",
+  session: "#8B5CF6",
+  decision: "#F59E0B",
 }
 
-const CHIP_COLORS: Record<EntityTypeName, string> = {
-  goal: "bg-amber-500/15 text-amber-300 border-amber-500/25",
-  task: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-  concept: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-  date: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
-  file: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-  technology: "bg-violet-500/15 text-violet-300 border-violet-500/25",
-  person: "bg-rose-500/15 text-rose-300 border-rose-500/25",
-  decision: "bg-orange-500/15 text-orange-300 border-orange-500/25",
+const SOURCE_PILL: Record<SourceType, string> = {
+  telegram: "mem-pill--telegram",
+  session: "mem-pill--session",
+  decision: "mem-pill--decision",
+}
+
+const ENTITY_ICON: Record<EntityTypeName, string> = {
+  task: "☐",
+  goal: "★",
+  concept: "◎",
+  date: "◷",
+  technology: "⌬",
+  person: "◉",
+  decision: "→",
+  file: "□",
+}
+
+const ENTITY_COLORS: Record<EntityTypeName, { bg: string; text: string; border: string }> = {
+  goal:       { bg: "rgba(245,158,11,0.12)",  text: "#FCD34D", border: "rgba(245,158,11,0.25)" },
+  task:       { bg: "rgba(59,130,246,0.12)",  text: "#93C5FD", border: "rgba(59,130,246,0.25)" },
+  concept:    { bg: "rgba(113,113,122,0.10)", text: "#A1A1AA", border: "rgba(113,113,122,0.20)" },
+  date:       { bg: "rgba(217,70,239,0.12)",  text: "#E879F9", border: "rgba(217,70,239,0.25)" },
+  file:       { bg: "rgba(16,185,129,0.12)",  text: "#6EE7B7", border: "rgba(16,185,129,0.25)" },
+  technology: { bg: "rgba(139,92,246,0.12)",  text: "#C4B5FD", border: "rgba(139,92,246,0.25)" },
+  person:     { bg: "rgba(244,63,94,0.12)",   text: "#FDA4AF", border: "rgba(244,63,94,0.25)"  },
+  decision:   { bg: "rgba(249,115,22,0.12)",  text: "#FDBA74", border: "rgba(249,115,22,0.25)" },
 }
 
 function formatRelative(dateStr: string): string {
@@ -57,43 +81,82 @@ function formatRelative(dateStr: string): string {
   return `${months}mo ago`
 }
 
-function SourceBadge({ type }: { type: SourceType }) {
+function getDateGroup(dateStr: string): { label: string; sub: string; key: string } {
+  const now = new Date()
+  const date = new Date(dateStr)
+  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const dateMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.round((nowMidnight.getTime() - dateMidnight.getTime()) / 86_400_000)
+  const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+  const sub = date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
+  if (diffDays === 0) return { label: "Today", sub, key }
+  if (diffDays === 1) return { label: "Yesterday", sub, key }
+  if (diffDays < 7) return { label: "Earlier this week", sub, key }
+  return { label: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }), sub, key }
+}
+
+function groupMessages(messages: MessageData[]): DateGroup[] {
+  const map = new Map<string, DateGroup>()
+  for (const msg of messages) {
+    const { label, sub, key } = getDateGroup(msg.createdAt)
+    if (!map.has(key)) map.set(key, { label, sub, key, entries: [] })
+    map.get(key)!.entries.push(msg)
+  }
+  return Array.from(map.values())
+}
+
+function MemoryCard({ message }: { message: MessageData }) {
   return (
-    <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold font-sans border ${SOURCE_COLORS[type]}`}
-    >
-      {SOURCE_LABELS[type]}
-    </span>
+    <article className="mem-card">
+      <div className="mem-card__meta">
+        <span className={`mem-pill ${SOURCE_PILL[message.sourceType]}`}>
+          <span className="mem-pill__dot" style={{ background: SOURCE_DOT[message.sourceType] }} />
+          {SOURCE_LABELS[message.sourceType]}
+        </span>
+        <span className="mem-card__time">{formatRelative(message.createdAt)}</span>
+      </div>
+
+      {message.summary && (
+        <div className="mem-card__summary">
+          <span className="mem-card__summary-tag">TL;DR</span>
+          <span className="mem-card__summary-text">{message.summary}</span>
+        </div>
+      )}
+
+      {message.snippet && (
+        <p className="mem-card__body">{message.snippet}</p>
+      )}
+
+      {message.entities.length > 0 && (
+        <div className="mem-card__entities">
+          {message.entities.map((entity) => {
+            const c = ENTITY_COLORS[entity.type]
+            return (
+              <span
+                key={entity.id}
+                className="mem-chip"
+                style={{ background: c.bg, color: c.text, borderColor: c.border }}
+              >
+                <span className="mem-chip__icon">{ENTITY_ICON[entity.type]}</span>
+                {entity.name}
+              </span>
+            )
+          })}
+        </div>
+      )}
+    </article>
   )
 }
 
-function MessageCard({ message }: { message: MessageData }) {
+function GroupHeader({ group }: { group: DateGroup }) {
+  const count = group.entries.length
   return (
-    <div className="rounded-xl bg-panel border border-border px-4 py-4">
-      <p className="text-sm font-sans text-text-base leading-relaxed whitespace-pre-wrap break-words">
-        {message.snippet ?? (
-          <span className="italic text-text-muted">No content recorded</span>
-        )}
-      </p>
-      <div className="flex items-center gap-2 mt-2.5">
-        <SourceBadge type={message.sourceType} />
-        <span className="text-[11px] text-text-muted font-sans">
-          {formatRelative(message.createdAt)}
-        </span>
-      </div>
-      {message.entities.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {message.entities.map((entity) => (
-            <span
-              key={entity.id}
-              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium font-sans border ${CHIP_COLORS[entity.type]}`}
-            >
-              {entity.name}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
+    <header className="mem-group__head">
+      <h2 className="mem-group__title">{group.label}</h2>
+      <span className="mem-group__sub">{group.sub}</span>
+      <div className="mem-group__rule" />
+      <span className="mem-group__count">{count} {count === 1 ? "entry" : "entries"}</span>
+    </header>
   )
 }
 
@@ -141,8 +204,7 @@ function EmptyState() {
   )
 }
 
-export default function ListView() {
-  const [query, setQuery] = useState("")
+export default function ListView({ query }: { query: string }) {
   const [debouncedQuery, setDebouncedQuery] = useState("")
   const [messages, setMessages] = useState<MessageData[]>([])
   const [loading, setLoading] = useState(true)
@@ -193,22 +255,10 @@ export default function ListView() {
     fetchFeed(true, debouncedQuery)
   }, [debouncedQuery, fetchFeed])
 
+  const groups = groupMessages(messages)
+
   return (
     <>
-      <div className="relative mb-6">
-        <Search
-          size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
-        />
-        <input
-          type="text"
-          placeholder="Search memory…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 text-sm font-sans rounded-xl bg-panel border border-border text-text-base placeholder:text-text-muted focus:outline-none focus:border-blue/50 transition-colors"
-        />
-      </div>
-
       {loading ? (
         <SkeletonFeed />
       ) : error ? (
@@ -223,9 +273,16 @@ export default function ListView() {
         )
       ) : (
         <>
-          <div className="flex flex-col gap-3">
-            {messages.map((message) => (
-              <MessageCard key={message.sourceId} message={message} />
+          <div className="mem-timeline">
+            {groups.map((group) => (
+              <section key={group.key} className="mem-group">
+                <GroupHeader group={group} />
+                <div className="mem-group__list">
+                  {group.entries.map((message) => (
+                    <MemoryCard key={message.sourceId} message={message} />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
 

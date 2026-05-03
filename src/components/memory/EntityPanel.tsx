@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { X } from "lucide-react"
-
-type EntityTypeName = "file" | "concept" | "date" | "decision" | "task" | "technology" | "person" | "goal"
+import { EntityTypeName, NODE_COLORS } from "./graphConstants"
 
 interface EntityDetail {
   id: string
@@ -55,12 +54,20 @@ function formatRelative(dateStr: string): string {
   return `${Math.floor(days / 30)}mo ago`
 }
 
+interface Connection {
+  id: string
+  name: string
+  type: EntityTypeName
+}
+
 interface EntityPanelProps {
   entityId: string | null
   onClose: () => void
+  connections?: Connection[]
+  onConnectionClick?: (id: string) => void
 }
 
-export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
+export default function EntityPanel({ entityId, onClose, connections = [], onConnectionClick }: EntityPanelProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const [entity, setEntity] = useState<EntityDetail | null>(null)
   const [mentions, setMentions] = useState<MentionItem[]>([])
@@ -176,6 +183,36 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
             <p className="px-5 pb-3 text-sm font-sans text-text-muted leading-relaxed flex-shrink-0">
               {entity.description}
             </p>
+          )}
+
+          {/* Connections */}
+          {!loading && connections.length > 0 && (
+            <div className="px-5 pb-4 flex-shrink-0">
+              <p className="text-[10px] font-semibold font-sans text-text-muted uppercase tracking-widest mb-2">
+                Connected to
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {connections.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => onConnectionClick?.(c.id)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium font-sans border transition-all hover:brightness-125 active:scale-95"
+                    style={{
+                      background: NODE_COLORS[c.type] + "18",
+                      borderColor: NODE_COLORS[c.type] + "35",
+                      color: NODE_COLORS[c.type],
+                    }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: NODE_COLORS[c.type] }}
+                    />
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           <div className="h-px bg-border mx-5 flex-shrink-0" />
