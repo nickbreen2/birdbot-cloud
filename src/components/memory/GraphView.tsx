@@ -139,6 +139,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
     if (simulationRef.current) simulationRef.current.stop()
     svg.selectAll("*").remove()
+    setMiniMapData(null)
 
     if (graphData.nodes.length === 0) return
 
@@ -375,6 +376,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
     return () => {
       simulation.stop()
       svg.on(".zoom", null)
+      zoomRef.current = null
     }
   }, [graphData])
 
