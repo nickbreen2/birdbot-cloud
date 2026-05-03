@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import type { Metadata } from "next"
-import { Outfit, DM_Sans } from "next/font/google"
+import { Outfit, DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -24,21 +24,34 @@ const dmSans = DM_Sans({
   weight: ["300", "400", "500", "600", "700"],
 })
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+})
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
   ),
-  title: "BirdBot.ai — Your Personal AI Agent, Always On",
+  title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
   description:
-    "Deploy your own AI agent in seconds. BirdBot automates tasks, browses the web, manages files, and connects to Telegram and your favorite apps — running 24/7, no setup required.",
+    "BirdBot is the AI assistant that lives in your messages. Text it on Telegram and it remembers, takes notes, tracks what matters, and keeps you organized — 24/7.",
   keywords: [
-    "AI agent",
-    "personal AI assistant",
+    "AI assistant",
+    "personal AI",
     "Claude AI",
-    "autonomous agent",
-    "AI automation",
     "Telegram AI bot",
-    "managed AI",
+    "AI memory",
+    "knowledge graph",
+    "AI notes",
     "BirdBot",
   ],
   icons: {
@@ -46,18 +59,18 @@ export const metadata: Metadata = {
     apple: "/BirdBot-Icon-mark2.png",
   },
   openGraph: {
-    title: "BirdBot.ai — Your Personal AI Agent, Always On",
+    title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
     description:
-      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
+      "Text BirdBot on Telegram and it remembers, takes notes, and keeps you organized — 24/7.",
     type: "website",
     url: "https://birdbot.ai",
     siteName: "BirdBot.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "BirdBot.ai — Your Personal AI Agent, Always On",
+    title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
     description:
-      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
+      "Text BirdBot on Telegram and it remembers, takes notes, and keeps you organized — 24/7.",
   },
 }
 
@@ -69,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${dmSans.variable} h-full`}
+      className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
         <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
