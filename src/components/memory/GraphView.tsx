@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
 import { EntityTypeName, NODE_COLORS } from "./graphConstants"
+import GraphCanvas, { MiniMapData } from "./GraphCanvas"
 
 interface NodeDatum extends d3.SimulationNodeDatum {
   id: string
@@ -66,12 +67,15 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
   const nodeSelRef = useRef<d3.Selection<SVGGElement, NodeDatum, SVGGElement, unknown> | null>(null)
   const applyBaseRef = useRef<(() => void) | null>(null)
   const applySearchRef = useRef<((q: string) => void) | null>(null)
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
+  const lastTransformRef = useRef<{ x: number; y: number; k: number }>({ x: 0, y: 0, k: 1 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [graphData, setGraphData] = useState<{ nodes: NodeDatum[]; edges: EdgeDatum[] } | null>(null)
   const [dismissed, setDismissed] = useState(() =>
     localStorage.getItem("birdbot-graph-overlay-dismissed") === "true"
   )
+  const [miniMapData, setMiniMapData] = useState<MiniMapData | null>(null)
 
   useEffect(() => { onNodeClickRef.current = onNodeClick }, [onNodeClick])
 
@@ -106,6 +110,24 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
       .catch((e) => setError(e instanceof Error ? e.message : "Something went wrong"))
       .finally(() => setLoading(false))
   }, [])
+
+  function handleZoomIn() {
+    if (!svgRef.current || !zoomRef.current) return
+    d3.select(svgRef.current).transition().duration(250).call(zoomRef.current.scaleBy, 1.3)
+  }
+
+  function handleZoomOut() {
+    if (!svgRef.current || !zoomRef.current) return
+    d3.select(svgRef.current).transition().duration(250).call(zoomRef.current.scaleBy, 0.75)
+  }
+
+  function handleFit() {
+    if (!svgRef.current || !zoomRef.current) return
+    d3.select(svgRef.current)
+      .transition()
+      .duration(400)
+      .call(zoomRef.current.transform, d3.zoomIdentity)
+  }
 
   useEffect(() => {
     if (!graphData || !svgRef.current) return
@@ -147,13 +169,37 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.15, 5])
-      .on("zoom", (event) => container.attr("transform", event.transform.toString()))
+      .on("zoom", (event) => {
+        container.attr("transform", event.transform.toString())
+        lastTransformRef.current = {
+          x: event.transform.x,
+          y: event.transform.y,
+          k: event.transform.k,
+        }
+        updateMiniMap(lastTransformRef.current)
+      })
 
     svg.call(zoom).on("dblclick.zoom", null)
+    zoomRef.current = zoom
 
     // ── Data ──────────────────────────────────────────────────────────────────
     const nodes: NodeDatum[] = graphData.nodes.map((n) => ({ ...n }))
     const edges: EdgeDatum[] = graphData.edges.map((e) => ({ ...e }))
+
+    function updateMiniMap(transform: { x: number; y: number; k: number }) {
+      setMiniMapData({
+        nodes: nodes.map((n) => ({ x: n.x ?? 0, y: n.y ?? 0, type: n.type })),
+        edges: edges.map((e) => ({
+          sourceX: (e.source as NodeDatum).x ?? 0,
+          sourceY: (e.source as NodeDatum).y ?? 0,
+          targetX: (e.target as NodeDatum).x ?? 0,
+          targetY: (e.target as NodeDatum).y ?? 0,
+        })),
+        transform,
+        canvasWidth: w,
+        canvasHeight: h,
+      })
+    }
 
     // ── Edges (curved paths) ──────────────────────────────────────────────────
     const linkSel = container
@@ -314,6 +360,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
     simulation.on("tick", () => {
       linkSel.attr("d", edgePath)
       nodeSel.attr("transform", (d) => `translate(${d.x ?? 0},${d.y ?? 0})`)
+      updateMiniMap(lastTransformRef.current)
     })
 
     // Restore selection ring after rebuild
@@ -333,26 +380,32 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
-        <p className="text-sm text-text-muted font-sans">Loading graph…</p>
-      </div>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+        <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
+          <p className="text-sm text-text-muted font-sans">Loading graph…</p>
+        </div>
+      </GraphCanvas>
     )
   }
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
-        <p className="text-sm text-red-400 font-sans">{error}</p>
-      </div>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+        <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
+          <p className="text-sm text-red-400 font-sans">{error}</p>
+        </div>
+      </GraphCanvas>
     )
   }
 
   if (graphData?.nodes.length === 0) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-center" style={{ minHeight: "400px" }}>
-        <p className="text-sm font-semibold font-sans text-text-base mb-1">No entities yet.</p>
-        <p className="text-sm text-text-muted font-sans">Send Bird a message from Telegram to start building your graph.</p>
-      </div>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+        <div className="w-full h-full flex flex-col items-center justify-center text-center" style={{ minHeight: "400px" }}>
+          <p className="text-sm font-semibold font-sans text-text-base mb-1">No entities yet.</p>
+          <p className="text-sm text-text-muted font-sans">Send Bird a message from Telegram to start building your graph.</p>
+        </div>
+      </GraphCanvas>
     )
   }
 
@@ -364,13 +417,13 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
   const showOverlay = !dismissed && graphData !== null && graphData.nodes.length < 5
 
   return (
-    <div className="relative w-full h-full" style={{ minHeight: "400px" }}>
+    <GraphCanvas
+      miniMapData={miniMapData}
+      onZoomIn={handleZoomIn}
+      onZoomOut={handleZoomOut}
+      onFit={handleFit}
+    >
       <svg ref={svgRef} className="w-full h-full" />
-
-      {/* Zoom hint */}
-      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 pointer-events-none">
-        <span className="text-[10px] font-mono text-text-muted opacity-40">scroll to zoom · drag to pan</span>
-      </div>
 
       {showOverlay && (
         <div
@@ -393,6 +446,6 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
           </div>
         </div>
       )}
-    </div>
+    </GraphCanvas>
   )
 }
