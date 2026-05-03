@@ -147,7 +147,7 @@ export default function IntegrationsPage() {
     try {
       const res = await fetch("/api/telegram/pair", { method: "POST" })
       const data = (await res.json()) as PairResult & { error?: string }
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.error ?? "Request failed")
       setPairing(data)
     } catch (err) {
       setConnectError(err instanceof Error ? err.message : "Failed to generate pairing link — try again.")
@@ -380,6 +380,7 @@ export default function IntegrationsPage() {
             if (e.target === e.currentTarget) {
               setShowConnectModal(false)
               setPairing(null)
+              setConnectError(null)
             }
           }}
         >
@@ -398,6 +399,7 @@ export default function IntegrationsPage() {
                 onClick={() => {
                   setShowConnectModal(false)
                   setPairing(null)
+                  setConnectError(null)
                 }}
                 className="text-text-muted hover:text-text-base transition-colors"
               >
