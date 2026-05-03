@@ -20,7 +20,7 @@ export function StarField({ count = 150 }: { count?: number }) {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 overflow-hidden"
+      className="starfield pointer-events-none fixed inset-0 overflow-hidden"
       style={{ zIndex: 0 }}
     >
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
