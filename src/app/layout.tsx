@@ -9,6 +9,7 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { StarField } from "@/components/StarField"
+import { ThemeProviderWrapper } from "@/components/ThemeProviderWrapper"
 import "./globals.css"
 import "./custom.css"
 
@@ -83,16 +84,19 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full`}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
-        <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
-          <StarField />
-          <div className="relative" style={{ zIndex: 1 }}>
-            {children}
-          </div>
-          <Analytics />
-          <SpeedInsights />
-        </ClerkProvider>
+        <ThemeProviderWrapper>
+          <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
+            <StarField />
+            <div className="relative" style={{ zIndex: 1 }}>
+              {children}
+            </div>
+            <Analytics />
+            <SpeedInsights />
+          </ClerkProvider>
+        </ThemeProviderWrapper>
       </body>
     </html>
   )
