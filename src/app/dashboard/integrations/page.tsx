@@ -121,6 +121,7 @@ export default function IntegrationsPage() {
   const [tgStatus, setTgStatus] = useState<TelegramStatus>({ state: "loading" })
   const [pairing, setPairing] = useState<PairResult | null>(null)
   const [connecting, setConnecting] = useState(false)
+  const [connectError, setConnectError] = useState<string | null>(null)
   const [showConnectModal, setShowConnectModal] = useState(false)
   const [showDisconnect, setShowDisconnect] = useState(false)
   const [disconnectInput, setDisconnectInput] = useState("")
@@ -142,23 +143,33 @@ export default function IntegrationsPage() {
   async function handleConnect() {
     setConnecting(true)
     setPairing(null)
+    setConnectError(null)
     try {
       const res = await fetch("/api/telegram/pair", { method: "POST" })
       const data = (await res.json()) as PairResult & { error?: string }
       if (!res.ok) throw new Error(data.error)
       setPairing(data)
+    } catch (err) {
+      setConnectError(err instanceof Error ? err.message : "Failed to generate pairing link — try again.")
     } finally {
       setConnecting(false)
     }
   }
 
   async function checkConnection() {
-    const res = await fetch("/api/telegram/status")
-    const data = (await res.json()) as { paired: boolean; displayName?: string }
-    if (data.paired) {
-      setTgStatus({ state: "paired", displayName: data.displayName ?? "Telegram" })
-      setShowConnectModal(false)
-      setPairing(null)
+    setConnectError(null)
+    try {
+      const res = await fetch("/api/telegram/status")
+      const data = (await res.json()) as { paired: boolean; displayName?: string }
+      if (data.paired) {
+        setTgStatus({ state: "paired", displayName: data.displayName ?? "Telegram" })
+        setShowConnectModal(false)
+        setPairing(null)
+      } else {
+        setConnectError("Not connected yet — make sure you tapped Start in Telegram.")
+      }
+    } catch {
+      setConnectError("Could not check status — try again.")
     }
   }
 
@@ -294,6 +305,7 @@ export default function IntegrationsPage() {
                           onClick={() => {
                             setShowConnectModal(true)
                             setPairing(null)
+                            setConnectError(null)
                           }}
                           className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans transition-colors"
                           style={{
@@ -445,6 +457,11 @@ export default function IntegrationsPage() {
                   <RefreshCw size={11} /> Check if connected
                 </button>
               </>
+            )}
+            {connectError && (
+              <p className="mt-3 text-xs font-sans text-center" style={{ color: "#f87171" }}>
+                {connectError}
+              </p>
             )}
           </div>
         </div>
