@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@clerk/nextjs/server"
+import { auth, clerkClient } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/prisma"
 
 interface ThreadRow {
@@ -23,6 +23,10 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  const client = await clerkClient()
+  const user = await client.users.getUser(userId)
+  const dismissed = (user.privateMetadata?.dismissedLoops as string[] | undefined) ?? []
+
   const [threadRows, loopEntities, learnedRows] = await Promise.all([
     prisma.$queryRaw<ThreadRow[]>`
       SELECT e.id, e.name, e.type, e.description,
@@ -37,7 +41,11 @@ export async function GET() {
       LIMIT 6
     `,
     prisma.entity.findMany({
-      where: { userId, type: "task" },
+      where: {
+        userId,
+        type: "task",
+        ...(dismissed.length > 0 ? { id: { notIn: dismissed } } : {}),
+      },
       orderBy: { createdAt: "desc" },
       take: 5,
       select: { id: true, name: true, description: true, createdAt: true },
