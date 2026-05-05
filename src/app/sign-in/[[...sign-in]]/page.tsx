@@ -4,7 +4,7 @@ import { SignInForm } from '@/components/auth/SignInForm'
 
 export default function SignInPage() {
   return (
-    <main className="relative flex flex-col sm:min-h-screen sm:items-center sm:justify-center sm:p-6">
+    <main className="relative flex flex-col sm:min-h-screen sm:items-center sm:justify-center sm:p-6" data-theme="landing">
       <div className="flex flex-col sm:items-center sm:gap-8 w-full sm:max-w-[440px]">
 
         <div className="hidden sm:flex justify-center">

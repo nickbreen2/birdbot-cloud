@@ -56,15 +56,15 @@ export function AccountModal() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(6,9,18,0.92)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
       onClick={() => setAccountOpen(false)}
     >
       <div
         className="w-full max-w-[860px] rounded-2xl border border-border overflow-hidden flex relative h-[90vh] md:h-[700px]"
         style={{
-          background: "#111827",
+          background: "var(--theme-surface)",
           boxShadow:
-            "0 0 0 1px rgba(37,99,235,0.18), 0 0 100px rgba(37,99,235,0.18), 0 60px 120px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.04)",
+            "0 0 0 1px rgba(255,255,255,0.07), 0 60px 120px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -72,7 +72,7 @@ export function AccountModal() {
         {mobileNavOpen && (
           <div
             className="md:hidden absolute inset-0 z-10 flex flex-col"
-            style={{ background: "#0a0e1a" }}
+            style={{ background: "var(--theme-depth)" }}
           >
             <div className="flex items-center justify-between px-5 py-5 border-b border-border flex-shrink-0">
               <div>
@@ -94,12 +94,12 @@ export function AccountModal() {
                   onClick={() => selectSection(id)}
                   className={`w-full text-left px-4 py-3.5 text-sm font-sans transition-all rounded-xl capitalize ${
                     section === id
-                      ? "border-l-2 border-blue-bright text-blue-bright font-medium"
+                      ? "border-l-2 text-text-base font-medium"
                       : "border-l-2 border-transparent text-text-muted hover:text-text-dim hover:bg-white/[0.03]"
                   }`}
                   style={
                     section === id
-                      ? { background: "linear-gradient(90deg, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.04) 100%)" }
+                      ? { background: "var(--theme-nav-active-bg)", borderColor: "var(--theme-nav-active-bar)" }
                       : undefined
                   }
                 >
@@ -132,7 +132,7 @@ export function AccountModal() {
         {/* ── Left sidebar ── */}
         <div
           className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border"
-          style={{ background: "#0a0e1a" }}
+          style={{ background: "var(--theme-depth)" }}
         >
           <div className="px-5 pt-6 pb-5">
             <h2 className="text-lg font-sans font-semibold text-text-base leading-tight">Account</h2>
@@ -146,12 +146,12 @@ export function AccountModal() {
                 onClick={() => setSection(id)}
                 className={`w-full text-left px-3 py-2.5 text-sm font-sans transition-all rounded-r-xl ${
                   section === id
-                    ? "border-l-2 border-blue-bright text-blue-bright font-medium"
+                    ? "border-l-2 text-text-base font-medium"
                     : "border-l-2 border-transparent text-text-muted hover:text-text-dim hover:bg-white/[0.03]"
                 }`}
                 style={
                   section === id
-                    ? { background: "linear-gradient(90deg, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.04) 100%)" }
+                    ? { background: "var(--theme-nav-active-bg)", borderColor: "var(--theme-nav-active-bar)" }
                     : undefined
                 }
               >
@@ -182,11 +182,11 @@ export function AccountModal() {
         </div>
 
         {/* ── Right content ── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "#111827" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "var(--theme-panel)" }}>
           {/* Sticky header */}
           <div
             className="flex items-center px-4 md:px-8 py-5 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#111827" }}
+            style={{ borderBottom: "1px solid var(--theme-border)", background: "var(--theme-panel)" }}
           >
             <button
               className="md:hidden mr-3 w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-base hover:bg-white/[0.06] transition-all flex-shrink-0"
@@ -321,7 +321,7 @@ function ProfileSection({
             ) : (
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold select-none"
-                style={{ background: "linear-gradient(135deg, #2563eb, #60a5fa)" }}
+                style={{ background: "linear-gradient(135deg, #333333, #555555)" }}
               >
                 {initials}
               </div>
@@ -332,7 +332,7 @@ function ProfileSection({
               disabled={avatarSaving}
               aria-label="Change profile photo"
               className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 disabled:opacity-50 transition-colors"
-              style={{ background: "#2563eb", borderColor: "#111827" }}
+              style={{ background: "#444444", borderColor: "#111111" }}
             >
               {avatarSaving ? (
                 <span className="block w-2.5 h-2.5 border border-white/40 border-t-white rounded-full animate-spin" />
@@ -350,7 +350,7 @@ function ProfileSection({
           </div>
         </div>
 
-        <div className="h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+        <div className="h-px" style={{ background: "var(--theme-border)" }} />
 
         {/* Full name row */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
@@ -363,15 +363,15 @@ function ProfileSection({
                   onChange={e => setFirstName(e.target.value)}
                   placeholder="First name"
                   autoFocus
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-2 focus:ring-blue"
-                  style={{ backgroundColor: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-1 focus:ring-white/20"
+                  style={{ backgroundColor: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
                 />
                 <input
                   value={lastName}
                   onChange={e => setLastName(e.target.value)}
                   placeholder="Last name"
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-2 focus:ring-blue"
-                  style={{ backgroundColor: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-1 focus:ring-white/20"
+                  style={{ backgroundColor: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
                 />
               </div>
             ) : (
@@ -388,7 +388,7 @@ function ProfileSection({
                   onClick={saveName}
                   disabled={nameSaving}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50 transition-opacity"
-                  style={{ background: "linear-gradient(135deg, #1d4ed8, #2563eb)" }}
+                  style={{ background: "linear-gradient(135deg, #333333, #555555)" }}
                 >
                   <Check size={12} />
                   {nameSaving ? "Saving…" : "Save"}
@@ -420,7 +420,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Email Address</p>
         <div
           className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <Mail size={15} className="text-text-muted flex-shrink-0" />
@@ -442,7 +442,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Connected Accounts</p>
         <div
           className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <GoogleIcon />
@@ -465,7 +465,7 @@ function ProfileSection({
             <button
               type="button"
               onClick={connectGoogle}
-              className="text-xs text-blue-light hover:text-blue-bright border border-blue/25 hover:border-blue/50 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+              className="text-xs text-text-dim hover:text-text-base border border-border hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
             >
               Connect
             </button>
@@ -478,7 +478,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Session</p>
         <div
           className="px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <button
             type="button"
@@ -557,10 +557,8 @@ function SecuritySection() {
                   key={session.id}
                   className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
                   style={{
-                    background: isCurrent ? "rgba(37,99,235,0.06)" : "#1a2235",
-                    border: isCurrent
-                      ? "1px solid rgba(37,99,235,0.25)"
-                      : "1px solid rgba(255,255,255,0.07)",
+                    background: isCurrent ? "var(--theme-panel-hover)" : "var(--theme-surface)",
+                    border: "1px solid var(--theme-border)",
                   }}
                 >
                   <div className="flex-shrink-0 mt-0.5 text-text-muted">
@@ -574,9 +572,9 @@ function SecuritySection() {
                         <span
                           className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
                           style={{
-                            color: "#60a5fa",
-                            backgroundColor: "rgba(37,99,235,0.15)",
-                            border: "1px solid rgba(37,99,235,0.3)",
+                            color: "var(--theme-text-dim)",
+                            backgroundColor: "var(--theme-nav-hover-bg)",
+                            border: "1px solid var(--theme-border)",
                           }}
                         >
                           This device
@@ -717,7 +715,7 @@ function DangerSection({
               placeholder={killPhrase}
               className="px-4 py-3 rounded-xl text-text-base placeholder:text-text-muted font-sans text-sm focus:outline-none transition-all"
               style={{
-                background: "#1a2235",
+                background: "var(--theme-surface)",
                 border: "1px solid rgba(239,68,68,0.3)",
               }}
               onFocus={(e) => {

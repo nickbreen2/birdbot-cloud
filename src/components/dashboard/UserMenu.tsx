@@ -118,7 +118,7 @@ export function UserMenu() {
           <span className="text-[13px] font-semibold text-text-base font-sans truncate leading-none">
             {user?.firstName ?? user?.username ?? "User"}
           </span>
-          <span className="text-[11px] text-text-muted font-sans truncate leading-none">{email}</span>
+          <span className="text-[11px] text-text-muted font-sans truncate leading-normal">{email}</span>
         </div>
 
         {/* Chevron */}

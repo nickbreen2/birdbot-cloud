@@ -30,17 +30,17 @@ function SearchPill({ query, setQuery }: { query: string; setQuery: (q: string) 
       className="relative flex items-center rounded-full bg-panel"
       style={{
         width: isExpanded ? "22rem" : "14rem",
-        border: `1px solid ${isExpanded ? "rgba(37,99,235,0.38)" : "rgba(255,255,255,0.07)"}`,
+        border: `1px solid ${isExpanded ? "var(--theme-border)" : "var(--theme-border)"}`,
         boxShadow: isExpanded
-          ? "0 0 0 3px rgba(37,99,235,0.07), 0 2px 12px rgba(0,0,0,0.35)"
-          : "0 1px 4px rgba(0,0,0,0.25)",
+          ? "0 0 0 3px var(--theme-nav-hover-bg), 0 2px 12px rgba(0,0,0,0.15)"
+          : "0 1px 4px rgba(0,0,0,0.1)",
         transition: "width 220ms ease, border-color 180ms ease, box-shadow 180ms ease",
       }}
     >
       <Search
         size={13}
         className="absolute left-3.5 pointer-events-none transition-colors duration-200"
-        style={{ color: isExpanded ? "rgba(96,165,250,0.75)" : "rgba(255,255,255,0.25)" }}
+        style={{ color: isExpanded ? "var(--theme-text-dim)" : "var(--theme-text-muted)" }}
       />
       <input
         ref={inputRef}
@@ -51,16 +51,16 @@ function SearchPill({ query, setQuery }: { query: string; setQuery: (q: string) 
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className="w-full pl-8 pr-11 py-2 text-sm font-sans bg-transparent text-text-base placeholder:text-text-muted focus:outline-none"
-        style={{ caretColor: "rgba(96,165,250,0.9)" }}
+        style={{ caretColor: "var(--theme-text-base)" }}
       />
       {!isExpanded && (
         <div className="absolute right-2.5 pointer-events-none">
           <kbd
             className="flex items-center px-1.5 py-[3px] rounded text-[10px] font-mono leading-none tracking-wide"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.09)",
-              color: "rgba(255,255,255,0.28)",
+              background: "var(--theme-nav-hover-bg)",
+              border: "1px solid var(--theme-border)",
+              color: "var(--theme-text-muted)",
             }}
           >
             ⌘K

@@ -195,10 +195,15 @@ export default function IntegrationsPage() {
 
       {/* Header */}
       <div className="mb-10">
-        <h1 className="font-heading font-bold text-4xl text-text-base">Integrations</h1>
-        <p className="text-sm font-sans text-text-muted mt-2">
-          Connect Bird to the tools you already use.
-        </p>
+        <h2 className="m-0 text-base font-medium text-white font-sans" style={{ letterSpacing: "-0.005em" }}>
+          Integrations
+        </h2>
+        <span
+          className="mt-1.5 block text-[10px] sm:text-[9px] font-medium font-mono uppercase"
+          style={{ letterSpacing: "0.12em", color: "#7A7A82" }}
+        >
+          CONNECT BIRD TO THE TOOLS YOU ALREADY USE
+        </span>
       </div>
 
       {/* Sections */}

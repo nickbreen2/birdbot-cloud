@@ -8,6 +8,11 @@ html, body {
   scroll-behavior: smooth;
 }
 
+/* Landing page: lock body background to navy regardless of global theme */
+html:has([data-theme="landing"]) body {
+  background-color: #0a0e1a;
+}
+
 /* ── Birdbot iMessage component ── */
 @keyframes birdbotTypingDot {
   0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
@@ -845,3 +850,4 @@ html, body {
 
 /* ── StarField: hide in light mode ── */
 [data-theme="light"] .starfield { display: none; }
+html:has([data-theme="landing"]) .starfield { display: block; }
