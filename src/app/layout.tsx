@@ -86,6 +86,10 @@ export default function RootLayout({
       className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Runs before hydration to apply stored theme without flash */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme')||'dark';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
+      </head>
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
         <ThemeProviderWrapper>
           <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">

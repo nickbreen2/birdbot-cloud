@@ -27,14 +27,14 @@ function SearchPill({ query, setQuery }: { query: string; setQuery: (q: string) 
 
   return (
     <div
-      className="relative flex items-center rounded-full bg-panel"
+      className="relative flex items-center rounded-full bg-panel w-full"
       style={{
-        width: isExpanded ? "22rem" : "14rem",
-        border: `1px solid ${isExpanded ? "var(--theme-border)" : "var(--theme-border)"}`,
+        maxWidth: isExpanded ? "22rem" : "14rem",
+        border: `1px solid var(--theme-border)`,
         boxShadow: isExpanded
           ? "0 0 0 3px var(--theme-nav-hover-bg), 0 2px 12px rgba(0,0,0,0.15)"
           : "0 1px 4px rgba(0,0,0,0.1)",
-        transition: "width 220ms ease, border-color 180ms ease, box-shadow 180ms ease",
+        transition: "max-width 220ms ease, box-shadow 180ms ease",
       }}
     >
       <Search
@@ -50,11 +50,11 @@ function SearchPill({ query, setQuery }: { query: string; setQuery: (q: string) 
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className="w-full pl-8 pr-11 py-2 text-sm font-sans bg-transparent text-text-base placeholder:text-text-muted focus:outline-none"
+        className="w-full pl-8 pr-4 sm:pr-11 py-2 text-sm font-sans bg-transparent text-text-base placeholder:text-text-muted focus:outline-none"
         style={{ caretColor: "var(--theme-text-base)" }}
       />
       {!isExpanded && (
-        <div className="absolute right-2.5 pointer-events-none">
+        <div className="absolute right-2.5 pointer-events-none hidden sm:flex">
           <kbd
             className="flex items-center px-1.5 py-[3px] rounded text-[10px] font-mono leading-none tracking-wide"
             style={{
@@ -123,12 +123,12 @@ function MemoryContent() {
   return (
     <div className="flex overflow-hidden" style={{ height: "100vh" }}>
       <div className="flex-1 min-w-0 flex flex-col px-6 md:px-8 pt-6 md:pt-8">
-        <div className="flex items-center justify-between pb-4 flex-shrink-0">
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3 pb-4 flex-shrink-0">
           <SearchPill query={query} setQuery={setQuery} />
           <ViewToggle view={view} onChange={setView} />
         </div>
         {view === "list" ? (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto hide-scrollbar">
             <ListView query={query} />
           </div>
         ) : (

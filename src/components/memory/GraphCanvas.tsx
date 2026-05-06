@@ -35,7 +35,6 @@ interface GraphCanvasProps {
   miniMapData: MiniMapData | null
   onZoomIn: () => void
   onZoomOut: () => void
-  onFit: () => void
 }
 
 function MiniMapSvg({ data }: { data: MiniMapData }) {
@@ -87,7 +86,6 @@ export default function GraphCanvas({
   miniMapData,
   onZoomIn,
   onZoomOut,
-  onFit,
 }: GraphCanvasProps) {
   return (
     <div className="gc">
@@ -101,7 +99,6 @@ export default function GraphCanvas({
       <div className="gc__zoom">
         <button type="button" onClick={onZoomIn} aria-label="Zoom in">+</button>
         <button type="button" onClick={onZoomOut} aria-label="Zoom out">−</button>
-        <button type="button" onClick={onFit} aria-label="Fit to view">⤢</button>
       </div>
 
       <div className="gc__canvas">{children}</div>

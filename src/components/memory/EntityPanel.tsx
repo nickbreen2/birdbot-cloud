@@ -140,7 +140,9 @@ export default function EntityPanel({ entityId, onClose, connections = [], onCon
   return (
     <div
       className={`flex flex-col flex-shrink-0 border-l border-border overflow-hidden transition-all duration-200 ${
-        isOpen ? "w-96 xl:w-[40%]" : "w-0"
+        isOpen
+          ? "fixed inset-0 z-50 w-full bg-depth md:static md:inset-auto md:z-auto md:w-96 xl:w-[40%]"
+          : "w-0"
       }`}
     >
       {isOpen && (
@@ -171,7 +173,7 @@ export default function EntityPanel({ entityId, onClose, connections = [], onCon
             <button
               ref={closeBtnRef}
               onClick={onClose}
-              className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg text-text-muted hover:text-text-base hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-blue/50"
+              className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg text-text-muted hover:text-text-base hover:bg-surface transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/50"
               aria-label="Close panel"
             >
               <X size={16} />
@@ -218,7 +220,7 @@ export default function EntityPanel({ entityId, onClose, connections = [], onCon
           <div className="h-px bg-border mx-5 flex-shrink-0" />
 
           {/* Scrollable mentions */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-0">
+          <div className="flex-1 overflow-y-auto hide-scrollbar px-5 py-4 pb-24 md:pb-4 space-y-3 min-h-0">
             {loading ? (
               [0, 1, 2].map((i) => (
                 <div key={i} className="rounded-xl bg-panel border border-border px-4 py-4">

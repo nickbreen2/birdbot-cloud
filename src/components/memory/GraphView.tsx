@@ -138,13 +138,6 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
     d3.select(svgRef.current).transition().duration(250).call(zoomRef.current.scaleBy, 0.75)
   }
 
-  function handleFit() {
-    if (!svgRef.current || !zoomRef.current) return
-    d3.select(svgRef.current)
-      .transition()
-      .duration(400)
-      .call(zoomRef.current.transform, d3.zoomIdentity)
-  }
 
   useEffect(() => {
     if (!graphData || !svgRef.current) return
@@ -411,7 +404,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
   if (loading) {
     return (
-      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}}>
         <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
           <p className="text-sm text-text-muted font-sans">Loading graph…</p>
         </div>
@@ -421,7 +414,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
   if (error) {
     return (
-      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}}>
         <div className="w-full h-full flex items-center justify-center" style={{ minHeight: "400px" }}>
           <p className="text-sm text-red-400 font-sans">{error}</p>
         </div>
@@ -431,7 +424,7 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
 
   if (graphData?.nodes.length === 0) {
     return (
-      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}} onFit={() => {}}>
+      <GraphCanvas miniMapData={null} onZoomIn={() => {}} onZoomOut={() => {}}>
         <div className="w-full h-full flex flex-col items-center justify-center text-center" style={{ minHeight: "400px" }}>
           <p className="text-sm font-semibold font-sans text-text-base mb-1">No entities yet.</p>
           <p className="text-sm text-text-muted font-sans">Send Bird a message from Telegram to start building your graph.</p>
@@ -452,7 +445,6 @@ export default function GraphView({ onNodeClick, selectedEntityId, query = "", o
       miniMapData={miniMapData}
       onZoomIn={handleZoomIn}
       onZoomOut={handleZoomOut}
-      onFit={handleFit}
     >
       <svg ref={svgRef} className="w-full h-full" />
 

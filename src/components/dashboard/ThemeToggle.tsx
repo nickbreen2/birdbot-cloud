@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/components/ThemeProviderWrapper"
 import { Sun, Moon, Monitor } from "lucide-react"
 
 const MODES = [

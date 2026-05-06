@@ -57,16 +57,6 @@ const ENTITY_ICON: Record<EntityTypeName, string> = {
   file: "□",
 }
 
-const ENTITY_COLORS: Record<EntityTypeName, { bg: string; text: string; border: string }> = {
-  goal:       { bg: "rgba(245,158,11,0.12)",  text: "#FCD34D", border: "rgba(245,158,11,0.25)" },
-  task:       { bg: "rgba(59,130,246,0.12)",  text: "#93C5FD", border: "rgba(59,130,246,0.25)" },
-  concept:    { bg: "rgba(113,113,122,0.10)", text: "#A1A1AA", border: "rgba(113,113,122,0.20)" },
-  date:       { bg: "rgba(217,70,239,0.12)",  text: "#E879F9", border: "rgba(217,70,239,0.25)" },
-  file:       { bg: "rgba(16,185,129,0.12)",  text: "#6EE7B7", border: "rgba(16,185,129,0.25)" },
-  technology: { bg: "rgba(139,92,246,0.12)",  text: "#C4B5FD", border: "rgba(139,92,246,0.25)" },
-  person:     { bg: "rgba(244,63,94,0.12)",   text: "#FDA4AF", border: "rgba(244,63,94,0.25)"  },
-  decision:   { bg: "rgba(249,115,22,0.12)",  text: "#FDBA74", border: "rgba(249,115,22,0.25)" },
-}
 
 function formatRelative(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -129,19 +119,16 @@ function MemoryCard({ message }: { message: MessageData }) {
 
       {message.entities.length > 0 && (
         <div className="mem-card__entities">
-          {message.entities.map((entity) => {
-            const c = ENTITY_COLORS[entity.type]
-            return (
-              <span
-                key={entity.id}
-                className="mem-chip"
-                style={{ background: c.bg, color: c.text, borderColor: c.border }}
-              >
-                <span className="mem-chip__icon">{ENTITY_ICON[entity.type]}</span>
-                {entity.name}
-              </span>
-            )
-          })}
+          {message.entities.map((entity) => (
+            <span
+              key={entity.id}
+              className="mem-chip"
+              data-type={entity.type}
+            >
+              <span className="mem-chip__icon">{ENTITY_ICON[entity.type]}</span>
+              {entity.name}
+            </span>
+          ))}
         </div>
       )}
     </article>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ExternalLink, RefreshCw, X } from "lucide-react"
+import { ExternalLink, RefreshCw, X, MoreVertical } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -126,6 +126,7 @@ export default function IntegrationsPage() {
   const [showDisconnect, setShowDisconnect] = useState(false)
   const [disconnectInput, setDisconnectInput] = useState("")
   const [disconnecting, setDisconnecting] = useState(false)
+  const [showTgMenu, setShowTgMenu] = useState(false)
 
   useEffect(() => {
     fetch("/api/telegram/status")
@@ -195,11 +196,11 @@ export default function IntegrationsPage() {
 
       {/* Header */}
       <div className="mb-10">
-        <h2 className="m-0 text-base font-medium text-white font-sans" style={{ letterSpacing: "-0.005em" }}>
+        <h2 className="m-0 text-base md:text-xl font-medium md:font-bold text-text-base font-sans" style={{ letterSpacing: "-0.005em" }}>
           Integrations
         </h2>
         <span
-          className="mt-1.5 block text-[10px] sm:text-[9px] font-medium font-mono uppercase"
+          className="mt-1.5 block text-[10px] sm:text-[9px] md:text-[11px] font-medium font-mono uppercase"
           style={{ letterSpacing: "0.12em", color: "#7A7A82" }}
         >
           CONNECT BIRD TO THE TOOLS YOU ALREADY USE
@@ -234,25 +235,9 @@ export default function IntegrationsPage() {
                   return (
                     <div
                       key={integration.name}
-                      className="flex items-center gap-4 px-5 py-4 rounded-xl relative overflow-hidden"
-                      style={
-                        isPaired
-                          ? {
-                              background: "rgba(52,211,153,0.05)",
-                              border: "1px solid rgba(52,211,153,0.22)",
-                            }
-                          : {
-                              background: "rgba(255,255,255,0.05)",
-                              border: "1px solid rgba(255,255,255,0.15)",
-                            }
-                      }
+                      data-connected={isPaired ? "true" : undefined}
+                      className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl relative"
                     >
-                      {isPaired && (
-                        <div
-                          className="absolute left-0 top-0 bottom-0 w-[3px]"
-                          style={{ background: "linear-gradient(180deg, #34d399, #10b981)" }}
-                        />
-                      )}
 
                       <Image
                         src="/Telegram.svg"
@@ -263,13 +248,13 @@ export default function IntegrationsPage() {
                       />
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-0.5">
                           <p className="text-sm font-bold font-sans text-text-base leading-none">
                             Telegram
                           </p>
                           {tgStatus.state === "loading" ? (
-                            <div className="h-4 w-24 rounded bg-surface animate-pulse" />
-                          ) : isPaired && tgStatus.state === "paired" ? (
+                            <div className="h-4 w-20 rounded bg-surface animate-pulse" />
+                          ) : isPaired ? (
                             <span
                               className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium font-sans border"
                               style={{
@@ -279,48 +264,59 @@ export default function IntegrationsPage() {
                               }}
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                              Connected as {tgStatus.displayName}
+                              Connected
                             </span>
                           ) : null}
                         </div>
                         <p className="text-xs font-sans text-text-muted truncate">
                           {integration.description}
                         </p>
+                        {!isPaired && tgStatus.state !== "loading" && (
+                          <button
+                            onClick={() => {
+                              setShowConnectModal(true)
+                              setPairing(null)
+                              setConnectError(null)
+                            }}
+                            className="integ-connect-btn mt-2 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                          >
+                            Connect
+                          </button>
+                        )}
                       </div>
 
-                      {tgStatus.state === "loading" ? (
-                        <div className="h-4 w-16 rounded bg-surface animate-pulse flex-shrink-0" />
-                      ) : isPaired ? (
-                        <button
-                          onClick={() => {
-                            setShowDisconnect(true)
-                            setDisconnectInput("")
-                          }}
-                          className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans transition-colors"
-                          style={{
-                            background: "rgba(239,68,68,0.08)",
-                            border: "1px solid rgba(239,68,68,0.2)",
-                            color: "#f87171",
-                          }}
-                        >
-                          Disconnect
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setShowConnectModal(true)
-                            setPairing(null)
-                            setConnectError(null)
-                          }}
-                          className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans transition-colors"
-                          style={{
-                            background: "rgba(255,255,255,0.08)",
-                            border: "1px solid rgba(255,255,255,0.16)",
-                            color: "rgba(255,255,255,0.85)",
-                          }}
-                        >
-                          Connect
-                        </button>
+                      {isPaired && (
+                        <div className="relative flex-shrink-0">
+                          <button
+                            onClick={() => setShowTgMenu((v) => !v)}
+                            className="p-1.5 rounded-lg transition-colors text-text-muted hover:text-text-base"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          {showTgMenu && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setShowTgMenu(false)}
+                              />
+                              <div
+                                className="integ-dropdown absolute right-0 bottom-8 z-20 rounded-xl py-1 min-w-[130px] shadow-xl"
+                              >
+                                <button
+                                  onClick={() => {
+                                    setShowTgMenu(false)
+                                    setShowDisconnect(true)
+                                    setDisconnectInput("")
+                                  }}
+                                  className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
+                                  style={{ color: "#f87171" }}
+                                >
+                                  Disconnect
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       )}
                     </div>
                   )
@@ -329,11 +325,7 @@ export default function IntegrationsPage() {
                 return (
                   <div
                     key={integration.name}
-                    className="flex items-center gap-4 px-5 py-4 rounded-xl"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                    }}
+                    className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl"
                   >
                     {integration.icon ? (
                       <Image
@@ -357,14 +349,7 @@ export default function IntegrationsPage() {
                         {integration.description}
                       </p>
                     </div>
-                    <span
-                      className="flex-shrink-0 text-[10px] font-semibold font-sans px-2.5 py-1 rounded-full"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        color: "#71717a",
-                      }}
-                    >
+                    <span className="integ-soon-badge flex-shrink-0 text-[10px] font-semibold font-sans px-2.5 py-1 rounded-full">
                       Soon
                     </span>
                   </div>
@@ -375,6 +360,8 @@ export default function IntegrationsPage() {
           </div>
         ))}
       </div>
+
+      <div className="lg:hidden" style={{ height: '32px' }} aria-hidden="true" />
 
       {/* Connect Telegram modal */}
       {showConnectModal && (
