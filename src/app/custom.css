@@ -851,8 +851,9 @@ button.brief__link {
 }
 
 /* Loop History Panel
-   NOTE: brief CSS variables are scoped to .brief{} so we hardcode
-   the dark-theme values here rather than relying on var(--brief-*). */
+   Uses --theme-* global vars (set on :root + [data-theme="light"])
+   so dark/light mode is handled automatically without overrides.
+   brief CSS variables are scoped to .brief{} and not used here. */
 
 .lhp-backdrop { display: none; }
 @media (min-width: 1024px) {
@@ -860,7 +861,7 @@ button.brief__link {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     z-index: 40;
   }
 }
@@ -869,7 +870,7 @@ button.brief__link {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: #0C0C0F;
+  background: var(--theme-panel);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -884,8 +885,8 @@ button.brief__link {
     top: 0;
     bottom: 0;
     width: 380px;
-    border-left: 1px solid #232328;
-    box-shadow: -16px 0 48px rgba(0, 0, 0, 0.5);
+    border-left: 1px solid var(--theme-border);
+    box-shadow: -16px 0 48px rgba(0, 0, 0, 0.35);
     animation: lhpSlideIn 0.22s ease;
   }
 }
@@ -904,7 +905,7 @@ button.brief__link {
   align-items: center;
   gap: 10px;
   padding: 18px 22px 14px;
-  border-bottom: 1px solid #1E1E24;
+  border-bottom: 1px solid var(--theme-border);
   flex-shrink: 0;
 }
 
@@ -913,7 +914,7 @@ button.brief__link {
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  color: #E0E0E6;
+  color: var(--theme-text-base);
   letter-spacing: -0.01em;
 }
 
@@ -923,7 +924,7 @@ button.brief__link {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #4A4A52;
+  color: var(--theme-text-muted);
 }
 
 .lhp__back,
@@ -937,7 +938,7 @@ button.brief__link {
   font-family: var(--font-outfit), -apple-system, sans-serif;
   font-size: 11px;
   font-weight: 500;
-  color: #5A5A62;
+  color: var(--theme-text-muted);
   padding: 5px 8px;
   border-radius: 6px;
   transition: color 0.15s, background 0.15s;
@@ -945,8 +946,8 @@ button.brief__link {
 }
 .lhp__back:hover,
 .lhp__close:hover {
-  color: #9494A0;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--theme-text-dim);
+  background: var(--theme-nav-hover-bg);
 }
 
 /* mobile: back arrow; desktop: X */
@@ -963,13 +964,13 @@ button.brief__link {
   padding: 8px 22px 40px;
 }
 
-/* Panel items — custom layout sized for the narrow drawer */
+/* Panel items — compact flex row for the 380px drawer */
 .lhp__item {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 13px 0;
-  border-bottom: 1px solid #1A1A1E;
+  border-bottom: 1px solid var(--theme-border);
 }
 .lhp__item:last-child { border-bottom: 0; }
 
@@ -978,7 +979,7 @@ button.brief__link {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.35;
-  color: #7A7A82;
+  color: var(--theme-text-dim);
   font-style: normal;
   overflow: hidden;
   display: -webkit-box;
@@ -989,7 +990,7 @@ button.brief__link {
 .lhp__item-age {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 10px;
-  color: #4A4A52;
+  color: var(--theme-text-muted);
   letter-spacing: 0.06em;
   white-space: nowrap;
   flex-shrink: 0;
@@ -997,28 +998,28 @@ button.brief__link {
 
 .lhp__item-undo {
   background: transparent;
-  border: 1px solid #272730;
+  border: 1px solid var(--theme-border);
   border-radius: 20px;
   padding: 4px 10px;
   font-family: var(--font-outfit), -apple-system, sans-serif;
   font-size: 11px;
   font-weight: 500;
-  color: #5A5A62;
+  color: var(--theme-text-muted);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .lhp__item-undo:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #3A3A44;
-  color: #9494A0;
+  background: var(--theme-nav-hover-bg);
+  border-color: var(--theme-panel-hover);
+  color: var(--theme-text-dim);
 }
 
 .lhp__empty {
   font-size: 12px;
   line-height: 1.5;
-  color: #4A4A52;
+  color: var(--theme-text-muted);
   padding-top: 12px;
 }
 
