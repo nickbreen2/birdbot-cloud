@@ -218,3 +218,28 @@ model ProjectBrief {
   @@unique([userToken, project])
   @@index([userToken])
 }
+
+model GoogleConnection {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  scopes       String[]
+  email        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model PendingAction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  payload   Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
