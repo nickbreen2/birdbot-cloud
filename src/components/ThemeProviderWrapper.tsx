@@ -42,7 +42,10 @@ export function ThemeProviderWrapper({ children }: { children: ReactNode }) {
     const system = getSystem()
     setSys(system)
     setThemeState(stored)
-    apply(stored, system)
+    // Landing page manages its own <html> data-theme via LandingThemeLock
+    if (window.location.pathname !== "/") {
+      apply(stored, system)
+    }
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)")
     const onChange = (e: MediaQueryListEvent) => {

@@ -7,14 +7,18 @@ import { useEffect } from "react"
 export function LandingThemeLock() {
   useEffect(() => {
     const html = document.documentElement
-    const previous = html.getAttribute("data-theme")
+    // Read from localStorage so cleanup always restores the real dashboard theme,
+    // regardless of what the DOM says at mount time (ThemeProviderWrapper fires after us)
+    const stored = localStorage.getItem("theme") || "dark"
+    const previous =
+      stored === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : stored
     html.setAttribute("data-theme", "landing")
     return () => {
-      if (previous) {
-        html.setAttribute("data-theme", previous)
-      } else {
-        html.removeAttribute("data-theme")
-      }
+      html.setAttribute("data-theme", previous)
     }
   }, [])
   return null
