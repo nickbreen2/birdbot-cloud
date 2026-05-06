@@ -79,37 +79,32 @@ export function LoopHistoryPanel({
           {fetchError && (
             <div
               style={{
-                marginBottom: 20,
-                padding: "12px 16px",
+                marginBottom: 16,
+                padding: "10px 14px",
                 borderRadius: 8,
                 background: "rgba(239,68,68,0.08)",
-                border: "1px solid rgba(239,68,68,0.25)",
-                color: "rgba(252,165,165,0.9)",
-                fontSize: 13,
+                border: "1px solid rgba(239,68,68,0.2)",
+                color: "rgba(252,165,165,0.85)",
+                fontSize: 12,
+                lineHeight: 1.4,
               }}
             >
               Couldn&rsquo;t load history — refresh to try again.
             </div>
           )}
           {!loops ? (
-            <p className="brief__empty">Loading…</p>
+            <p className="lhp__empty">Loading…</p>
           ) : loops.length === 0 ? (
-            <p className="brief__empty">
+            <p className="lhp__empty">
               No dismissed loops yet — mark one as done and it will appear here.
             </p>
           ) : (
-            <div className="loops">
+            <div>
               {loops.map((loop) => (
-                <div key={loop.id} className="loop lhp__loop">
-                  <span className="loop__text">
-                    You said you&rsquo;d <em>{loop.name}</em>
-                  </span>
-                  <span className="loop__age">{formatAge(new Date(loop.createdAt))}</span>
-                  <span className="loop__thread">TASK</span>
-                  <button
-                    className="loop__done loop__undo"
-                    onClick={() => undoLoop(loop.id)}
-                  >
+                <div key={loop.id} className="lhp__item">
+                  <span className="lhp__item-name">{loop.name}</span>
+                  <span className="lhp__item-age">{formatAge(new Date(loop.createdAt))}</span>
+                  <button className="lhp__item-undo" onClick={() => undoLoop(loop.id)}>
                     Undo
                   </button>
                 </div>
