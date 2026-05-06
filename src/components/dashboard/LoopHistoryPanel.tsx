@@ -66,10 +66,10 @@ export function LoopHistoryPanel({
             <ArrowLeft size={14} />
             Back
           </button>
-          <div className="lhp__title">
-            <span>Loop history</span>
-            <span className="brief__tag" style={{ marginLeft: 0 }}>MARKED DONE</span>
-          </div>
+          <span className="lhp__title">Loop history</span>
+          {loops !== null && loops.length > 0 && (
+            <span className="lhp__count">{loops.length} done</span>
+          )}
           <button className="lhp__close" onClick={onClose} aria-label="Close">
             <X size={15} />
           </button>
@@ -100,7 +100,7 @@ export function LoopHistoryPanel({
           ) : (
             <div className="loops">
               {loops.map((loop) => (
-                <div key={loop.id} className="loop loop--done">
+                <div key={loop.id} className="loop lhp__loop">
                   <span className="loop__text">
                     You said you&rsquo;d <em>{loop.name}</em>
                   </span>

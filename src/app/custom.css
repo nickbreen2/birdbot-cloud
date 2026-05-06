@@ -847,7 +847,7 @@ button.brief__link {
   background: none;
   border: none;
   padding: 0;
-  font: inherit;
+  font-family: inherit;
 }
 
 /* Loop History Panel */
@@ -907,13 +907,15 @@ button.brief__link {
 
 .lhp__title {
   flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.lhp__title > span:first-child {
   font: 600 14px/1 var(--brief-sans);
   color: var(--brief-text-base);
+}
+
+.lhp__count {
+  font: 500 11px/1 var(--brief-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brief-text-faintest);
 }
 
 .lhp__back,
@@ -949,6 +951,13 @@ button.brief__link {
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px 40px;
+}
+
+/* loops inside the history panel — full opacity, subtle strikethrough */
+.lhp__loop .loop__text em {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.2);
+  color: var(--brief-text-faint);
 }
 
 /* 4. Recently learned */
