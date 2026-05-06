@@ -14,6 +14,12 @@ type TelegramStatus =
 
 type PairResult = { deepLink: string; expiresAt: string }
 
+type GoogleStatus =
+  | { state: "loading" }
+  | { state: "disconnected" }
+  | { state: "connected"; email: string }
+  | { state: "error" }
+
 interface IntegrationDef {
   name: string
   description: string
@@ -21,6 +27,7 @@ interface IntegrationDef {
   iconBg: string
   initials?: string
   live?: boolean
+  googleService?: boolean
 }
 
 interface SectionDef {
@@ -51,7 +58,7 @@ const SECTIONS: SectionDef[] = [
     subtitle: "Let Bird handle your calendar and time",
     accent: "#f59e0b",
     integrations: [
-      { name: "Google Calendar",  description: "Sync meetings",         icon: "/google-calendar.svg",   iconBg: "" },
+      { name: "Google Calendar",  description: "Sync meetings",         icon: "/google-calendar.svg",   iconBg: "", googleService: true },
       { name: "Apple Calendar",   description: "Sync iCal events",      icon: null, iconBg: "#FF3B30",  initials: "AC" },
       { name: "Outlook Calendar", description: "Sync Outlook calendar", icon: "/Microsoft_Outlook.svg", iconBg: "" },
       { name: "Fantastical",      description: "Natural language cal",  icon: null, iconBg: "#C0362B",  initials: "Fa" },
@@ -64,12 +71,23 @@ const SECTIONS: SectionDef[] = [
     subtitle: "Let Bird read and draft emails on your behalf",
     accent: "#f43f5e",
     integrations: [
-      { name: "Gmail",      description: "Read and draft emails", icon: "/google-gmail.svg",      iconBg: "" },
+      { name: "Gmail",      description: "Read and draft emails", icon: "/google-gmail.svg",      iconBg: "", googleService: true },
       { name: "Outlook",    description: "Read Outlook inbox",    icon: "/Microsoft_Outlook.svg", iconBg: "" },
       { name: "Apple Mail", description: "Read Apple Mail",       icon: null, iconBg: "#1C6CE8",  initials: "AM" },
       { name: "ProtonMail", description: "Read ProtonMail",       icon: null, iconBg: "#6D4AFF",  initials: "PM" },
       { name: "Fastmail",   description: "Read Fastmail inbox",   icon: null, iconBg: "#F66A00",  initials: "Fm" },
       { name: "Hey",        description: "Read Hey inbox",        icon: null, iconBg: "#E02D0A",  initials: "He" },
+    ],
+  },
+  {
+    id: "files",
+    title: "Manage your files",
+    subtitle: "Let Bird search and create documents on your behalf",
+    accent: "#34d399",
+    integrations: [
+      { name: "Google Drive", description: "Search and create docs", icon: null, iconBg: "#4285F4", initials: "GD", googleService: true },
+      { name: "Dropbox",      description: "Search Dropbox files",   icon: null, iconBg: "#0061FF", initials: "Db" },
+      { name: "OneDrive",     description: "Search OneDrive",        icon: null, iconBg: "#0078D4", initials: "OD" },
     ],
   },
   {
@@ -128,6 +146,13 @@ export default function IntegrationsPage() {
   const [disconnecting, setDisconnecting] = useState(false)
   const [showTgMenu, setShowTgMenu] = useState(false)
 
+  const [googleStatus, setGoogleStatus] = useState<GoogleStatus>({ state: "loading" })
+  const [showGoogleConnectModal, setShowGoogleConnectModal] = useState(false)
+  const [showGoogleDisconnect, setShowGoogleDisconnect] = useState(false)
+  const [googleDisconnectInput, setGoogleDisconnectInput] = useState("")
+  const [disconnectingGoogle, setDisconnectingGoogle] = useState(false)
+  const [showGoogleMenu, setShowGoogleMenu] = useState(false)
+
   useEffect(() => {
     fetch("/api/telegram/status")
       .then((r) => r.json())
@@ -139,6 +164,19 @@ export default function IntegrationsPage() {
         )
       })
       .catch(() => setTgStatus({ state: "error" }))
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/google/status")
+      .then((r) => r.json())
+      .then((data: { connected: boolean; email?: string }) => {
+        setGoogleStatus(
+          data.connected
+            ? { state: "connected", email: data.email ?? "" }
+            : { state: "disconnected" }
+        )
+      })
+      .catch(() => setGoogleStatus({ state: "error" }))
   }, [])
 
   async function handleConnect() {
@@ -187,6 +225,22 @@ export default function IntegrationsPage() {
     }
   }
 
+  async function handleGoogleDisconnect() {
+    setDisconnectingGoogle(true)
+    try {
+      await fetch("/api/google/disconnect", { method: "DELETE" })
+      setGoogleStatus({ state: "disconnected" })
+    } finally {
+      setDisconnectingGoogle(false)
+      setShowGoogleDisconnect(false)
+      setGoogleDisconnectInput("")
+    }
+  }
+
+  const isGoogleConnected = googleStatus.state === "connected"
+  const googleDisconnectConfirmed =
+    googleDisconnectInput.trim().toLowerCase() === "disconnect google"
+
   const isPaired = tgStatus.state === "paired"
   const disconnectConfirmed =
     disconnectInput.trim().toLowerCase() === "disconnect telegram"
@@ -230,6 +284,7 @@ export default function IntegrationsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {section.integrations.map((integration) => {
                 const isTelegram = integration.live === true
+                const isGoogle = integration.googleService === true
 
                 if (isTelegram) {
                   return (
@@ -307,6 +362,83 @@ export default function IntegrationsPage() {
                                     setShowTgMenu(false)
                                     setShowDisconnect(true)
                                     setDisconnectInput("")
+                                  }}
+                                  className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
+                                  style={{ color: "#f87171" }}
+                                >
+                                  Disconnect
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+
+                if (isGoogle) {
+                  return (
+                    <div
+                      key={integration.name}
+                      data-connected={isGoogleConnected ? "true" : undefined}
+                      className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl relative"
+                    >
+                      {integration.icon ? (
+                        <Image src={integration.icon} alt={integration.name} width={40} height={40} className="flex-shrink-0" />
+                      ) : (
+                        <InitialIcon initials={integration.initials ?? integration.name[0]} bg={integration.iconBg} />
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-sm font-bold font-sans text-text-base leading-none">
+                            {integration.name}
+                          </p>
+                          {googleStatus.state === "loading" ? (
+                            <div className="h-4 w-20 rounded bg-surface animate-pulse" />
+                          ) : isGoogleConnected ? (
+                            <span
+                              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium font-sans border"
+                              style={{ background: "rgba(52,211,153,0.1)", borderColor: "rgba(52,211,153,0.22)", color: "#34d399" }}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                              Connected
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-xs font-sans text-text-muted truncate">
+                          {isGoogleConnected && googleStatus.state === "connected"
+                            ? googleStatus.email
+                            : integration.description}
+                        </p>
+                        {!isGoogleConnected && googleStatus.state !== "loading" && (
+                          <button
+                            onClick={() => setShowGoogleConnectModal(true)}
+                            className="integ-connect-btn mt-2 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                          >
+                            Connect
+                          </button>
+                        )}
+                      </div>
+
+                      {isGoogleConnected && (
+                        <div className="relative flex-shrink-0">
+                          <button
+                            onClick={() => setShowGoogleMenu((v) => !v)}
+                            className="p-1.5 rounded-lg transition-colors text-text-muted hover:text-text-base"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          {showGoogleMenu && (
+                            <>
+                              <div className="fixed inset-0 z-10" onClick={() => setShowGoogleMenu(false)} />
+                              <div className="integ-dropdown absolute right-0 bottom-8 z-20 rounded-xl py-1 min-w-[130px] shadow-xl">
+                                <button
+                                  onClick={() => {
+                                    setShowGoogleMenu(false)
+                                    setShowGoogleDisconnect(true)
+                                    setGoogleDisconnectInput("")
                                   }}
                                   className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
                                   style={{ color: "#f87171" }}
@@ -457,6 +589,89 @@ export default function IntegrationsPage() {
                 {connectError}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Connect Google modal */}
+      {showGoogleConnectModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowGoogleConnectModal(false) }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-heading font-bold text-base text-text-base">Connect Google</span>
+              <button onClick={() => setShowGoogleConnectModal(false)} className="text-text-muted hover:text-text-base transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+            <p className="text-xs font-sans text-text-muted mb-5 leading-relaxed">
+              Give Bird read and write access to your Google Calendar, Gmail, and Drive. You&apos;ll
+              confirm all write actions before Bird executes them.
+            </p>
+            <a
+              href="/api/google/connect"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors"
+              style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.22)", color: "#34d399" }}
+            >
+              Connect Google Account
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Disconnect Google modal */}
+      {showGoogleDisconnect && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowGoogleDisconnect(false)
+              setGoogleDisconnectInput("")
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+          >
+            <h2 className="font-heading font-bold text-base text-text-base mb-1">Disconnect Google?</h2>
+            <p className="text-xs font-sans text-text-muted mb-5 leading-relaxed">
+              Bird will lose access to your Calendar, Gmail, and Drive. Type{" "}
+              <span className="font-mono text-text-base">disconnect Google</span> to confirm.
+            </p>
+            <input
+              type="text"
+              value={googleDisconnectInput}
+              onChange={(e) => setGoogleDisconnectInput(e.target.value)}
+              placeholder="disconnect Google"
+              autoFocus
+              className="w-full px-3 py-2.5 rounded-lg text-sm font-mono bg-transparent text-text-base placeholder:text-text-muted focus:outline-none mb-4"
+              style={{ border: "1px solid rgba(255,255,255,0.18)" }}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowGoogleDisconnect(false); setGoogleDisconnectInput("") }}
+                className="flex-1 py-2 rounded-lg text-xs font-semibold font-sans"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.65)" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGoogleDisconnect}
+                disabled={!googleDisconnectConfirmed || disconnectingGoogle}
+                className="flex-1 py-2 rounded-lg text-xs font-semibold font-sans disabled:opacity-30 transition-colors"
+                style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+              >
+                {disconnectingGoogle ? "Disconnecting…" : "Disconnect"}
+              </button>
+            </div>
           </div>
         </div>
       )}
