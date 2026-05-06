@@ -10,7 +10,7 @@ const SCOPES = [
 
 export async function GET() {
   const { userId } = await auth()
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!userId) return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in`)
 
   const client = buildOAuthClient()
   const state = createState(userId)

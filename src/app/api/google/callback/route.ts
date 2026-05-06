@@ -34,9 +34,14 @@ export async function GET(request: NextRequest) {
   }
 
   client.setCredentials(tokens)
-  const oauth2 = google.oauth2({ version: "v2", auth: client as never })
-  const { data } = await oauth2.userinfo.get()
-  const email = data.email ?? ""
+  let email = ""
+  try {
+    const oauth2 = google.oauth2({ version: "v2", auth: client as never })
+    const { data } = await oauth2.userinfo.get()
+    email = data.email ?? ""
+  } catch {
+    return NextResponse.redirect(errorBase)
+  }
 
   await prisma.googleConnection.upsert({
     where: { userId },

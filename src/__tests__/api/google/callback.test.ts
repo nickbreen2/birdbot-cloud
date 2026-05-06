@@ -46,8 +46,7 @@ describe("GET /api/google/callback", () => {
     expect(res.headers.get("location")).toContain("google=error")
   })
 
-  it("redirects to error page when code is missing", async () => {
-    mocks.verifyState.mockReturnValue("user_1")
+  it("redirects to error page when code is absent", async () => {
     const req = new NextRequest("http://localhost:3000/api/google/callback?state=validstate")
     const res = await GET(req)
     expect(res.status).toBe(307)
