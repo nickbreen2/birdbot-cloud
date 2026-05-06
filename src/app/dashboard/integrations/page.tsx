@@ -196,7 +196,7 @@ export default function IntegrationsPage() {
 
       {/* Header */}
       <div className="mb-10">
-        <h2 className="m-0 text-base md:text-xl font-medium md:font-bold text-text-base font-sans" style={{ letterSpacing: "-0.005em" }}>
+        <h2 className="m-0 text-base md:text-xl font-bold text-text-base font-sans" style={{ letterSpacing: "-0.005em" }}>
           Integrations
         </h2>
         <span

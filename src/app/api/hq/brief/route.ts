@@ -47,7 +47,7 @@ export async function GET() {
         ...(dismissed.length > 0 ? { id: { notIn: dismissed } } : {}),
       },
       orderBy: { createdAt: "desc" },
-      take: 5,
+      take: 20,
       select: { id: true, name: true, description: true, createdAt: true },
     }),
     prisma.$queryRaw<LearnedRow[]>`

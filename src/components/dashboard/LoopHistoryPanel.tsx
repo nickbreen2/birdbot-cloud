@@ -21,9 +21,11 @@ function formatAge(date: Date): string {
 export function LoopHistoryPanel({
   open,
   onClose,
+  onUndo,
 }: {
   open: boolean
   onClose: () => void
+  onUndo?: (loop: Loop) => void
 }) {
   const [loops, setLoops] = useState<Loop[] | null>(null)
   const [fetchError, setFetchError] = useState(false)
@@ -51,8 +53,10 @@ export function LoopHistoryPanel({
   }, [open, onClose])
 
   function undoLoop(id: string) {
+    const loop = loops?.find((l) => l.id === id)
     setLoops((prev) => (prev ? prev.filter((l) => l.id !== id) : prev))
     fetch(`/api/hq/loops/${id}`, { method: "POST" }).catch(() => {})
+    if (loop) onUndo?.(loop)
   }
 
   if (!open) return null

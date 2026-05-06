@@ -73,10 +73,10 @@ export function BottomTabBar() {
             key={href}
             href={href}
             className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 text-[11px] font-sans transition-colors ${
-              active ? "text-white" : "text-text-muted hover:text-text-dim"
+              active ? "text-text-base" : "text-text-muted hover:text-text-dim"
             }`}
           >
-            <Icon size={22} className={active ? "text-white" : "text-text-muted"} />
+            <Icon size={22} className={active ? "text-text-base" : "text-text-muted"} />
             {label}
           </Link>
         )
@@ -154,7 +154,7 @@ export function BottomTabBar() {
           aria-haspopup="menu"
           aria-label="User menu"
           className={`w-full h-full flex flex-col items-center justify-center gap-1.5 py-2.5 text-[11px] font-sans transition-colors ${
-            profileOpen ? "text-white" : "text-text-muted hover:text-text-dim"
+            profileOpen ? "text-text-base" : "text-text-muted hover:text-text-dim"
           }`}
         >
           {user?.hasImage ? (

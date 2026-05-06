@@ -87,6 +87,16 @@ export default function HQPage() {
   const [historyOpen, setHistoryOpen] = useState(false)
   const closeHistory = useCallback(() => setHistoryOpen(false), [])
 
+  function addLoopBack(loop: Loop) {
+    setData((prev) => {
+      if (!prev) return prev
+      const merged = [...prev.loops, loop].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      return { ...prev, loops: merged }
+    })
+  }
+
   useEffect(() => {
     fetch("/api/hq/brief")
       .then((r) => {
@@ -180,7 +190,7 @@ export default function HQPage() {
           <p className="brief__empty">No open loops — Bird hasn&rsquo;t caught any unfollowed promises yet.</p>
         ) : (
           <div className="loops">
-            {loops.map((loop) => (
+            {loops.slice(0, 4).map((loop) => (
               <div key={loop.id} className="loop">
                 <span className="loop__text">
                   You said you&rsquo;d <em>{loop.name}</em>
@@ -239,7 +249,7 @@ export default function HQPage() {
 
     </div>
 
-    <LoopHistoryPanel open={historyOpen} onClose={closeHistory} />
+    <LoopHistoryPanel open={historyOpen} onClose={closeHistory} onUndo={addLoopBack} />
     </>
   )
 }
