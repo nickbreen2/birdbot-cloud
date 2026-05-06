@@ -8,7 +8,7 @@ import { sendTelegramMessage } from "@/lib/telegram"
 const OAuth2Constructor = google.auth.OAuth2 as any
 
 export function buildOAuthClient(): OAuth2Client {
-  return OAuth2Constructor(
+  return new OAuth2Constructor(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     `${process.env.NEXT_PUBLIC_APP_URL}/api/google/callback`

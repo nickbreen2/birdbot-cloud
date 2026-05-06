@@ -26,11 +26,13 @@ vi.mock("@/lib/prisma", () => ({
 vi.mock("googleapis", () => ({
   google: {
     auth: {
-      OAuth2: vi.fn().mockImplementation(() => ({
-        setCredentials: mocks.setCredentials,
-        refreshAccessToken: mocks.refreshAccessToken,
-        generateAuthUrl: vi.fn().mockReturnValue("https://accounts.google.com/o/oauth2/auth"),
-      })),
+      OAuth2: vi.fn(function () {
+        return {
+          setCredentials: mocks.setCredentials,
+          refreshAccessToken: mocks.refreshAccessToken,
+          generateAuthUrl: vi.fn().mockReturnValue("https://accounts.google.com/o/oauth2/auth"),
+        }
+      }),
     },
   },
 }))
