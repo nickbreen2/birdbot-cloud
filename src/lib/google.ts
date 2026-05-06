@@ -8,6 +8,9 @@ import { sendTelegramMessage } from "@/lib/telegram"
 const OAuth2Constructor = google.auth.OAuth2 as any
 
 export function buildOAuthClient(): OAuth2Client {
+  if (!process.env.GOOGLE_CLIENT_ID) throw new Error("GOOGLE_CLIENT_ID is not set")
+  if (!process.env.GOOGLE_CLIENT_SECRET) throw new Error("GOOGLE_CLIENT_SECRET is not set")
+  if (!process.env.NEXT_PUBLIC_APP_URL) throw new Error("NEXT_PUBLIC_APP_URL is not set")
   return new OAuth2Constructor(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -52,11 +55,14 @@ export async function getGoogleClient(userId: string): Promise<OAuth2Client> {
   if (conn.expiresAt < fiveMinutesFromNow) {
     try {
       const { credentials } = await client.refreshAccessToken()
+      if (!credentials.access_token || !credentials.expiry_date) {
+        throw new Error("Incomplete credentials from Google refresh")
+      }
       await prisma.googleConnection.update({
         where: { userId },
         data: {
-          accessToken: credentials.access_token!,
-          expiresAt: new Date(credentials.expiry_date!),
+          accessToken: credentials.access_token,
+          expiresAt: new Date(credentials.expiry_date),
         },
       })
       client.setCredentials(credentials)
