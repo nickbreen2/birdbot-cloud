@@ -842,6 +842,115 @@ html:has([data-theme="landing"]) body {
 }
 .brief__back:hover { color: var(--brief-text-muted); }
 
+/* button reset so brief__link works on <button> elements too */
+button.brief__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+}
+
+/* Loop History Panel */
+.lhp-backdrop {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .lhp-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 40;
+  }
+}
+
+.lhp {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--color-depth, #000);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: lhpFadeIn 0.18s ease;
+}
+@media (min-width: 1024px) {
+  .lhp {
+    inset: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    border-left: 1px solid var(--brief-border);
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.4);
+    animation: lhpSlideIn 0.22s ease;
+  }
+}
+
+@keyframes lhpFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes lhpSlideIn {
+  from { transform: translateX(32px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.lhp__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--brief-border);
+  flex-shrink: 0;
+}
+
+.lhp__title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lhp__title > span:first-child {
+  font: 600 14px/1 var(--brief-sans);
+  color: var(--brief-text-base);
+}
+
+.lhp__back,
+.lhp__close {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: 500 11px/1 var(--brief-sans);
+  color: var(--brief-text-faint);
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.lhp__back:hover,
+.lhp__close:hover {
+  color: var(--brief-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* mobile: show back, hide X */
+.lhp__back { display: flex; }
+.lhp__close { display: none; }
+@media (min-width: 1024px) {
+  .lhp__back { display: none; }
+  .lhp__close { display: flex; }
+}
+
+.lhp__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 40px;
+}
+
 /* 4. Recently learned */
 .learned { display: flex; flex-direction: column; }
 

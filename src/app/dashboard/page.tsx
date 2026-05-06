@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { MessageCircle, Brain, GitBranch } from "lucide-react"
+import { LoopHistoryPanel } from "@/components/dashboard/LoopHistoryPanel"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,8 @@ function getDateLine(): string {
 export default function HQPage() {
   const [data, setData] = useState<BriefData | null>(null)
   const [fetchError, setFetchError] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const closeHistory = useCallback(() => setHistoryOpen(false), [])
 
   useEffect(() => {
     fetch("/api/hq/brief")
@@ -104,6 +107,7 @@ export default function HQPage() {
   const learned = data?.learned ?? []
 
   return (
+    <>
     <div className="brief">
 
       {/* Date */}
@@ -168,7 +172,7 @@ export default function HQPage() {
         <div className="brief__eyebrow">
           <h2>Open loops</h2>
           <span className="brief__tag">THINGS YOU SAID YOU&rsquo;D DO</span>
-          <a href="/dashboard/loops/history" className="brief__link">History →</a>
+          <button className="brief__link" onClick={() => setHistoryOpen(true)}>History →</button>
         </div>
         {!data ? (
           <p className="brief__empty">Loading…</p>
@@ -234,5 +238,8 @@ export default function HQPage() {
       </section>
 
     </div>
+
+    <LoopHistoryPanel open={historyOpen} onClose={closeHistory} />
+    </>
   )
 }
