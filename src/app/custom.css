@@ -176,6 +176,11 @@ html:has([data-theme="landing"]) body {
   }
 }
 
+/* Light mode: pure white main content area, nav bar unchanged */
+[data-theme="light"] .dashboard-main {
+  background-color: #ffffff;
+}
+
 /* how-it-works cards grid */
 .hiw-cards {
   display: grid;
@@ -434,8 +439,8 @@ html:has([data-theme="landing"]) body {
   line-height: 1.4;
 }
 .mem-chip__icon {
-  font-size: 10px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   opacity: 0.8;
 }
 
@@ -449,16 +454,20 @@ html:has([data-theme="landing"]) body {
 .mem-chip[data-type="person"]     { background: rgba(244,63,94,0.12);   color: #FDA4AF; border-color: rgba(244,63,94,0.25); }
 .mem-chip[data-type="decision"]   { background: rgba(249,115,22,0.12);  color: #FDBA74; border-color: rgba(249,115,22,0.25); }
 
-/* Light mode chip colors — darker text, stronger borders for contrast on white */
+/* Light mode chip colors — stronger backgrounds + borders for visibility on white */
 [data-theme="light"] {
-  .mem-chip[data-type="goal"]       { background: rgba(245,158,11,0.10);  color: #92400e; border-color: rgba(245,158,11,0.40); }
-  .mem-chip[data-type="task"]       { background: rgba(59,130,246,0.10);  color: #1d4ed8; border-color: rgba(59,130,246,0.35); }
-  .mem-chip[data-type="concept"]    { background: rgba(113,113,122,0.08); color: #374151; border-color: rgba(113,113,122,0.30); }
-  .mem-chip[data-type="date"]       { background: rgba(217,70,239,0.10);  color: #86198f; border-color: rgba(217,70,239,0.35); }
-  .mem-chip[data-type="file"]       { background: rgba(16,185,129,0.10);  color: #065f46; border-color: rgba(16,185,129,0.35); }
-  .mem-chip[data-type="technology"] { background: rgba(139,92,246,0.10);  color: #4c1d95; border-color: rgba(139,92,246,0.35); }
-  .mem-chip[data-type="person"]     { background: rgba(244,63,94,0.10);   color: #9f1239; border-color: rgba(244,63,94,0.35); }
-  .mem-chip[data-type="decision"]   { background: rgba(249,115,22,0.10);  color: #9a3412; border-color: rgba(249,115,22,0.35); }
+  .mem-chip[data-type="goal"]       { background: rgba(245,158,11,0.14);  color: #92400e; border-color: rgba(245,158,11,0.50); }
+  .mem-chip[data-type="task"]       { background: rgba(59,130,246,0.12);  color: #1d4ed8; border-color: rgba(59,130,246,0.48); }
+  .mem-chip[data-type="concept"]    { background: rgba(113,113,122,0.10); color: #334155; border-color: rgba(113,113,122,0.40); }
+  .mem-chip[data-type="date"]       { background: rgba(217,70,239,0.12);  color: #86198f; border-color: rgba(217,70,239,0.48); }
+  .mem-chip[data-type="file"]       { background: rgba(16,185,129,0.12);  color: #065f46; border-color: rgba(16,185,129,0.48); }
+  .mem-chip[data-type="technology"] { background: rgba(139,92,246,0.12);  color: #4c1d95; border-color: rgba(139,92,246,0.48); }
+  .mem-chip[data-type="person"]     { background: rgba(244,63,94,0.12);   color: #9f1239; border-color: rgba(244,63,94,0.48); }
+  .mem-chip[data-type="decision"]   { background: rgba(249,115,22,0.12);  color: #9a3412; border-color: rgba(249,115,22,0.48); }
+
+  /* Source pills — dark text on tinted bg for light mode readability */
+  .mem-pill--session  { background: rgba(139,92,246,0.10); border-color: rgba(139,92,246,0.40); color: #5b21b6; }
+  .mem-pill--decision { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.40); color: #92400e; }
 }
 
 /* ── Graph Canvas Chrome ── */

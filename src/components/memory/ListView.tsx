@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import { CheckSquare, Target, Lightbulb, Calendar, Code, User, GitBranch, FileText, type LucideIcon } from "lucide-react"
 import { EntityTypeName } from "./graphConstants"
 
 type SourceType = "session" | "decision" | "telegram"
@@ -46,15 +47,15 @@ const SOURCE_PILL: Record<SourceType, string> = {
   decision: "mem-pill--decision",
 }
 
-const ENTITY_ICON: Record<EntityTypeName, string> = {
-  task: "☐",
-  goal: "★",
-  concept: "◎",
-  date: "◷",
-  technology: "⌬",
-  person: "◉",
-  decision: "→",
-  file: "□",
+const ENTITY_ICON: Record<EntityTypeName, LucideIcon> = {
+  task:       CheckSquare,
+  goal:       Target,
+  concept:    Lightbulb,
+  date:       Calendar,
+  technology: Code,
+  person:     User,
+  decision:   GitBranch,
+  file:       FileText,
 }
 
 
@@ -119,16 +120,19 @@ function MemoryCard({ message }: { message: MessageData }) {
 
       {message.entities.length > 0 && (
         <div className="mem-card__entities">
-          {message.entities.map((entity) => (
-            <span
-              key={entity.id}
-              className="mem-chip"
-              data-type={entity.type}
-            >
-              <span className="mem-chip__icon">{ENTITY_ICON[entity.type]}</span>
-              {entity.name}
-            </span>
-          ))}
+          {message.entities.map((entity) => {
+            const Icon = ENTITY_ICON[entity.type]
+            return (
+              <span
+                key={entity.id}
+                className="mem-chip"
+                data-type={entity.type}
+              >
+                <span className="mem-chip__icon"><Icon size={10} strokeWidth={2.5} /></span>
+                {entity.name}
+              </span>
+            )
+          })}
         </div>
       )}
     </article>

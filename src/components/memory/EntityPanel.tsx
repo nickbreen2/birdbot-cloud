@@ -20,14 +20,14 @@ interface MentionItem {
 }
 
 const TYPE_BADGE: Record<EntityTypeName, string> = {
-  goal:       "bg-amber-500/15 text-amber-300 border-amber-500/25",
-  task:       "bg-blue-500/15 text-blue-300 border-blue-500/25",
-  concept:    "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-  date:       "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
-  file:       "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-  technology: "bg-violet-500/15 text-violet-300 border-violet-500/25",
-  person:     "bg-rose-500/15 text-rose-300 border-rose-500/25",
-  decision:   "bg-orange-500/15 text-orange-300 border-orange-500/25",
+  goal:       "bg-amber-500/15 border-amber-500/35 text-amber-700 dark:text-amber-300 dark:border-amber-500/25",
+  task:       "bg-blue-500/15 border-blue-500/35 text-blue-700 dark:text-blue-300 dark:border-blue-500/25",
+  concept:    "bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400 dark:border-zinc-500/20",
+  date:       "bg-fuchsia-500/15 border-fuchsia-500/35 text-fuchsia-700 dark:text-fuchsia-300 dark:border-fuchsia-500/25",
+  file:       "bg-emerald-500/15 border-emerald-500/35 text-emerald-700 dark:text-emerald-300 dark:border-emerald-500/25",
+  technology: "bg-violet-500/15 border-violet-500/35 text-violet-700 dark:text-violet-300 dark:border-violet-500/25",
+  person:     "bg-rose-500/15 border-rose-500/35 text-rose-700 dark:text-rose-300 dark:border-rose-500/25",
+  decision:   "bg-orange-500/15 border-orange-500/35 text-orange-700 dark:text-orange-300 dark:border-orange-500/25",
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -37,9 +37,9 @@ const SOURCE_LABELS: Record<string, string> = {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  telegram: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-  session:  "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  decision: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  telegram: "bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-400 dark:border-sky-500/20",
+  session:  "bg-violet-500/10 border-violet-500/30 text-violet-700 dark:text-violet-400 dark:border-violet-500/20",
+  decision: "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400 dark:border-amber-500/20",
 }
 
 function formatRelative(dateStr: string): string {
@@ -201,8 +201,8 @@ export default function EntityPanel({ entityId, onClose, connections = [], onCon
                     onClick={() => onConnectionClick?.(c.id)}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium font-sans border transition-all hover:brightness-125 active:scale-95"
                     style={{
-                      background: NODE_COLORS[c.type] + "18",
-                      borderColor: NODE_COLORS[c.type] + "35",
+                      background: NODE_COLORS[c.type] + "28",
+                      borderColor: NODE_COLORS[c.type] + "5a",
                       color: NODE_COLORS[c.type],
                     }}
                   >
