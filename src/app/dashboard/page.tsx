@@ -168,6 +168,7 @@ export default function HQPage() {
         <div className="brief__eyebrow">
           <h2>Open loops</h2>
           <span className="brief__tag">THINGS YOU SAID YOU&rsquo;D DO</span>
+          <a href="/dashboard/loops/history" className="brief__link">History →</a>
         </div>
         {!data ? (
           <p className="brief__empty">Loading…</p>

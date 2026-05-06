@@ -819,6 +819,28 @@ html:has([data-theme="landing"]) body {
   color: var(--brief-text-faintest);
   border-color: #1E1E24;
 }
+.loop__undo {
+  color: var(--brief-text-faint) !important;
+  border-color: #2A2A30 !important;
+}
+.loop__undo:hover {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: #3A3A42 !important;
+  color: var(--brief-text-muted) !important;
+}
+
+.brief__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 11px/1 var(--brief-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brief-text-faint);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.brief__back:hover { color: var(--brief-text-muted); }
 
 /* 4. Recently learned */
 .learned { display: flex; flex-direction: column; }
