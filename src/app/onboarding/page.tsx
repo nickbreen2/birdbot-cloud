@@ -17,9 +17,11 @@ export default function OnboardingStep1() {
   const router = useRouter()
   const [selected, setSelected] = useState<'telegram' | null>('telegram')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleContinue() {
     if (!selected || loading) return
+    setError(null)
     setLoading(true)
     try {
       const res = await fetch('/api/onboarding/platform', {
@@ -30,6 +32,7 @@ export default function OnboardingStep1() {
       if (!res.ok) throw new Error('Failed to save platform')
       router.push('/onboarding/connect')
     } catch {
+      setError('Something went wrong. Please try again.')
       setLoading(false)
     }
   }
@@ -50,7 +53,7 @@ export default function OnboardingStep1() {
 
       {/* Platform cards */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 28 }}>
-        {/* Telegram — active */}
+        {/* Telegram — active (removed comment formatting to avoid duplication) */}
         <PlatformCard
           label="Telegram"
           selected={selected === 'telegram'}
@@ -90,6 +93,10 @@ export default function OnboardingStep1() {
           }
         />
       </div>
+
+      {error && (
+        <p style={{ fontSize: 13, color: '#EF4444', marginBottom: 10, textAlign: 'center' }}>{error}</p>
+      )}
 
       <button
         style={{ ...btn, opacity: selected && !loading ? 1 : 0.5, cursor: selected && !loading ? 'pointer' : 'not-allowed' }}
