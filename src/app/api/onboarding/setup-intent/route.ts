@@ -21,10 +21,13 @@ export async function POST() {
   if (existing.data.length > 0) {
     customerId = existing.data[0].id
   } else {
-    const customer = await stripe.customers.create({
-      email: email ?? undefined,
-      metadata: { clerkUserId: userId },
-    })
+    const customer = await stripe.customers.create(
+      {
+        email: email ?? undefined,
+        metadata: { clerkUserId: userId },
+      },
+      { idempotencyKey: `customer-${userId}` }
+    )
     customerId = customer.id
   }
 
@@ -33,6 +36,10 @@ export async function POST() {
     usage: 'off_session',
     automatic_payment_methods: { enabled: true },
   })
+
+  if (!setupIntent.client_secret) {
+    return NextResponse.json({ error: 'Failed to create payment session' }, { status: 500 })
+  }
 
   return NextResponse.json({
     clientSecret: setupIntent.client_secret,
