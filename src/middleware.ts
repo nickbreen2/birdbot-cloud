@@ -20,10 +20,10 @@ const isPublic = createRouteMatcher([
 export default clerkMiddleware(async (auth, request) => {
   if (isPublic(request)) return NextResponse.next()
 
-  const { userId, sessionClaims } = await auth()
+  const { userId, sessionClaims, redirectToSignIn } = await auth()
 
   if (!userId) {
-    return (await auth()).redirectToSignIn({ returnBackUrl: request.url })
+    return redirectToSignIn({ returnBackUrl: request.url })
   }
 
   // onboardingComplete is injected into the JWT by the Clerk session token template.
