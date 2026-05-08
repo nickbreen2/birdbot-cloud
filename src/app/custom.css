@@ -1183,3 +1183,32 @@ button.brief__link {
   .integ-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
 }
 html:has([data-theme="landing"]) .starfield { display: block; }
+
+/* ── Onboarding orbit animations ── */
+@keyframes ob-cw  { to { transform: rotate(360deg);  } }
+@keyframes ob-ccw { to { transform: rotate(-360deg); } }
+@keyframes ob-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(0.85); }
+  60%       { opacity: 0;   transform: scale(1.7);  }
+}
+
+/* Arm wrappers */
+.ob-arm-1 { animation: ob-cw  9s  linear infinite; }
+.ob-arm-2 { animation: ob-cw  15s linear infinite; }
+.ob-arm-3 { animation: ob-ccw 21s linear infinite; }
+
+/* Nodes counter-rotate to stay upright */
+.ob-arm-1 .ob-node { animation: ob-ccw 9s  linear infinite; }
+.ob-arm-2 .ob-node { animation: ob-ccw 15s linear infinite; }
+.ob-arm-3 .ob-node { animation: ob-cw  21s linear infinite; }
+
+/* Sun glow pulse */
+.ob-sun::after {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: rgba(36, 99, 235, 0.14);
+  animation: ob-pulse 3.2s ease-out infinite;
+  z-index: -1;
+}
