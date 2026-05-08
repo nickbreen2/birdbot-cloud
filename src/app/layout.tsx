@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import type { Metadata } from "next"
-import { Outfit, DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google"
+import { Outfit, DM_Sans, Fraunces, JetBrains_Mono, Bricolage_Grotesque } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -36,6 +36,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   weight: ["400", "500"],
+})
+
+const bricolageGrotesque = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+  weight: ["500", "600", "700"],
+  axes: ["opsz"],
 })
 
 export const metadata: Metadata = {
@@ -83,7 +90,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full`}
+      className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${bricolageGrotesque.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
@@ -92,7 +99,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
         <ThemeProviderWrapper>
-          <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
+          <ClerkProvider signUpForceRedirectUrl="/onboarding" signInForceRedirectUrl="/dashboard">
             <StarField />
             <div className="relative" style={{ zIndex: 1 }}>
               {children}
