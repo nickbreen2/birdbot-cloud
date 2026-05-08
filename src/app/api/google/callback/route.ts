@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { google } from "googleapis"
+import { clerkClient } from "@clerk/nextjs/server"
 import { buildOAuthClient, verifyState } from "@/lib/google"
 import { prisma } from "@/lib/prisma"
 
@@ -62,7 +63,19 @@ export async function GET(request: NextRequest) {
     },
   })
 
-  return NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/integrations?google=connected`
-  )
+  // Update Clerk metadata and redirect based on onboarding state
+  const clerk = await clerkClient()
+  const clerkUser = await clerk.users.getUser(userId)
+  const meta = clerkUser.publicMetadata as Record<string, unknown>
+
+  await clerk.users.updateUser(userId, {
+    publicMetadata: { ...meta, googleConnected: true },
+  })
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+  const dest = meta.onboardingComplete === false
+    ? `${appUrl}/onboarding/plan?google=connected`
+    : `${appUrl}/dashboard/integrations?google=connected`
+
+  return NextResponse.redirect(dest)
 }
