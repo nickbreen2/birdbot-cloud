@@ -1188,8 +1188,9 @@ html:has([data-theme="landing"]) .starfield { display: block; }
 @keyframes ob-cw  { to { transform: rotate(360deg);  } }
 @keyframes ob-ccw { to { transform: rotate(-360deg); } }
 @keyframes ob-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(0.85); }
+  0%        { opacity: 1;   transform: scale(0.85); }
   60%       { opacity: 0;   transform: scale(1.7);  }
+  100%      { opacity: 1;   transform: scale(0.85); }
 }
 
 /* Arm wrappers */
