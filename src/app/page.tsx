@@ -6,10 +6,12 @@ import { HowItWorksSection } from "@/components/landing/HowItWorksSection"
 import { FAQSection } from "@/components/landing/FAQSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
+import { ScrollOnMount } from "@/components/landing/ScrollOnMount"
 
 export default function Home() {
   return (
     <main className="min-h-screen">
+      <ScrollOnMount />
       <Navbar />
       <HeroSection />
       <ConversationDemo />
