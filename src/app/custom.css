@@ -1169,6 +1169,10 @@ button.brief__link {
   background: rgba(30,32,36,0.98);
   border: 1px solid rgba(255,255,255,0.1);
 }
+.integ-modal {
+  background: #18181c;
+  border: 1px solid rgba(255,255,255,0.14);
+}
 
 [data-theme="light"] {
   .integ-card { background: #ffffff; border-color: rgba(0,0,0,0.09); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -1176,5 +1180,6 @@ button.brief__link {
   .integ-connect-btn { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.12); color: #374151; }
   .integ-soon-badge { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.12); color: #6b7280; }
   .integ-dropdown { background: #ffffff; border-color: rgba(0,0,0,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+  .integ-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
 }
 html:has([data-theme="landing"]) .starfield { display: block; }

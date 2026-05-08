@@ -326,19 +326,20 @@ export default function IntegrationsPage() {
                         <p className="text-xs font-sans text-text-muted truncate">
                           {integration.description}
                         </p>
-                        {!isPaired && tgStatus.state !== "loading" && (
-                          <button
-                            onClick={() => {
-                              setShowConnectModal(true)
-                              setPairing(null)
-                              setConnectError(null)
-                            }}
-                            className="integ-connect-btn mt-2 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
-                          >
-                            Connect
-                          </button>
-                        )}
                       </div>
+
+                      {!isPaired && tgStatus.state !== "loading" && (
+                        <button
+                          onClick={() => {
+                            setShowConnectModal(true)
+                            setPairing(null)
+                            setConnectError(null)
+                          }}
+                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                        >
+                          Connect
+                        </button>
+                      )}
 
                       {isPaired && (
                         <div className="relative flex-shrink-0">
@@ -412,15 +413,16 @@ export default function IntegrationsPage() {
                             ? googleStatus.email
                             : integration.description}
                         </p>
-                        {!isGoogleConnected && googleStatus.state !== "loading" && (
-                          <button
-                            onClick={() => setShowGoogleConnectModal(true)}
-                            className="integ-connect-btn mt-2 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
-                          >
-                            Connect
-                          </button>
-                        )}
                       </div>
+
+                      {!isGoogleConnected && googleStatus.state !== "loading" && (
+                        <button
+                          onClick={() => setShowGoogleConnectModal(true)}
+                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                        >
+                          Connect
+                        </button>
+                      )}
 
                       {isGoogleConnected && (
                         <div className="relative flex-shrink-0">
@@ -509,8 +511,7 @@ export default function IntegrationsPage() {
           }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl p-6"
-            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+            className="integ-modal w-full max-w-sm rounded-2xl p-6"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
@@ -601,8 +602,7 @@ export default function IntegrationsPage() {
           onClick={(e) => { if (e.target === e.currentTarget) setShowGoogleConnectModal(false) }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl p-6"
-            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+            className="integ-modal w-full max-w-sm rounded-2xl p-6"
           >
             <div className="flex items-center justify-between mb-4">
               <span className="font-heading font-bold text-base text-text-base">Connect Google</span>
@@ -638,8 +638,7 @@ export default function IntegrationsPage() {
           }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl p-6"
-            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+            className="integ-modal w-full max-w-sm rounded-2xl p-6"
           >
             <h2 className="font-heading font-bold text-base text-text-base mb-1">Disconnect Google?</h2>
             <p className="text-xs font-sans text-text-muted mb-5 leading-relaxed">
@@ -689,8 +688,7 @@ export default function IntegrationsPage() {
           }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl p-6"
-            style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.18)" }}
+            className="integ-modal w-full max-w-sm rounded-2xl p-6"
           >
             <h2 className="font-heading font-bold text-base text-text-base mb-1">
               Disconnect Telegram?
