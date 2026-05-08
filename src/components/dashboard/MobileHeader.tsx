@@ -4,13 +4,12 @@ import { useRef, useState, useEffect } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
 import { Settings, User, LogOut } from "lucide-react"
-import { useWizard } from "@/components/dashboard/WizardContext"
+import { useWizard } from "@/components/onboarding/WizardContext"
 
 export function MobileHeader() {
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { agents, agentsLoaded, setSettingsOpen, setAccountOpen } = useWizard()
-  const activeAgent = agents[0] ?? null
+  const { setSettingsOpen, setAccountOpen } = useWizard()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -48,59 +47,21 @@ export function MobileHeader() {
 
   return (
     <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-surface border-b border-border">
-      {/* Left: BirdBot instance */}
-      {agentsLoaded && activeAgent ? (
-        <button
-          onClick={() => setSettingsOpen(true)}
-          aria-label="Open BirdBot settings"
-          className="flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-panel/60 transition-colors"
-        >
-          <div className="w-8 h-8 rounded-full bg-panel flex items-center justify-center flex-shrink-0">
-            {activeAgent.status === "incubating" ? (
-              <span className="text-base leading-none">🥚</span>
-            ) : (
-              <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-4 h-4" />
-            )}
-          </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center">
-              <span className="text-[11px] font-semibold text-text-base font-sans uppercase tracking-wide truncate max-w-[120px] leading-tight">
-                {activeAgent.name}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 mt-[3px]">
-              <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
-                <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    activeAgent.status === "active" || activeAgent.status === "online"
-                      ? "bg-green-400"
-                      : "bg-slate-500"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-                    activeAgent.status === "active" || activeAgent.status === "online"
-                      ? "bg-green-400"
-                      : "bg-slate-500"
-                  }`}
-                />
-              </span>
-              <p className="text-[10px] text-text-muted font-sans capitalize leading-tight">
-                {activeAgent.status}
-              </p>
-            </div>
-          </div>
-        </button>
-      ) : (
-        <div className="flex items-center gap-2.5 px-1 py-1">
-          <div className="w-8 h-8 rounded-xl bg-panel border border-border flex items-center justify-center flex-shrink-0">
-            <span className="w-2 h-2 rounded-full bg-border" />
-          </div>
-          <span className="text-[11px] font-semibold text-text-dim font-sans uppercase tracking-wide">
-            {agentsLoaded ? "No Bird" : "Loading…"}
-          </span>
-        </div>
-      )}
+      {/* Left: BirdBot wordmark */}
+      <span
+        className="font-heading font-black select-none"
+        style={{
+          fontSize: "1.35rem",
+          letterSpacing: "-0.04em",
+          lineHeight: 1,
+          background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        BirdBot
+      </span>
 
       {/* Right: Profile avatar + dropdown */}
       <div ref={menuRef} className="relative">

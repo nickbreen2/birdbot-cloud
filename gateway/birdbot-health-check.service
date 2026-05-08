@@ -1,0 +1,10 @@
+[Unit]
+Description=BirdBot Agent Health Checker
+After=network.target caddy.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/birdbot-health-check.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=birdbot-health

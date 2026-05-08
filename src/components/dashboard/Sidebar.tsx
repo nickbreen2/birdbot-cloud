@@ -3,95 +3,37 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "@/components/dashboard/UserMenu"
-import {
-  MessageSquare,
-  Plug,
-  BarChart2,
-  Cpu,
-  CreditCard,
-  Wrench,
-  LifeBuoy,
-  Coins,
-  Gift,
-} from "lucide-react"
-import { Badge } from "@/components/ui/Badge"
-import { useWizard } from "@/components/dashboard/WizardContext"
+import { Brain, Link2 } from "lucide-react"
 
 const navItems = [
-  { label: "Chat",         href: "/dashboard/chat",         icon: MessageSquare },
-  { label: "Integrations", href: "/dashboard/integrations", icon: Plug },
-  { label: "Usage",        href: "/dashboard/usage",        icon: BarChart2 },
-  { label: "AI Models",    href: "/dashboard/models",       icon: Cpu },
-  { label: "Plan",         href: "/dashboard/plan",         icon: CreditCard },
-  { label: "Skills",       href: "/dashboard/skills",       icon: Wrench },
-  { label: "Support",      href: "/dashboard/support",      icon: LifeBuoy },
+  { label: "Memory",       href: "/dashboard/memory",       icon: Brain },
+  { label: "Integrations", href: "/dashboard/integrations", icon: Link2 },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { agents, agentsLoaded, setSettingsOpen } = useWizard()
-  const activeAgent = agents[0] ?? null
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 hidden lg:flex flex-col bg-surface border-r border-border z-40">
-      {/* Instance status (top slot, replaces logo) */}
-      {agentsLoaded && activeAgent ? (
-        <button
-          onClick={() => setSettingsOpen(true)}
-          aria-label="Open BirdBot settings"
-          className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border w-[calc(100%-1.5rem)] text-left hover:border-blue/40 hover:bg-panel/80 transition-colors cursor-pointer"
+      {/* Logo */}
+      <div className="px-5 py-5">
+        <span
+          className="font-heading font-black select-none"
+          style={{
+            fontSize: "1.85rem",
+            letterSpacing: "-0.04em",
+            lineHeight: 1,
+            background: "linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center flex-shrink-0">
-              {activeAgent.status === "incubating" ? (
-                <span className="text-base leading-none">🥚</span>
-              ) : (
-                <img src="/BirdBot-Icon-mark2.svg" alt="" className="w-5 h-5" />
-              )}
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-text-base font-sans uppercase tracking-wide truncate">
-                {activeAgent.name}
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
-                  <span
-                    className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                      activeAgent.status === "active" || activeAgent.status === "online"
-                        ? "bg-green-400"
-                        : "bg-slate-500"
-                    }`}
-                  />
-                  <span
-                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-                      activeAgent.status === "active" || activeAgent.status === "online"
-                        ? "bg-green-400"
-                        : "bg-slate-500"
-                    }`}
-                  />
-                </span>
-                <p className="text-xs text-text-muted font-sans capitalize">
-                  {activeAgent.status}
-                </p>
-              </div>
-            </div>
-          </div>
-        </button>
-      ) : (
-        <div className="px-3 py-2.5 mx-3 mt-3 rounded-xl bg-panel border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-border flex-shrink-0" />
-            <span className="text-xs font-semibold text-text-dim font-sans uppercase tracking-wide">
-              No Bird Instance
-            </span>
-          </div>
-          <p className="text-xs text-text-muted font-sans">
-            {agentsLoaded ? "Create your first Bird to get started" : "Loading…"}
-          </p>
-        </div>
-      )}
+          BirdBot
+        </span>
+      </div>
 
-      <div className="mt-3 border-t border-border" />
+      <div className="border-t border-border mx-5" />
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-0.5">
@@ -119,26 +61,6 @@ export function Sidebar() {
 
       {/* Bottom section */}
       <div className="px-3 pb-3 flex flex-col gap-1 border-t border-border pt-3">
-        {/* Set up AI credits */}
-        <Link
-          href="/dashboard/models"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-all"
-        >
-          <Coins size={16} className="text-gold" />
-          <span>Set Up AI Credits</span>
-        </Link>
-
-        {/* Refer & Earn */}
-        <Link
-          href="#"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans text-text-dim hover:text-text-base hover:bg-panel transition-all"
-        >
-          <Gift size={16} className="text-blue-bright" />
-          <span className="flex-1">Refer &amp; Earn</span>
-          <Badge variant="blue" className="text-[10px] px-1.5 py-0">NEW</Badge>
-        </Link>
-
-        {/* User menu */}
         <UserMenu />
       </div>
     </aside>
