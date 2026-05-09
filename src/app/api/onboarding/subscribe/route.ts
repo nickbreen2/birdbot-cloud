@@ -44,6 +44,11 @@ export async function POST(request: Request) {
     subscription.trial_end ??
     subscription.items.data[0]?.current_period_end ??
     0
+
+  if (periodEndTs === 0) {
+    return NextResponse.json({ error: 'Invalid subscription period from Stripe' }, { status: 500 })
+  }
+
   const periodEnd = new Date(periodEndTs * 1000)
 
   // Write to Prisma immediately (don't wait for webhook — avoids race condition on redirect)
