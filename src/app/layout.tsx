@@ -42,7 +42,6 @@ const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-bricolage",
   weight: ["500", "600", "700"],
-  axes: ["opsz"],
 })
 
 export const metadata: Metadata = {
@@ -90,12 +89,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-theme="landing"
       className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${bricolageGrotesque.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
-        {/* Runs before hydration to apply stored theme without flash */}
-        <script dangerouslySetInnerHTML={{ __html: `try{if(window.location.pathname==='/'){document.documentElement.setAttribute('data-theme','landing')}else{var t=localStorage.getItem('theme')||'dark';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){}` }} />
+        <style dangerouslySetInnerHTML={{ __html: `html,body{background-color:#0a0e1a}` }} />
       </head>
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
         <ThemeProviderWrapper>

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
+import { LandingThemeLock } from "@/components/LandingThemeLock"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen">
+      <LandingThemeLock />
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-6 pt-28 md:pt-36 pb-24">
@@ -22,7 +24,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p className="text-text-muted text-sm font-sans">
-            Last updated: April 6, 2026
+            Last updated: May 8, 2026
           </p>
         </div>
 
@@ -67,9 +69,14 @@ export default function TermsPage() {
               2. Description of Service
             </h2>
             <p className="text-sm font-sans text-text-dim leading-relaxed">
-              BirdBot.ai is a personal AI agent platform. It allows users to
-              deploy AI agents that can automate tasks, browse the web, manage
-              files, and connect to third-party applications. The service is
+              BirdBot.ai is a personal AI assistant you interact with via
+              Telegram. It captures what you tell it and builds a persistent
+              memory — a knowledge graph of your goals, decisions, projects,
+              tasks, and the people in your life — and responds with context
+              grounded in what it knows about you. A web dashboard lets you
+              review and manage what your Bird has captured. For developers,
+              BirdBot exposes your memory graph to AI coding tools (Claude Code,
+              Cursor) via a Model Context Protocol (MCP) server. The service is
               currently available on a limited early access basis.
             </p>
           </section>
@@ -141,11 +148,14 @@ export default function TermsPage() {
               5. AI Disclaimer
             </h2>
             <p className="text-sm font-sans text-text-dim leading-relaxed">
-              AI outputs are not guaranteed to be accurate, complete, or
-              error-free. BirdBot.ai is not responsible for decisions you make
-              based on AI-generated output, or for actions taken by your agent on
-              your behalf. You are responsible for reviewing your agent&apos;s
-              actions, particularly when it interacts with external services.
+              BirdBot uses AI to extract and organize information from your
+              messages into a knowledge graph. This extraction is not guaranteed
+              to be accurate — entities, goals, decisions, or tasks may be
+              misclassified, missed, or incorrectly inferred from your messages.
+              BirdBot.ai is not responsible for decisions you make based on
+              AI-generated output or captured context. You are responsible for
+              reviewing what your Bird has captured, particularly before acting
+              on it.
             </p>
           </section>
 
@@ -155,12 +165,12 @@ export default function TermsPage() {
               6. Subscription &amp; Payments
             </h2>
             <p className="text-sm font-sans text-text-dim leading-relaxed">
-              BirdBot.ai offers Lite ($19/mo), Pro ($39/mo), and Max ($79/mo)
-              plans as described on the site. Billing is not yet active. Full
-              payment terms — including billing cycles and refund policy — will be
-              provided at general launch. When billing goes live, a
-              cancel-anytime policy will apply and users will be notified in
-              advance.
+              BirdBot.ai is currently available in early access. Pricing tiers
+              are not yet finalized. Billing is not yet active. Full payment
+              terms — including plan options, billing cycles, and refund policy —
+              will be provided before billing goes live. Users will be notified
+              in advance of any charges. When billing goes live, a
+              cancel-anytime policy will apply.
             </p>
           </section>
 
@@ -201,11 +211,13 @@ export default function TermsPage() {
               9. Third-Party Integrations
             </h2>
             <p className="text-sm font-sans text-text-dim leading-relaxed">
-              Your agent may connect to third-party services including Slack,
-              Discord, GitHub, and Telegram. BirdBot.ai is not responsible for
-              the behavior, availability, or policies of those services. You must
-              comply with each third party&apos;s own terms of service when using
-              integrations.
+              BirdBot.ai connects to Telegram as its primary capture surface.
+              Planned integrations include Google Calendar, Gmail, and Google
+              Drive. For developers, BirdBot connects to AI coding tools such as
+              Claude Code and Cursor via the Model Context Protocol (MCP).
+              BirdBot.ai is not responsible for the behavior, availability, or
+              policies of any third-party service. You must comply with each
+              third party&apos;s own terms of service when using integrations.
             </p>
           </section>
 

@@ -2,7 +2,7 @@
 import React from 'react'
 import { OnboardingOrbitVisual } from './OnboardingOrbitVisual'
 
-export function OrbitPanel({ children }: { children?: React.ReactNode }) {
+export function OrbitPanel({ children, step }: { children?: React.ReactNode; step?: number }) {
   return (
     <div style={{
       width: '50%',
@@ -55,7 +55,7 @@ export function OrbitPanel({ children }: { children?: React.ReactNode }) {
           </div>
         ) : (
           <div style={{ position: 'relative', zIndex: 3, transform: 'scale(1.25)', transformOrigin: 'center center' }}>
-            <OnboardingOrbitVisual />
+            <OnboardingOrbitVisual step={step ?? 1} />
           </div>
         )}
 

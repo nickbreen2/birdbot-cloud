@@ -17,7 +17,7 @@ export default async function DashboardLayout({
 
   const email = user.emailAddresses[0]?.emailAddress ?? null
   const subscribed = await isSubscribed(user.id, email)
-  if (!subscribed) redirect("/pricing")
+  if (!subscribed) redirect("/")
 
   return (
     <WizardProvider>

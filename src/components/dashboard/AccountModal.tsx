@@ -182,11 +182,11 @@ export function AccountModal() {
         </div>
 
         {/* ── Right content ── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "var(--theme-panel)" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "var(--theme-acct-main-bg)" }}>
           {/* Sticky header */}
           <div
             className="flex items-center px-4 md:px-8 py-5 flex-shrink-0"
-            style={{ borderBottom: "1px solid var(--theme-border)", background: "var(--theme-panel)" }}
+            style={{ borderBottom: "1px solid var(--theme-border)", background: "var(--theme-acct-main-bg)" }}
           >
             <button
               className="md:hidden mr-3 w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-base hover:bg-white/[0.06] transition-all flex-shrink-0"

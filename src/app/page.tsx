@@ -7,11 +7,13 @@ import { FAQSection } from "@/components/landing/FAQSection"
 import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
 import { LandingThemeLock } from "@/components/LandingThemeLock"
+import { ScrollOnMount } from "@/components/landing/ScrollOnMount"
 
 export default function Home() {
   return (
     <main className="min-h-screen" data-theme="landing">
       <LandingThemeLock />
+      <ScrollOnMount />
       <Navbar />
       <HeroSection />
       <ConversationDemo />

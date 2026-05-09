@@ -1,20 +1,49 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-// Only the dashboard requires authentication.
-// Everything else (landing, sign-in/up, API routes, OG image, 404, etc.) is public.
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"])
+const isDashboard = createRouteMatcher(['/dashboard(.*)'])
+const isOnboarding = createRouteMatcher(['/onboarding(.*)'])
+const isPublic = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/pricing(.*)',
+  '/privacy(.*)',
+  '/terms(.*)',
+  '/support(.*)',
+  '/sso-callback(.*)',
+  '/api/webhooks(.*)',
+  '/api/telegram/webhook(.*)',
+  '/api/google/callback(.*)',
+])
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect()
+export default clerkMiddleware(async (auth, request) => {
+  if (isPublic(request)) return NextResponse.next()
+
+  const { userId, sessionClaims, redirectToSignIn } = await auth()
+
+  if (!userId) {
+    return redirectToSignIn({ returnBackUrl: request.url })
   }
+
+  // onboardingComplete is injected into the JWT by the Clerk session token template.
+  // All users — including pre-onboarding accounts (undefined) — must complete onboarding.
+  const claims = (sessionClaims ?? {}) as Record<string, unknown>
+
+  if (isDashboard(request) && claims.onboardingComplete !== true) {
+    return NextResponse.redirect(new URL('/onboarding', request.url))
+  }
+
+  if (isOnboarding(request) && claims.onboardingComplete === true) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
   ],
 }

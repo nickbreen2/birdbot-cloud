@@ -95,7 +95,7 @@ export function OnboardingShell({ step, children, rightContent }: { step: Step; 
       </div>
 
       {/* Right panel */}
-      <OrbitPanel>{rightContent}</OrbitPanel>
+      <OrbitPanel step={step}>{rightContent}</OrbitPanel>
     </div>
   )
 }

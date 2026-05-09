@@ -42,8 +42,11 @@ export function ThemeProviderWrapper({ children }: { children: ReactNode }) {
     const system = getSystem()
     setSys(system)
     setThemeState(stored)
-    // Landing page manages its own <html> data-theme via LandingThemeLock
-    if (window.location.pathname !== "/") {
+    // Only apply stored theme for dashboard routes; landing pages and 404 keep data-theme="landing"
+    const dashPrefixes = ["/dashboard", "/sign-in", "/sign-up", "/sso-callback", "/demo"]
+    const path = window.location.pathname
+    const isDash = dashPrefixes.some(p => path === p || path.startsWith(p + "/"))
+    if (isDash) {
       apply(stored, system)
     }
 

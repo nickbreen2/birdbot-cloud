@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
+import { LandingThemeLock } from "@/components/LandingThemeLock"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen">
+      <LandingThemeLock />
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-6 pt-28 md:pt-36 pb-24">
@@ -22,7 +24,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="text-text-muted text-sm font-sans">
-            Last updated: April 6, 2026
+            Last updated: May 8, 2026
           </p>
         </div>
 
@@ -74,8 +76,16 @@ export default function PrivacyPage() {
                     "Your name and email address, collected via Clerk when you sign up or sign in.",
                   ],
                   [
-                    "Agent configuration",
-                    "The settings, instructions, and preferences you provide when setting up your AI agent — including agent name, personality, and model selection.",
+                    "Telegram messages",
+                    "Text messages, voice notes, and photos you send to your Bird via Telegram — the primary way you interact with the service. This content is processed to build your knowledge graph.",
+                  ],
+                  [
+                    "Knowledge graph data",
+                    "Entities extracted from your messages — including goals, decisions, tasks, people, and projects that BirdBot identifies and stores on your behalf.",
+                  ],
+                  [
+                    "Bird configuration",
+                    "Your personality preset selection and slider settings stored when you set up or adjust your Bird.",
                   ],
                   [
                     "Usage data",
@@ -117,6 +127,7 @@ export default function PrivacyPage() {
             <ul className="flex flex-col gap-2">
               {[
                 "Provide and operate the BirdBot.ai service.",
+                "Build and maintain your personal knowledge graph from the content you share with your Bird.",
                 "Improve and develop the platform.",
                 "Send you important account and service-related emails.",
                 "Process payments when billing becomes active (not yet live).",
@@ -169,16 +180,25 @@ export default function PrivacyPage() {
                   —
                 </span>
                 <span>
-                  <span className="text-text-base font-medium">
-                    AI providers
-                  </span>{" "}
-                  — when your agent runs a task, your prompts and instructions
-                  are sent to the AI provider you have selected. Depending on
-                  your model choice, this may be Moonshot AI via OpenRouter
-                  (Kimi K2.5), OpenAI (GPT-4o), Anthropic (Claude Sonnet 4 or
-                  Claude Opus 4), Google DeepMind (Gemini 2.5 Pro), or DeepSeek
-                  (DeepSeek R1). Each provider has their own privacy policy
-                  governing how they handle this data.
+                  <span className="text-text-base font-medium">Telegram</span>{" "}
+                  — the primary surface for interacting with your Bird. When you
+                  connect Telegram, your chat ID and message content are handled
+                  by Telegram&apos;s servers under their own privacy policy.
+                </span>
+              </li>
+              <li className="flex items-start gap-2.5 text-sm font-sans text-text-dim leading-relaxed">
+                <span
+                  className="flex-shrink-0 mt-0.5"
+                  style={{ color: "rgba(59,130,246,0.7)" }}
+                >
+                  —
+                </span>
+                <span>
+                  <span className="text-text-base font-medium">Anthropic</span>{" "}
+                  — BirdBot uses Claude to extract entities from your messages
+                  and generate replies. Your message content is sent to
+                  Anthropic&apos;s API for this purpose. Anthropic has its own
+                  privacy policy governing how it handles this data.
                 </span>
               </li>
               <li className="flex items-start gap-2.5 text-sm font-sans text-text-dim leading-relaxed">
@@ -256,10 +276,13 @@ export default function PrivacyPage() {
               7. Third-Party Links &amp; Integrations
             </h2>
             <p className="text-sm font-sans text-text-dim leading-relaxed">
-              When your agent connects to external services such as Slack,
-              Discord, GitHub, or Telegram, those services collect and handle
-              data under their own privacy policies. BirdBot.ai is not
-              responsible for the privacy practices of third-party services.
+              BirdBot.ai connects to Telegram as its primary capture surface.
+              Planned integrations include Google Calendar, Gmail, and Google
+              Drive. For developers, BirdBot connects to AI coding tools such as
+              Claude Code and Cursor via the Model Context Protocol (MCP). Each
+              of these services collects and handles data under their own privacy
+              policies. BirdBot.ai is not responsible for the privacy practices
+              of third-party services.
             </p>
           </section>
 

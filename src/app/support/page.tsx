@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
+import { LandingThemeLock } from "@/components/LandingThemeLock"
 import Image from "next/image"
 import type { Metadata } from "next"
 import { EmailBox } from "./EmailBox"
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function SupportPage() {
   return (
     <div className="min-h-screen flex flex-col">
+      <LandingThemeLock />
       <Navbar />
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-24">

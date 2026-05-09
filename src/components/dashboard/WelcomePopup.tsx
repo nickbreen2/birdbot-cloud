@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { BirdIcon } from '@/components/onboarding/OrbitPanel'
 
 const STORAGE_KEY = 'hasSeenWelcome'
 
@@ -93,9 +92,9 @@ export function WelcomePopup() {
       <div style={{
         position: 'fixed', zIndex: 9999,
         top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: 480, background: '#fff', borderRadius: 24,
+        width: 480, background: 'var(--theme-panel)', borderRadius: 24,
         padding: '28px 36px',
-        boxShadow: '0 0 0 1px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.06), 0 32px 80px rgba(0,0,0,0.14)',
+        boxShadow: '0 0 0 1px var(--theme-border), 0 8px 16px rgba(0,0,0,0.12), 0 32px 80px rgba(0,0,0,0.22)',
         animation: 'welcome-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both',
       }}>
 
@@ -105,33 +104,23 @@ export function WelcomePopup() {
           style={{
             position: 'absolute', top: 16, right: 16,
             width: 30, height: 30, borderRadius: '50%',
-            background: '#F5F4F0', border: 'none', cursor: 'pointer',
+            background: 'var(--theme-panel-hover)', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#888882', fontSize: 14,
+            color: 'var(--theme-text-muted)', fontSize: 14,
           }}
         >✕</button>
 
-        {/* Bird avatar */}
-        <div style={{
-          width: 52, height: 52, borderRadius: 15,
-          background: 'linear-gradient(145deg, #2E72F5, #1D4ED8)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 12px rgba(36,99,235,0.3)', marginBottom: 14,
-        }}>
-          <BirdIcon size={26} color="white" />
-        </div>
-
-        <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#2463EB', marginBottom: 6 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#eab308', marginBottom: 6 }}>
           You&rsquo;re all set
         </p>
         <h2 style={{
           fontFamily: 'var(--font-bricolage, "Bricolage Grotesque", sans-serif)',
-          fontSize: 26, fontWeight: 700, color: '#0D0D0D', letterSpacing: '-0.6px',
+          fontSize: 26, fontWeight: 700, color: 'var(--theme-text-base)', letterSpacing: '-0.6px',
           lineHeight: 1.2, marginBottom: 6,
         }}>
           Welcome &mdash; here&rsquo;s what I can do for you
         </h2>
-        <p style={{ fontSize: 14, color: '#888882', lineHeight: 1.55, marginBottom: 16 }}>
+        <p style={{ fontSize: 14, color: 'var(--theme-text-dim)', lineHeight: 1.55, marginBottom: 16 }}>
           Bird is ready to go. Here&rsquo;s a quick look at what you&rsquo;ve unlocked.
         </p>
 
@@ -140,9 +129,9 @@ export function WelcomePopup() {
             <div key={i} style={{
               display: 'flex', alignItems: 'flex-start', gap: 12,
               padding: '10px 12px', borderRadius: 12,
-              background: '#FAFAF8', border: '1px solid #F0EFE9',
+              background: 'var(--theme-surface)', border: '1px solid var(--theme-border)',
             }}>
-              <div style={{
+              <div className={`wcap-icon-${i}`} style={{
                 width: 32, height: 32, borderRadius: 9, flexShrink: 0,
                 background: item.iconBg,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -150,8 +139,8 @@ export function WelcomePopup() {
                 {item.icon}
               </div>
               <div>
-                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#0D0D0D', marginBottom: 1 }}>{item.title}</div>
-                <div style={{ fontSize: 12, color: '#888882', lineHeight: 1.4 }}>{item.desc}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--theme-text-base)', marginBottom: 1 }}>{item.title}</div>
+                <div style={{ fontSize: 12, color: 'var(--theme-text-muted)', lineHeight: 1.4 }}>{item.desc}</div>
               </div>
             </div>
           ))}
@@ -177,6 +166,10 @@ export function WelcomePopup() {
           from { opacity: 0; transform: translate(-50%, -50%) scale(0.92) translateY(8px); }
           to   { opacity: 1; transform: translate(-50%, -50%) scale(1) translateY(0); }
         }
+        [data-theme="dark"] .wcap-icon-0 { background: rgba(66,133,244,0.18) !important; }
+        [data-theme="dark"] .wcap-icon-1 { background: rgba(234,67,53,0.15) !important; }
+        [data-theme="dark"] .wcap-icon-2 { background: rgba(22,163,74,0.18) !important; }
+        [data-theme="dark"] .wcap-icon-3 { background: rgba(168,85,247,0.18) !important; }
       `}</style>
     </>
   )
