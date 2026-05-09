@@ -201,41 +201,46 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
     setLoading(true)
     setError(null)
 
-    const { error: confirmError, setupIntent } = await stripe.confirmSetup({
-      elements,
-      redirect: 'if_required',
-    })
+    try {
+      const { error: confirmError, setupIntent } = await stripe.confirmSetup({
+        elements,
+        redirect: 'if_required',
+      })
 
-    if (confirmError) {
-      setError(confirmError.message ?? 'Payment setup failed. Please try again.')
+      if (confirmError) {
+        setError(confirmError.message ?? 'Payment setup failed. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      const paymentMethodId = typeof setupIntent?.payment_method === 'string'
+        ? setupIntent.payment_method
+        : setupIntent?.payment_method?.id
+
+      if (!paymentMethodId) {
+        setError('Could not retrieve payment method. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      const res = await fetch('/api/onboarding/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethodId, customerId, plan }),
+      })
+
+      if (!res.ok) {
+        const d = await res.json() as { error?: string }
+        setError(d.error ?? 'Subscription creation failed. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      router.push('/dashboard')
+    } catch {
+      setError('Something went wrong. Please check your connection and try again.')
       setLoading(false)
-      return
     }
-
-    const paymentMethodId = typeof setupIntent?.payment_method === 'string'
-      ? setupIntent.payment_method
-      : setupIntent?.payment_method?.id
-
-    if (!paymentMethodId) {
-      setError('Could not retrieve payment method. Please try again.')
-      setLoading(false)
-      return
-    }
-
-    const res = await fetch('/api/onboarding/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentMethodId, customerId, plan }),
-    })
-
-    if (!res.ok) {
-      const d = await res.json() as { error?: string }
-      setError(d.error ?? 'Subscription creation failed. Please try again.')
-      setLoading(false)
-      return
-    }
-
-    router.push('/dashboard')
   }
 
   const prices = PLAN_PRICES[plan]
@@ -267,7 +272,7 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
             fontFamily: 'var(--font-bricolage, "Bricolage Grotesque", sans-serif)',
             fontSize: 15, fontWeight: 700, color: '#0D0D0D', letterSpacing: '-0.3px',
           }}>BirdBot Pro</div>
-          <div style={{ fontSize: 12, color: '#888882', marginTop: 1 }}>7-day free trial included</div>
+          <div style={{ fontSize: 12, color: '#888882', marginTop: 1 }}>7&#8209;day free trial included</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{
