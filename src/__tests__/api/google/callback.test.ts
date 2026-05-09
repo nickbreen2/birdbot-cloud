@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   setCredentials: vi.fn(),
   userinfoGet: vi.fn(),
   upsert: vi.fn(),
+  clerkGetUser: vi.fn(),
+  clerkUpdateUser: vi.fn(),
 }))
 
 vi.mock("@/lib/google", () => ({
@@ -25,6 +27,15 @@ vi.mock("@/lib/prisma", () => ({
   prisma: { googleConnection: { upsert: mocks.upsert } },
 }))
 
+vi.mock("@clerk/nextjs/server", () => ({
+  clerkClient: vi.fn().mockResolvedValue({
+    users: {
+      getUser: mocks.clerkGetUser,
+      updateUser: mocks.clerkUpdateUser,
+    },
+  }),
+}))
+
 process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
 
 import { GET } from "@/app/api/google/callback/route"
@@ -36,6 +47,8 @@ describe("GET /api/google/callback", () => {
       getToken: mocks.getToken,
       setCredentials: mocks.setCredentials,
     })
+    mocks.clerkGetUser.mockResolvedValue({ publicMetadata: {} })
+    mocks.clerkUpdateUser.mockResolvedValue({})
   })
 
   it("redirects to error page when state is invalid", async () => {
