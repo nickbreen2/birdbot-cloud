@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { OnboardingShell } from '@/components/onboarding/OnboardingShell'
 
 const btnBlue: React.CSSProperties = {
-  width: '100%', height: 48, background: '#2463EB', color: '#fff',
+  width: '100%', height: 48, background: '#fff', color: '#111',
   fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
   fontSize: 15, fontWeight: 600, letterSpacing: '-0.2px',
   border: 'none', borderRadius: 13, cursor: 'pointer',
@@ -15,39 +15,15 @@ const btnBlue: React.CSSProperties = {
 const ACCESS_ITEMS = [
   {
     label: 'Label & organize your emails, draft replies in your voice',
-    bg: '#fff', border: true,
-    icon: (
-      <svg width="18" height="14" viewBox="0 0 20 16" fill="none">
-        <path d="M2 2h16v12H2z" fill="white"/>
-        <path d="M2 2l8 7 8-7" stroke="#EA4335" strokeWidth="1.4"/>
-        <path d="M2 2v12" stroke="#4285F4" strokeWidth="1.4"/>
-        <path d="M18 2v12" stroke="#34A853" strokeWidth="1.4"/>
-        <path d="M2 14h16" stroke="#FBBC05" strokeWidth="1.4"/>
-      </svg>
-    ),
+    src: '/google-gmail.svg',
   },
   {
     label: "Handle your schedule, book meetings, track what's coming up",
-    bg: '#1A73E8', border: false,
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-        <rect x="1" y="3" width="18" height="16" rx="2" fill="white"/>
-        <rect x="1" y="3" width="18" height="6" rx="2" fill="#4285F4"/>
-        <path d="M6 1v4M14 1v4" stroke="#4285F4" strokeWidth="1.5" strokeLinecap="round"/>
-        <text x="10" y="16.5" textAnchor="middle" fill="#1A73E8" fontSize="6" fontFamily="Arial,sans-serif" fontWeight="700">CAL</text>
-      </svg>
-    ),
+    src: '/google-calendar.svg',
   },
   {
     label: 'Access your Drive files when you need to reference or share them',
-    bg: '#fff', border: true,
-    icon: (
-      <svg width="18" height="16" viewBox="0 0 87 78" fill="none">
-        <path d="M29 0L0 52H29L58 0Z" fill="#0F9D58"/>
-        <path d="M58 0L87 52H58L29 0Z" fill="#4285F4"/>
-        <path d="M0 52L14.5 78H72.5L87 52Z" fill="#F4B400"/>
-      </svg>
-    ),
+    src: '/google-drive.svg',
   },
 ]
 
@@ -65,26 +41,33 @@ export default function OnboardingStep2() {
   return (
     <OnboardingShell step={2}>
       <h1 style={{
-        fontFamily: 'var(--font-bricolage, "Bricolage Grotesque", sans-serif)',
-        fontSize: 36, fontWeight: 700, color: '#0D0D0D',
-        letterSpacing: '-1px', lineHeight: 1.15, marginBottom: 10,
+        fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
+        fontSize: 30, fontWeight: 700, color: 'var(--theme-text-base)',
+        letterSpacing: '-0.7px', lineHeight: 1.2, marginBottom: 10,
       }}>
         Get the most out of BirdBot<br />by connecting your essentials
       </h1>
 
-      <p style={{ fontSize: 15, color: '#888882', lineHeight: 1.6, marginBottom: 20 }}>
-        Connect your email and calendar so BirdBot can prioritize what matters, draft replies in your voice, and keep your schedule on track.
+      <p style={{ fontSize: 15, color: 'var(--theme-text-dim)', lineHeight: 1.6, marginBottom: 20 }}>
+        Connect your Google account so BirdBot can handle your inbox, calendar, and files — all in your voice.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 24 }}>
         {ACCESS_ITEMS.map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: '#444', fontWeight: 500 }}>
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: 14,
+            fontSize: 14, color: 'var(--theme-text-dim)', fontWeight: 500,
+            padding: '12px 0',
+            borderBottom: i < ACCESS_ITEMS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+          }}>
             <div style={{
-              width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-              background: item.bg, border: item.border ? '1px solid #E4E4E2' : 'none',
+              width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.12)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 5,
             }}>
-              {item.icon}
+              <img src={item.src} alt="" width={22} height={22} style={{ display: 'block' }} />
             </div>
             {item.label}
           </div>
@@ -106,9 +89,9 @@ export default function OnboardingStep2() {
         onClick={handleSkip}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          textAlign: 'center', fontSize: 13, color: '#A0A09A',
-          textDecoration: 'underline', textUnderlineOffset: 3,
-          textDecorationColor: '#DDDDD8', width: '100%',
+          textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)',
+          width: '100%', padding: '6px 0', letterSpacing: '-0.1px',
+          transition: 'color 0.15s',
         }}
       >
         Skip for now

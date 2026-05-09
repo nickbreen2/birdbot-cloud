@@ -1,6 +1,8 @@
 // src/components/onboarding/OnboardingShell.tsx
+"use client"
 import React from 'react'
-import { OrbitPanel, BirdIcon } from './OrbitPanel'
+import { useRouter } from 'next/navigation'
+import { OrbitPanel } from './OrbitPanel'
 
 type Step = 1 | 2 | 3
 
@@ -13,15 +15,30 @@ function segClass(segIndex: number, activeStep: Step): string {
 const segColors: Record<string, string> = {
   on:   '#2463EB',
   done: '#2463EB',
-  dim:  '#C3D4FC',
+  dim:  'rgba(255,255,255,0.15)',
 }
 const segOpacity: Record<string, number> = {
-  on: 1, done: 0.45, dim: 1,
+  on: 1, done: 0.5, dim: 1,
 }
 
-export function OnboardingShell({ step, children }: { step: Step; children: React.ReactNode }) {
+const STEP_ROUTES: Record<number, string> = {
+  1: '/onboarding',
+  2: '/onboarding/connect',
+  3: '/onboarding/plan',
+}
+
+export function OnboardingShell({ step, children, rightContent }: { step: Step; children: React.ReactNode; rightContent?: React.ReactNode }) {
+  const router = useRouter()
+
+  function handleSegmentClick(segIndex: number) {
+    const targetStep = segIndex + 1
+    if (targetStep < step) {
+      router.push(STEP_ROUTES[targetStep])
+    }
+  }
+
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#fff' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--theme-depth)' }}>
       {/* Left panel */}
       <div style={{
         width: '50%',
@@ -30,44 +47,55 @@ export function OnboardingShell({ step, children }: { step: Step; children: Reac
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        borderRight: '1px solid #EBEBEA',
         overflowY: 'auto',
+        position: 'relative',
       }}>
+        {/* Subtle atmospheric gradient top-left */}
+        <div aria-hidden style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 70% 55% at 20% 20%, rgba(37,99,235,0.07) 0%, transparent 65%)',
+        }} />
+
         {/* Brand row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <div style={{
-            width: 32, height: 32, background: '#2463EB', borderRadius: 9,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 1px 3px rgba(36,99,235,0.3)',
-          }}>
-            <BirdIcon size={18} color="white" />
-          </div>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
           <span style={{
-            fontFamily: 'var(--font-bricolage, "Bricolage Grotesque", sans-serif)',
-            fontSize: 16, fontWeight: 600, color: '#0D0D0D', letterSpacing: '-0.3px',
+            fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
+            fontSize: 26, fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, userSelect: 'none',
+            background: 'linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
           }}>BirdBot</span>
         </div>
 
         {/* Progress bar */}
-        <div style={{ display: 'flex', gap: 5, width: '100%', marginBottom: 32 }}>
+        <div style={{ position: 'relative', display: 'flex', gap: 5, width: '100%', marginBottom: 28 }}>
           {[0, 1, 2].map(i => {
             const cls = segClass(i, step)
+            const isBack = i + 1 < step
             return (
-              <div key={i} style={{
-                flex: 1, height: 3, borderRadius: 99,
-                background: segColors[cls],
-                opacity: segOpacity[cls],
-                transition: 'background 0.3s, opacity 0.3s',
-              }} />
+              <div
+                key={i}
+                onClick={() => handleSegmentClick(i)}
+                style={{
+                  flex: 1, height: 3, borderRadius: 99,
+                  background: segColors[cls],
+                  opacity: segOpacity[cls],
+                  transition: 'background 0.3s, opacity 0.3s',
+                  cursor: isBack ? 'pointer' : 'default',
+                }}
+              />
             )
           })}
         </div>
 
-        {children}
+        <div style={{ position: 'relative' }}>
+          {children}
+        </div>
       </div>
 
       {/* Right panel */}
-      <OrbitPanel />
+      <OrbitPanel>{rightContent}</OrbitPanel>
     </div>
   )
 }
