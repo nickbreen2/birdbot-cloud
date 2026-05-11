@@ -14,7 +14,7 @@ export async function isSubscribed(clerkUserId: string, userEmail?: string | nul
   })
 
   return (
-    subscription?.status === "active" &&
+    (subscription?.status === "active" || subscription?.status === "trialing") &&
     subscription.currentPeriodEnd > new Date()
   )
 }
