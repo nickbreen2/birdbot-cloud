@@ -28,6 +28,7 @@ export async function POST() {
       return_url: `${APP_URL}/dashboard`,
     })
 
+    if (!session.url) return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     return NextResponse.json({ url: session.url })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
