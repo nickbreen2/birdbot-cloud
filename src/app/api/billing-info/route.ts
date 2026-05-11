@@ -13,12 +13,16 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const sub = await prisma.subscription.findUnique({ where: { clerkUserId: userId } })
-  if (!sub) return NextResponse.json({ error: 'No subscription found' }, { status: 404 })
+  try {
+    const sub = await prisma.subscription.findUnique({ where: { clerkUserId: userId } })
+    if (!sub) return NextResponse.json({ error: 'No subscription found' }, { status: 404 })
 
-  return NextResponse.json({
-    plan: resolvePlanLabel(sub.stripePriceId),
-    status: sub.status,
-    currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
-  })
+    return NextResponse.json({
+      plan: resolvePlanLabel(sub.stripePriceId),
+      status: sub.status,
+      currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
+    })
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
