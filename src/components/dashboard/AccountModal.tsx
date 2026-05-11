@@ -618,11 +618,12 @@ type BillingInfo = { plan: string; status: string; currentPeriodEnd: string }
 
 function BillingSection() {
   const [info, setInfo] = useState<BillingInfo | null>(null)
-  const [portalUrl, setPortalUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [noSubscription, setNoSubscription] = useState(false)
   const [error, setError] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -630,24 +631,18 @@ function BillingSection() {
     setError(false)
     setNoSubscription(false)
     setInfo(null)
-    setPortalUrl(null)
 
     async function load() {
       try {
-        const [infoRes, portalRes] = await Promise.all([
-          fetch('/api/billing-info'),
-          fetch('/api/billing-portal', { method: 'POST' }),
-        ])
+        const infoRes = await fetch('/api/billing-info')
         if (cancelled) return
-        if (infoRes.status === 404 || portalRes.status === 404) {
+        if (infoRes.status === 404) {
           setNoSubscription(true)
           return
         }
-        if (!infoRes.ok || !portalRes.ok) { setError(true); return }
+        if (!infoRes.ok) { setError(true); return }
         const infoData = await infoRes.json() as BillingInfo
-        const portalData = await portalRes.json() as { url: string }
         setInfo(infoData)
-        setPortalUrl(portalData.url)
       } catch {
         if (!cancelled) setError(true)
       } finally {
@@ -657,6 +652,21 @@ function BillingSection() {
     load()
     return () => { cancelled = true }
   }, [retryCount])
+
+  async function handleManageClick() {
+    setPortalLoading(true)
+    setPortalError(false)
+    try {
+      const res = await fetch('/api/billing-portal', { method: 'POST' })
+      if (!res.ok) { setPortalError(true); return }
+      const { url } = await res.json() as { url: string }
+      window.open(url, '_blank')
+    } catch {
+      setPortalError(true)
+    } finally {
+      setPortalLoading(false)
+    }
+  }
 
   const periodEnd = info
     ? new Date(info.currentPeriodEnd).toLocaleDateString('en-US', {
@@ -690,7 +700,7 @@ function BillingSection() {
     )
   }
 
-  if (error || !info || !portalUrl) {
+  if (error || !info) {
     return (
       <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-3">
         <p className="text-sm text-text-muted">Unable to load billing info. Please try again.</p>
@@ -766,26 +776,32 @@ function BillingSection() {
         {/* Manage button */}
         <button
           type="button"
-          onClick={() => window.open(portalUrl, "_blank")}
-          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1"
+          onClick={handleManageClick}
+          disabled={portalLoading}
+          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-60"
           style={{
             background: "rgba(36,99,235,0.10)",
             border: "1px solid rgba(36,99,235,0.28)",
             color: "#93b4f8",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(36,99,235,0.18)"
+            if (!portalLoading) e.currentTarget.style.background = "rgba(36,99,235,0.18)"
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = "rgba(36,99,235,0.10)"
           }}
         >
-          Manage subscription
+          {portalLoading ? 'Opening…' : 'Manage subscription'}
         </button>
 
         <p className="text-center text-[11.5px] font-sans text-text-muted">
           Cancel anytime · Opens Stripe&apos;s secure billing portal
         </p>
+        {portalError && (
+          <p className="text-center text-[11.5px] text-red-400">
+            Could not open portal. Please try again.
+          </p>
+        )}
       </div>
     </div>
   )
