@@ -629,6 +629,8 @@ function BillingSection() {
     setLoading(true)
     setError(false)
     setNoSubscription(false)
+    setInfo(null)
+    setPortalUrl(null)
 
     async function load() {
       try {
@@ -781,7 +783,7 @@ function BillingSection() {
           Manage subscription
         </button>
 
-        <p className="text-center text-[11.5px] font-sans" style={{ color: "#334155" }}>
+        <p className="text-center text-[11.5px] font-sans text-text-muted">
           Cancel anytime · Opens Stripe&apos;s secure billing portal
         </p>
       </div>
