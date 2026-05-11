@@ -9,11 +9,12 @@ type SessionActivity = { browserName?: string; deviceType?: string; isMobile?: b
 type SessionWithActivitiesResource = { id: string; status: string; lastActiveAt: Date; latestActivity?: SessionActivity; revoke: () => Promise<unknown> }
 import { useWizard } from "@/components/onboarding/WizardContext"
 
-type AccountSection = "profile" | "security" | "danger"
+type AccountSection = "profile" | "security" | "billing" | "danger"
 
 const SECTION_META: Record<AccountSection, { title: string; subtitle: string }> = {
   profile:  { title: "Profile",  subtitle: "Manage your profile, email, and connected accounts." },
   security: { title: "Security", subtitle: "View and manage your active sessions." },
+  billing:  { title: "Billing",  subtitle: "Manage your subscription, plan, and payment method." },
   danger:   { title: "Danger Zone", subtitle: "Irreversible actions. Proceed with caution." },
 }
 
@@ -88,7 +89,7 @@ export function AccountModal() {
               </button>
             </div>
             <nav className="flex-1 flex flex-col px-2 py-3 gap-0.5 overflow-y-auto">
-              {(["profile", "security"] as const).map((id) => (
+              {(["profile", "security", "billing"] as const).map((id) => (
                 <button
                   key={id}
                   onClick={() => selectSection(id)}
@@ -103,7 +104,7 @@ export function AccountModal() {
                       : undefined
                   }
                 >
-                  {id === "profile" ? "Profile" : "Security"}
+                  {id === "profile" ? "Profile" : id === "security" ? "Security" : "Billing"}
                 </button>
               ))}
             </nav>
@@ -140,7 +141,7 @@ export function AccountModal() {
           </div>
 
           <nav className="flex-1 flex flex-col px-2 gap-0.5">
-            {(["profile", "security"] as const).map((id) => (
+            {(["profile", "security", "billing"] as const).map((id) => (
               <button
                 key={id}
                 onClick={() => setSection(id)}
@@ -155,7 +156,7 @@ export function AccountModal() {
                     : undefined
                 }
               >
-                {id === "profile" ? "Profile" : "Security"}
+                {id === "profile" ? "Profile" : id === "security" ? "Security" : "Billing"}
               </button>
             ))}
           </nav>
@@ -216,6 +217,7 @@ export function AccountModal() {
               <ProfileSection user={user} signIn={signIn} signOut={signOut} onClose={() => setAccountOpen(false)} />
             )}
             {section === "security" && <SecuritySection />}
+            {section === "billing" && <BillingSection />}
             {section === "danger" && (
               <DangerSection user={user} onClose={() => setAccountOpen(false)} />
             )}
@@ -605,6 +607,183 @@ function SecuritySection() {
             })}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ── Billing section ────────────────────────────────────────────────────────────
+
+type BillingInfo = { plan: string; status: string; currentPeriodEnd: string }
+
+function BillingSection() {
+  const [info, setInfo] = useState<BillingInfo | null>(null)
+  const [portalUrl, setPortalUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [noSubscription, setNoSubscription] = useState(false)
+  const [error, setError] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(false)
+    setNoSubscription(false)
+
+    async function load() {
+      try {
+        const [infoRes, portalRes] = await Promise.all([
+          fetch('/api/billing-info'),
+          fetch('/api/billing-portal', { method: 'POST' }),
+        ])
+        if (cancelled) return
+        if (infoRes.status === 404 || portalRes.status === 404) {
+          setNoSubscription(true)
+          return
+        }
+        if (!infoRes.ok || !portalRes.ok) { setError(true); return }
+        const infoData = await infoRes.json() as BillingInfo
+        const portalData = await portalRes.json() as { url: string }
+        setInfo(infoData)
+        setPortalUrl(portalData.url)
+      } catch {
+        if (!cancelled) setError(true)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [retryCount])
+
+  const periodEnd = info
+    ? new Date(info.currentPeriodEnd).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : null
+
+  const isTrialing = info?.status === 'trialing'
+
+  if (loading) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex items-center justify-center h-40">
+        <span className="text-sm text-text-muted">Loading billing info…</span>
+      </div>
+    )
+  }
+
+  if (noSubscription) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-3">
+        <p className="text-sm text-text-muted">No active subscription found.</p>
+        <p className="text-xs text-text-muted">
+          Need help?{' '}
+          <a href="mailto:support@birdbot.ai" className="underline hover:text-text-dim transition-colors">
+            Contact support
+          </a>
+        </p>
+      </div>
+    )
+  }
+
+  if (error || !info || !portalUrl) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-3">
+        <p className="text-sm text-text-muted">Unable to load billing info. Please try again.</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount(c => c + 1)}
+          className="text-xs text-text-dim hover:text-text-base border border-border px-3 py-1.5 rounded-lg transition-colors w-fit"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-8">
+      <div className="flex flex-col gap-3">
+        <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">
+          Subscription
+        </p>
+
+        {/* Plan */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">Plan</span>
+          <span className="text-sm font-semibold text-text-base">{info.plan}</span>
+        </div>
+
+        {/* Status */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">Status</span>
+          {isTrialing ? (
+            <span
+              className="text-[11px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+              style={{
+                color: "#34d399",
+                background: "rgba(5,150,105,0.12)",
+                border: "1px solid rgba(5,150,105,0.28)",
+              }}
+            >
+              Trial
+            </span>
+          ) : (
+            <span
+              className="text-[11px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+              style={{
+                color: "#4ade80",
+                background: "rgba(34,197,94,0.08)",
+                border: "1px solid rgba(34,197,94,0.25)",
+              }}
+            >
+              Active
+            </span>
+          )}
+        </div>
+
+        {/* Trial end / Next billing */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">
+            {isTrialing ? "Trial ends" : "Next billing"}
+          </span>
+          <span className="text-sm font-semibold text-text-base">{periodEnd}</span>
+        </div>
+
+        {/* Manage button */}
+        <button
+          type="button"
+          onClick={() => window.open(portalUrl, "_blank")}
+          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1"
+          style={{
+            background: "rgba(36,99,235,0.10)",
+            border: "1px solid rgba(36,99,235,0.28)",
+            color: "#93b4f8",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(36,99,235,0.18)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(36,99,235,0.10)"
+          }}
+        >
+          Manage subscription
+        </button>
+
+        <p className="text-center text-[11.5px] font-sans" style={{ color: "#334155" }}>
+          Cancel anytime · Opens Stripe&apos;s secure billing portal
+        </p>
       </div>
     </div>
   )
