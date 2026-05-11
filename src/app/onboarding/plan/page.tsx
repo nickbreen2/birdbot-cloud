@@ -83,12 +83,8 @@ export default function OnboardingStep3() {
 
   return (
     <OnboardingShell step={3} rightContent={stripePanel}>
-      <h1 style={{
-        fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
-        fontSize: 30, fontWeight: 700, color: 'var(--theme-text-base)',
-        letterSpacing: '-0.7px', lineHeight: 1.2, marginBottom: 10,
-      }}>
-        Start your<br />7&#8209;day free trial
+      <h1 className="ob-h1">
+        Start your 7&#8209;day free trial
       </h1>
 
       <p style={{ fontSize: 15, color: 'var(--theme-text-dim)', lineHeight: 1.6, marginBottom: 20 }}>
@@ -96,37 +92,47 @@ export default function OnboardingStep3() {
       </p>
 
       {/* Plan toggle */}
-      <div style={{
-        display: 'flex', gap: 6, background: 'rgba(255,255,255,0.06)',
-        borderRadius: 12, padding: 4, marginBottom: 20,
-      }}>
-        {(['monthly', 'annual'] as const).map(p => (
-          <button
-            key={p}
-            onClick={() => setPlan(p)}
-            style={{
-              flex: 1, height: 40, border: 'none', borderRadius: 9, cursor: 'pointer',
-              fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
-              fontSize: 14, fontWeight: 500,
-              background: plan === p ? 'rgba(255,255,255,0.10)' : 'transparent',
-              color: plan === p ? 'var(--theme-text-base)' : 'var(--theme-text-muted)',
-              boxShadow: plan === p ? '0 1px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08)' : 'none',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              transition: 'all 0.15s',
-            }}
-          >
-            {PLAN_PRICES[p].label}&nbsp;
-            <span style={{ fontWeight: 600 }}>{PLAN_PRICES[p].sub}</span>
-            {p === 'annual' && (
-              <span style={{
-                fontSize: 10, fontWeight: 700, letterSpacing: '0.2px',
-                background: 'rgba(5,150,105,0.2)', color: '#34d399',
-                border: '1px solid rgba(52,211,153,0.3)',
-                padding: '2px 6px', borderRadius: 20,
-              }}>Save 44%</span>
-            )}
-          </button>
-        ))}
+      <div style={{ position: 'relative', marginBottom: 20, marginTop: 28 }}>
+        {/* Header tab above annual button — matches its width (50% minus padding+gap) */}
+        <div style={{
+          position: 'absolute',
+          top: -24, right: 4,
+          width: 'calc(50% - 7px)',
+          background: '#059669',
+          color: '#fff',
+          fontSize: 10, fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.6px',
+          textAlign: 'center',
+          padding: '5px 8px',
+          borderRadius: '7px 7px 0 0',
+          pointerEvents: 'none',
+        }}>SAVE 44%</div>
+        <div style={{
+          display: 'flex', gap: 6,
+          background: 'linear-gradient(to right, rgba(255,255,255,0.06) 50%, rgba(5,150,105,0.09) 100%)',
+          borderRadius: 12, padding: 4,
+        }}>
+          {(['monthly', 'annual'] as const).map(p => (
+            <button
+              key={p}
+              onClick={() => setPlan(p)}
+              style={{
+                flex: 1, height: 40, border: 'none', borderRadius: 9, cursor: 'pointer',
+                fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
+                fontSize: 14, fontWeight: 500,
+                background: plan === p ? 'rgba(255,255,255,0.10)' : 'transparent',
+                color: plan === p ? 'var(--theme-text-base)' : 'var(--theme-text-muted)',
+                boxShadow: plan === p ? '0 1px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08)' : 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                transition: 'all 0.15s',
+              }}
+            >
+              {PLAN_PRICES[p].label}&nbsp;
+              <span style={{ fontWeight: 600 }}>{PLAN_PRICES[p].sub}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Benefits */}

@@ -39,11 +39,7 @@ export default function OnboardingStep1() {
 
   return (
     <OnboardingShell step={1}>
-      <h1 style={{
-        fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
-        fontSize: 30, fontWeight: 700, color: 'var(--theme-text-base)',
-        letterSpacing: '-0.7px', lineHeight: 1.2, marginBottom: 10,
-      }}>
+      <h1 className="ob-h1">
         Pick a home for your BirdBot
       </h1>
 
@@ -52,13 +48,13 @@ export default function OnboardingStep1() {
       </p>
 
       {/* Platform cards */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 28 }}>
+      <div className="ob-platform-list" style={{ marginBottom: 28 }}>
         <PlatformCard
           label="Telegram"
           selected={selected === 'telegram'}
           onClick={() => setSelected('telegram')}
           iconBg="transparent"
-          icon={<img src="/Telegram.svg" alt="Telegram" style={{ width: 42, height: 42, borderRadius: 12 }} />}
+          icon={<img src="/Telegram.svg" alt="Telegram" style={{ borderRadius: 12 }} />}
         />
 
         <PlatformCard
@@ -66,7 +62,7 @@ export default function OnboardingStep1() {
           selected={false}
           disabled
           iconBg="transparent"
-          icon={<img src="/Whatsapp.svg" alt="WhatsApp" style={{ width: 42, height: 42, borderRadius: 12 }} />}
+          icon={<img src="/Whatsapp.svg" alt="WhatsApp" style={{ borderRadius: 12 }} />}
         />
 
         <PlatformCard
@@ -74,7 +70,7 @@ export default function OnboardingStep1() {
           selected={false}
           disabled
           iconBg="transparent"
-          icon={<img src="/IMessage.svg" alt="iMessage" style={{ width: 42, height: 42, borderRadius: 12 }} />}
+          icon={<img src="/IMessage.svg" alt="iMessage" style={{ borderRadius: 12 }} />}
         />
       </div>
 
@@ -110,28 +106,22 @@ function PlatformCard({
 }) {
   return (
     <div
+      className="ob-platform-card"
       onClick={disabled ? undefined : onClick}
       style={{
-        flex: 1, height: 144,
+        flex: 1,
         border: `1.5px solid ${selected ? '#2463EB' : 'rgba(255,255,255,0.10)'}`,
-        borderRadius: 18,
+        borderRadius: 12,
         background: selected ? 'rgba(36,99,235,0.15)' : 'rgba(255,255,255,0.04)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10,
         cursor: disabled ? 'not-allowed' : 'pointer',
         position: 'relative',
-        opacity: disabled ? 0.3 : 1,
+        opacity: disabled ? 0.55 : 1,
         boxShadow: selected ? '0 0 0 4px rgba(36,99,235,.2)' : 'none',
         transition: 'border-color 0.18s, background 0.18s',
       }}
     >
       {disabled && (
-        <span style={{
-          position: 'absolute', top: -9, right: 12,
-          fontSize: 9, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
-          background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.3)',
-          border: '1px solid rgba(255,255,255,0.10)',
-          borderRadius: 99, padding: '2px 8px',
-        }}>Soon</span>
+        <span className="ob-platform-soon">Coming soon</span>
       )}
       {selected && (
         <div style={{
@@ -144,11 +134,7 @@ function PlatformCard({
           </svg>
         </div>
       )}
-      <div style={{
-        width: 58, height: 58, borderRadius: 16,
-        background: iconBg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div className="ob-platform-icon" style={{ background: iconBg }}>
         {icon}
       </div>
       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--theme-text-base)', letterSpacing: '-0.2px' }}>

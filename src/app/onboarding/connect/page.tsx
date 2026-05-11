@@ -40,12 +40,8 @@ export default function OnboardingStep2() {
 
   return (
     <OnboardingShell step={2}>
-      <h1 style={{
-        fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
-        fontSize: 30, fontWeight: 700, color: 'var(--theme-text-base)',
-        letterSpacing: '-0.7px', lineHeight: 1.2, marginBottom: 10,
-      }}>
-        Get the most out of BirdBot<br />by connecting your essentials
+      <h1 className="ob-h1">
+        Get the most out of BirdBot by connecting your essentials
       </h1>
 
       <p style={{ fontSize: 15, color: 'var(--theme-text-dim)', lineHeight: 1.6, marginBottom: 20 }}>

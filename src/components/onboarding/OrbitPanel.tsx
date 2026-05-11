@@ -4,14 +4,11 @@ import { OnboardingOrbitVisual } from './OnboardingOrbitVisual'
 
 export function OrbitPanel({ children, step }: { children?: React.ReactNode; step?: number }) {
   return (
-    <div style={{
-      width: '50%',
+    <div className="ob-right" style={{
       height: '100%',
       background: 'var(--theme-depth)',
-      display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      flexShrink: 0,
       position: 'relative',
     }}>
       {/* Atmospheric background glow */}

@@ -1,6 +1,6 @@
 // src/components/onboarding/OnboardingShell.tsx
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { OrbitPanel } from './OrbitPanel'
 
@@ -29,6 +29,15 @@ const STEP_ROUTES: Record<number, string> = {
 
 export function OnboardingShell({ step, children, rightContent }: { step: Step; children: React.ReactNode; rightContent?: React.ReactNode }) {
   const router = useRouter()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   function handleSegmentClick(segIndex: number) {
     const targetStep = segIndex + 1
@@ -40,16 +49,7 @@ export function OnboardingShell({ step, children, rightContent }: { step: Step; 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--theme-depth)' }}>
       {/* Left panel */}
-      <div style={{
-        width: '50%',
-        height: '100%',
-        padding: '0 148px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        overflowY: 'auto',
-        position: 'relative',
-      }}>
+      <div className="ob-left">
         {/* Subtle atmospheric gradient top-left */}
         <div aria-hidden style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -69,7 +69,7 @@ export function OnboardingShell({ step, children, rightContent }: { step: Step; 
         </div>
 
         {/* Progress bar */}
-        <div style={{ position: 'relative', display: 'flex', gap: 5, width: '100%', marginBottom: 28 }}>
+        <div className="ob-progress">
           {[0, 1, 2].map(i => {
             const cls = segClass(i, step)
             const isBack = i + 1 < step
@@ -92,10 +92,17 @@ export function OnboardingShell({ step, children, rightContent }: { step: Step; 
         <div style={{ position: 'relative' }}>
           {children}
         </div>
+
+        {/* Mobile/tablet: payment form rendered inline below left content */}
+        {isMobile && rightContent && (
+          <div className="ob-mobile-payment">
+            {rightContent}
+          </div>
+        )}
       </div>
 
-      {/* Right panel */}
-      <OrbitPanel step={step}>{rightContent}</OrbitPanel>
+      {/* Right panel — desktop only; gets rightContent only when not mobile */}
+      <OrbitPanel step={step}>{isMobile ? undefined : rightContent}</OrbitPanel>
     </div>
   )
 }
