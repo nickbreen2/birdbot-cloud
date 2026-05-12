@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useCallback } from "react"
 import { usePathname, useRouter } from "next/navigation"
-import { useAuth, SignOutButton } from "@clerk/nextjs"
+import { useAuth, SignOutButton, useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
@@ -19,6 +19,8 @@ export function Navbar() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'sign-in' | 'sign-up'>('sign-in')
   const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const onboardingComplete = user?.publicMetadata?.onboardingComplete === true
   const pathname = usePathname()
   const router = useRouter()
 
@@ -116,7 +118,7 @@ export function Navbar() {
                 Sign out
               </button>
             </SignOutButton>
-            <Link href="/dashboard">
+            <Link href={onboardingComplete ? "/dashboard" : "/onboarding"}>
               <button
                 className="text-sm px-4 py-2 rounded-lg font-sans flex items-center gap-1.5 transition-colors hover:opacity-90"
                 style={{
@@ -125,7 +127,7 @@ export function Navbar() {
                   color: "#f1f5f9",
                 }}
               >
-                Dashboard <span>→</span>
+                {onboardingComplete ? "Dashboard" : "Finish Setup"} <span>→</span>
               </button>
             </Link>
           </div>
@@ -207,7 +209,7 @@ export function Navbar() {
                       Sign out
                     </button>
                   </SignOutButton>
-                  <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  <Link href={onboardingComplete ? "/dashboard" : "/onboarding"} onClick={() => setOpen(false)}>
                     <button
                       className="w-full text-sm px-3 py-2.5 rounded-xl font-sans flex items-center justify-between transition-colors hover:opacity-90"
                       style={{
@@ -216,7 +218,7 @@ export function Navbar() {
                         color: "#f1f5f9",
                       }}
                     >
-                      Dashboard <span>→</span>
+                      {onboardingComplete ? "Dashboard" : "Finish Setup"} <span>→</span>
                     </button>
                   </Link>
                 </>

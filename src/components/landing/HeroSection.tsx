@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { useAuth } from "@clerk/nextjs"
+import { useAuth, useUser } from "@clerk/nextjs"
 import { BirdbotIcon } from "@/components/ui/BirdbotIcon"
 
 const WORDS = ["remembering.", "taking notes.", "scheduling.", "drafting emails.", "finding things."]
@@ -10,6 +10,8 @@ const LONGEST_WORD = "drafting emails."
 
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const onboardingComplete = user?.publicMetadata?.onboardingComplete === true
   const [wordIndex, setWordIndex] = useState(0)
   const [visible, setVisible] = useState(true)
 
@@ -124,7 +126,7 @@ export function HeroSection() {
         {/* CTA */}
         <div style={{ animation: "slide-up 0.6s 0.35s ease-out both" }}>
           <Link
-            href={isLoaded && isSignedIn ? "/dashboard" : "/sign-up"}
+            href={isLoaded && isSignedIn ? (onboardingComplete ? "/dashboard" : "/onboarding") : "/sign-up"}
             className="group inline-flex items-center gap-3 rounded-2xl font-heading font-semibold text-white transition-all duration-200 hover:scale-[1.025]"
             style={{
               padding: "15px 28px",
@@ -135,7 +137,7 @@ export function HeroSection() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-            {isLoaded && isSignedIn ? "Go to Dashboard" : "Try BirdBot free"}
+            {isLoaded && isSignedIn ? (onboardingComplete ? "Go to Dashboard" : "Finish Setup") : "Try BirdBot free"}
             <span
               className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
               style={{

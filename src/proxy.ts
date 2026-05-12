@@ -36,10 +36,16 @@ export default clerkMiddleware(async (auth, request) => {
       .map((e) => e.trim())
       .filter(Boolean)
 
+    console.log('[proxy] dashboard hit, onboardingComplete not set')
+    console.log('[proxy] adminEmails:', adminEmails)
+    console.log('[proxy] userId:', userId)
+
     if (adminEmails.length > 0) {
       const clerk = await clerkClient()
       const user = await clerk.users.getUser(userId)
       const email = user.emailAddresses[0]?.emailAddress ?? ''
+      console.log('[proxy] clerk user email:', email)
+      console.log('[proxy] email in adminEmails:', adminEmails.includes(email))
       if (adminEmails.includes(email)) {
         // Mark onboarding complete so future requests skip this API call
         await clerk.users.updateUserMetadata(userId, {
@@ -49,6 +55,7 @@ export default clerkMiddleware(async (auth, request) => {
       }
     }
 
+    console.log('[proxy] redirecting to /onboarding')
     return NextResponse.redirect(new URL('/onboarding', request.url))
   }
 

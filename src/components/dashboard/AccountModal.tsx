@@ -778,18 +778,7 @@ function BillingSection() {
           type="button"
           onClick={handleManageClick}
           disabled={portalLoading}
-          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-60"
-          style={{
-            background: "rgba(36,99,235,0.10)",
-            border: "1px solid rgba(36,99,235,0.28)",
-            color: "#93b4f8",
-          }}
-          onMouseEnter={(e) => {
-            if (!portalLoading) e.currentTarget.style.background = "rgba(36,99,235,0.18)"
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(36,99,235,0.10)"
-          }}
+          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
         >
           {portalLoading ? 'Opening…' : 'Manage subscription'}
         </button>

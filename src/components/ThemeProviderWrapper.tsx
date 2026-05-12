@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { usePathname } from "next/navigation"
 
 type Theme = "light" | "dark" | "system"
 
@@ -13,10 +14,10 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
+  theme: "light",
   setTheme: () => {},
-  resolvedTheme: "dark",
-  systemTheme: "dark",
+  resolvedTheme: "light",
+  systemTheme: "light",
   themes: ["light", "dark", "system"],
 })
 
@@ -33,33 +34,42 @@ function apply(theme: Theme, sys: "light" | "dark") {
   document.documentElement.setAttribute("data-theme", resolved)
 }
 
-export function ThemeProviderWrapper({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark")
-  const [sys, setSys] = useState<"light" | "dark">("dark")
+const DASH_PREFIXES = ["/dashboard", "/sign-in", "/sign-up", "/sso-callback", "/demo"]
 
+export function ThemeProviderWrapper({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>("light")
+  const [sys, setSys] = useState<"light" | "dark">("light")
+  const pathname = usePathname()
+
+  // Set up system theme listener once
   useEffect(() => {
-    const stored = (localStorage.getItem("theme") as Theme) || "dark"
+    const stored = (localStorage.getItem("theme") as Theme) || "light"
     const system = getSystem()
     setSys(system)
     setThemeState(stored)
-    // Only apply stored theme for dashboard routes; landing pages and 404 keep data-theme="landing"
-    const dashPrefixes = ["/dashboard", "/sign-in", "/sign-up", "/sso-callback", "/demo"]
-    const path = window.location.pathname
-    const isDash = dashPrefixes.some(p => path === p || path.startsWith(p + "/"))
-    if (isDash) {
-      apply(stored, system)
-    }
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)")
     const onChange = (e: MediaQueryListEvent) => {
       const newSys: "light" | "dark" = e.matches ? "dark" : "light"
       setSys(newSys)
-      const current = (localStorage.getItem("theme") as Theme) || "dark"
+      const current = (localStorage.getItem("theme") as Theme) || "light"
       if (current === "system") apply("system", newSys)
     }
     mq.addEventListener("change", onChange)
     return () => mq.removeEventListener("change", onChange)
   }, [])
+
+  // Re-apply correct data-theme on every route change
+  useEffect(() => {
+    const isDash = DASH_PREFIXES.some(p => pathname === p || pathname.startsWith(p + "/"))
+    if (isDash) {
+      const stored = (localStorage.getItem("theme") as Theme) || "light"
+      apply(stored, sys)
+    } else {
+      // Onboarding, landing, and all other routes use the landing theme
+      document.documentElement.setAttribute("data-theme", "landing")
+    }
+  }, [pathname, sys])
 
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t)

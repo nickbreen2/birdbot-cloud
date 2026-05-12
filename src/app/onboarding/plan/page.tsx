@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from '@clerk/nextjs'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   Elements,
@@ -171,6 +172,7 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
+  const { session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -215,6 +217,9 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
         return
       }
 
+      // Force Clerk to refresh the session JWT so the middleware sees
+      // onboardingComplete: true before we navigate to /dashboard.
+      await session?.reload()
       router.push('/dashboard')
     } catch {
       setError('Something went wrong. Please check your connection and try again.')

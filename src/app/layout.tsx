@@ -94,7 +94,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <style dangerouslySetInnerHTML={{ __html: `html,body{background-color:#0a0e1a}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var d=["/dashboard","/onboarding","/sign-in","/sign-up","/sso-callback","/demo"],p=window.location.pathname;if(!d.some(function(x){return p===x||p.startsWith(x+"/")}))return;var t=localStorage.getItem("theme")||"dark";if(t==="system")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})();` }} />
       </head>
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
         <ThemeProviderWrapper>

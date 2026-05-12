@@ -1,6 +1,7 @@
 // src/components/onboarding/OnboardingShell.tsx
 "use client"
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { OrbitPanel } from './OrbitPanel'
 
@@ -58,14 +59,17 @@ export function OnboardingShell({ step, children, rightContent }: { step: Step; 
 
         {/* Brand row */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-          <span style={{
-            fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
-            fontSize: 26, fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, userSelect: 'none',
-            background: 'linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>BirdBot</span>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span style={{
+              fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
+              fontSize: 26, fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, userSelect: 'none',
+              background: 'linear-gradient(155deg, #ffffff 0%, #e0f2fe 25%, #bae6fd 48%, #93c5fd 72%, #60a5fa 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              cursor: 'pointer',
+            }}>BirdBot</span>
+          </Link>
         </div>
 
         {/* Progress bar */}

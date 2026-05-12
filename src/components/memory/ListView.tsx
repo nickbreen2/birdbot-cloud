@@ -187,9 +187,9 @@ function EmptyState() {
       </p>
       <Link
         href="/dashboard/integrations"
-        className="px-4 py-2 rounded-xl text-sm font-semibold font-sans bg-blue/10 border border-blue/20 text-blue-bright hover:bg-blue/20 transition-colors"
+        className="px-4 py-2 rounded-xl text-sm font-semibold font-sans bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-100 transition-colors"
       >
-        Set up Telegram
+        Choose a home
       </Link>
     </div>
   )
