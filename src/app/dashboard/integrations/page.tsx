@@ -500,7 +500,7 @@ export default function IntegrationsPage() {
       {/* Connect Telegram modal */}
       {showConnectModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -541,12 +541,7 @@ export default function IntegrationsPage() {
                 <button
                   onClick={handleConnect}
                   disabled={connecting}
-                  className="w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors disabled:opacity-50"
-                  style={{
-                    background: "rgba(56,189,248,0.1)",
-                    border: "1px solid rgba(56,189,248,0.22)",
-                    color: "#38bdf8",
-                  }}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
                 >
                   {connecting ? (
                     <span className="flex items-center justify-center gap-2">
@@ -568,12 +563,7 @@ export default function IntegrationsPage() {
                   href={pairing.deepLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold font-sans mb-3 transition-colors"
-                  style={{
-                    background: "rgba(56,189,248,0.1)",
-                    border: "1px solid rgba(56,189,248,0.22)",
-                    color: "#38bdf8",
-                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold font-sans mb-3 transition-colors bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
                 >
                   <ExternalLink size={13} /> Open in Telegram
                 </a>
@@ -597,7 +587,7 @@ export default function IntegrationsPage() {
       {/* Connect Google modal */}
       {showGoogleConnectModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowGoogleConnectModal(false) }}
         >
@@ -616,8 +606,7 @@ export default function IntegrationsPage() {
             </p>
             <a
               href="/api/google/connect"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors"
-              style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.22)", color: "#34d399" }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
             >
               Connect Google Account
             </a>
@@ -628,7 +617,7 @@ export default function IntegrationsPage() {
       {/* Disconnect Google modal */}
       {showGoogleDisconnect && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -678,7 +667,7 @@ export default function IntegrationsPage() {
       {/* Disconnect confirmation modal */}
       {showDisconnect && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {

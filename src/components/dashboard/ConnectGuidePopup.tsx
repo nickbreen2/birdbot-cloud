@@ -1,14 +1,17 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useSession } from '@clerk/nextjs'
 import { ExternalLink, RefreshCw, X } from 'lucide-react'
 
-const STORAGE_KEY = 'hasSeenConnectGuide'
+function popupKey(sessionId: string) { return `cgPopupDismissed_${sessionId}` }
+function bannerKey(sessionId: string) { return `cgBannerDismissed_${sessionId}` }
 
 type PairResult = { deepLink: string; expiresAt: string }
 type Stage = 'idle' | 'generating' | 'link_ready' | 'connected'
+type View = 'popup' | 'banner' | 'hidden'
 
 function getStepState(stepIdx: number, stage: Stage): 'done' | 'active' | 'pending' {
   if (stage === 'connected') return 'done'
@@ -24,27 +27,34 @@ const STEP_LABELS = [
 
 export function ConnectGuidePopup() {
   const { user, isLoaded } = useUser()
+  const { session } = useSession()
   const platform = (user?.publicMetadata?.platform as string) ?? 'telegram'
 
-  const [visible, setVisible] = useState(false)
+  const [view, setView] = useState<View>('hidden')
   const [stage, setStage] = useState<Stage>('idle')
   const [pairing, setPairing] = useState<PairResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    if (!isLoaded) return
-    try {
-      if (localStorage.getItem(STORAGE_KEY)) return
-    } catch {}
+    if (!isLoaded || !session) return
+    if (platform !== 'telegram') return
 
-    if (platform === 'telegram') {
-      fetch('/api/telegram/status')
-        .then(r => r.json())
-        .then((data: { paired: boolean }) => { if (!data.paired) setVisible(true) })
-        .catch(() => setVisible(true))
-    }
-  }, [isLoaded, platform])
+    fetch('/api/telegram/status')
+      .then(r => r.json())
+      .then((data: { paired: boolean }) => {
+        if (data.paired) return
+        try {
+          const popupDismissed = sessionStorage.getItem(popupKey(session.id))
+          const bannerDismissed = sessionStorage.getItem(bannerKey(session.id))
+          if (bannerDismissed) return
+          if (popupDismissed) { setView('banner'); return }
+        } catch {}
+        setView('popup')
+      })
+      .catch(() => setView('popup'))
+  }, [isLoaded, session, platform])
 
   useEffect(() => {
     if (stage !== 'link_ready') return
@@ -61,9 +71,34 @@ export function ConnectGuidePopup() {
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [stage])
 
-  function dismiss() {
-    try { localStorage.setItem(STORAGE_KEY, 'true') } catch {}
-    setVisible(false)
+  useEffect(() => { setMounted(true) }, [])
+
+  function dismissPopup() {
+    try { if (session) sessionStorage.setItem(popupKey(session.id), 'true') } catch {}
+    setView('banner')
+    if (pollRef.current) clearInterval(pollRef.current)
+  }
+
+  function dismissBanner() {
+    try { if (session) sessionStorage.setItem(bannerKey(session.id), 'true') } catch {}
+    setView('hidden')
+  }
+
+  function reopenPopup() {
+    setStage('idle')
+    setPairing(null)
+    setError(null)
+    setView('popup')
+  }
+
+  function dismissConnected() {
+    try {
+      if (session) {
+        sessionStorage.setItem(popupKey(session.id), 'true')
+        sessionStorage.setItem(bannerKey(session.id), 'true')
+      }
+    } catch {}
+    setView('hidden')
     if (pollRef.current) clearInterval(pollRef.current)
   }
 
@@ -82,9 +117,90 @@ export function ConnectGuidePopup() {
     }
   }
 
-  if (!visible) return null
+  if (view === 'hidden') return null
 
-  return (
+  if (view === 'banner') {
+    return (
+      <>
+      <div className="cg-banner" style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        background: 'rgba(36,99,235,0.07)',
+        borderBottom: '1px solid rgba(36,99,235,0.18)',
+        padding: '10px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}>
+        <Image src="/Telegram.svg" alt="Telegram" width={22} height={22} className="cg-banner__logo" style={{ flexShrink: 0 }} />
+        <span className="cg-banner__text cg-banner__text--full" style={{ fontSize: 13, color: 'var(--theme-text-base)', flex: 1, lineHeight: 1.4 }}>
+          Connect Telegram to start talking to Bird.
+        </span>
+        <span className="cg-banner__text cg-banner__text--short" style={{ fontSize: 13, color: 'var(--theme-text-base)', flex: 1, lineHeight: 1.4 }}>
+          Connect Telegram
+        </span>
+        <button
+          onClick={reopenPopup}
+          style={{
+            padding: '6px 14px',
+            borderRadius: 8,
+            background: '#2463EB',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
+          Connect
+        </button>
+        <button
+          onClick={dismissBanner}
+          style={{
+            width: 26,
+            height: 26,
+            borderRadius: '50%',
+            background: 'transparent',
+            border: '1px solid var(--theme-border)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--theme-text-muted)',
+            flexShrink: 0,
+          }}
+        >
+          <X size={12} />
+        </button>
+      </div>
+      <style>{`
+        [data-theme="dark"] .cg-banner {
+          background: rgba(36,99,235,0.18) !important;
+          border-bottom-color: rgba(36,99,235,0.35) !important;
+        }
+        [data-theme="dark"] .cg-banner__text {
+          color: rgba(147,197,253,0.9) !important;
+        }
+        .cg-banner__text--short { display: none; }
+        @media (max-width: 639px) {
+          .cg-banner__logo { display: none; }
+          .cg-banner__text--full { display: none; }
+          .cg-banner__text--short { display: inline; font-size: 16px; font-weight: 600; }
+        }
+      `}</style>
+      </>
+    )
+  }
+
+  if (!mounted) return null
+
+  return createPortal(
     <>
       <div
         style={{
@@ -108,7 +224,7 @@ export function ConnectGuidePopup() {
 
         {stage !== 'connected' && (
           <button
-            onClick={dismiss}
+            onClick={dismissPopup}
             style={{
               position: 'absolute', top: 16, right: 16,
               width: 28, height: 28, borderRadius: '50%',
@@ -143,7 +259,7 @@ export function ConnectGuidePopup() {
               Bird is now listening on Telegram. Send it your first message to get started.
             </p>
             <button
-              onClick={dismiss}
+              onClick={dismissConnected}
               style={{
                 width: '100%', height: 44, background: '#2463EB', color: '#fff',
                 border: 'none', borderRadius: 12, cursor: 'pointer',
@@ -253,7 +369,7 @@ export function ConnectGuidePopup() {
             )}
 
             <button
-              onClick={dismiss}
+              onClick={dismissPopup}
               style={{
                 display: 'block', width: '100%', marginTop: 14,
                 background: 'none', border: 'none', cursor: 'pointer',
@@ -274,6 +390,7 @@ export function ConnectGuidePopup() {
           }
         `}</style>
       </div>
-    </>
+    </>,
+    document.body
   )
 }

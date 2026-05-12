@@ -6,6 +6,7 @@ import { SettingsModal } from "@/components/dashboard/SettingsModal"
 import { AccountModal } from "@/components/dashboard/AccountModal"
 import { WizardProvider } from "@/components/onboarding/WizardContext"
 import { ExpiredBanner } from "@/components/dashboard/ExpiredBanner"
+import { ConnectGuidePopup } from "@/components/dashboard/ConnectGuidePopup"
 import { prisma } from "@/lib/prisma"
 
 export default async function DashboardLayout({
@@ -47,6 +48,7 @@ export default async function DashboardLayout({
         <Sidebar />
         <main className="flex-1 lg:ml-64 lg:h-screen overflow-y-auto hide-scrollbar dashboard-main flex flex-col">
           {isExpired && <ExpiredBanner />}
+          <ConnectGuidePopup />
           {children}
         </main>
         <BottomTabBar />

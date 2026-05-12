@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { MessageCircle, Brain, GitBranch } from "lucide-react"
 import { LoopHistoryPanel } from "@/components/dashboard/LoopHistoryPanel"
-import { ConnectGuidePopup } from "@/components/dashboard/ConnectGuidePopup"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -251,7 +250,6 @@ export default function HQPage() {
     </div>
 
     <LoopHistoryPanel open={historyOpen} onClose={closeHistory} onUndo={addLoopBack} />
-    <ConnectGuidePopup />
-    </>
+</>
   )
 }
