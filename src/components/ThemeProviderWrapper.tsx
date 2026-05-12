@@ -34,7 +34,7 @@ function apply(theme: Theme, sys: "light" | "dark") {
   document.documentElement.setAttribute("data-theme", resolved)
 }
 
-const DASH_PREFIXES = ["/dashboard", "/sign-in", "/sign-up", "/sso-callback", "/demo"]
+const DASH_PREFIXES = ["/dashboard", "/demo"]
 
 export function ThemeProviderWrapper({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light")

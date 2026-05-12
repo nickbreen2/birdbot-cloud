@@ -27,6 +27,10 @@ type GoogleIntent =
 const unpairedCooldown = new Map<number, number>()
 const UNPAIRED_COOLDOWN_MS = 10 * 60 * 1000
 
+// Rate-limit expired-subscription replies: one per userId per 24 hours
+const expiredCooldown = new Map<string, number>()
+const EXPIRED_COOLDOWN_MS = 24 * 60 * 60 * 1000
+
 type TelegramProcessPayload = {
   telegramId: number
   chatId: number
@@ -246,6 +250,31 @@ async function handleMessage(
   userId: string
 ): Promise<void> {
   const { chatId, messageId, text } = payload
+
+  // Check subscription status before processing
+  const subscription = await prisma.subscription.findUnique({
+    where: { clerkUserId: userId },
+    select: { status: true, currentPeriodEnd: true },
+  })
+
+  const isActive =
+    subscription &&
+    (subscription.status === "active" || subscription.status === "trialing") &&
+    subscription.currentPeriodEnd > new Date()
+
+  if (!isActive) {
+    const lastSent = expiredCooldown.get(userId) ?? 0
+    if (Date.now() - lastSent > EXPIRED_COOLDOWN_MS) {
+      expiredCooldown.set(userId, Date.now())
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
+      await sendTelegramMessage(
+        chatId,
+        "Hey, it looks like your BirdBot subscription has ended. I'd love to keep helping you, but I need to be reactivated to do that. Once reactivated, we'll pick right up where we left off."
+      )
+      await sendTelegramMessage(chatId, `${appUrl}/sign-in`)
+    }
+    return
+  }
 
   // Check if user is confirming a pending write action
   const pendingHandled = await checkAndExecutePendingAction(chatId, userId, text)

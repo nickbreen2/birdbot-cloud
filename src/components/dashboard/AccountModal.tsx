@@ -114,13 +114,13 @@ export function AccountModal() {
                   onClick={() => selectSection("danger")}
                   className={`w-full text-left px-4 py-3.5 text-sm font-sans transition-all rounded-xl ${
                     section === "danger"
-                      ? "border-l-2 border-red-400 text-red-300 font-medium"
-                      : "border-l-2 border-transparent text-red-400 hover:text-red-300 hover:bg-red-500/[0.08]"
+                      ? "border-l-2 border-red-600 font-medium"
+                      : "border-l-2 border-transparent hover:bg-red-500/[0.08]"
                   }`}
                   style={
                     section === "danger"
-                      ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)" }
-                      : undefined
+                      ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)", color: "#dc2626" }
+                      : { color: "#dc2626" }
                   }
                 >
                   ⚠ Danger Zone
@@ -167,13 +167,13 @@ export function AccountModal() {
                 onClick={() => setSection("danger")}
                 className={`w-full text-left px-3 py-2.5 text-sm font-sans transition-all rounded-r-xl ${
                   section === "danger"
-                    ? "border-l-2 border-red-400 text-red-300 font-medium"
-                    : "border-l-2 border-transparent text-red-400 hover:text-red-300 hover:bg-red-500/[0.08]"
+                    ? "border-l-2 border-red-600 font-medium"
+                    : "border-l-2 border-transparent hover:bg-red-500/[0.08]"
                 }`}
                 style={
                   section === "danger"
-                    ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)" }
-                    : undefined
+                    ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)", color: "#dc2626" }
+                    : { color: "#dc2626" }
                 }
               >
                 ⚠ Danger Zone
@@ -805,13 +805,14 @@ function DangerSection({
   user: NonNullable<ReturnType<typeof useUser>["user"]>
   onClose: () => void
 }) {
+  const { signOut } = useClerk()
   const [confirming, setConfirming] = useState(false)
   const [killInput, setKillInput]   = useState("")
   const [deleting, setDeleting]     = useState(false)
   const [error, setError]           = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const killPhrase = "Shut Down my Account Forever"
+  const killPhrase = "I want to kill my BirdBot"
   const canDelete  = killInput === killPhrase
 
   function startConfirm() {
@@ -825,8 +826,10 @@ function DangerSection({
     setDeleting(true)
     setError("")
     try {
+      const res = await fetch("/api/account", { method: "DELETE" })
+      if (!res.ok) throw new Error("cleanup failed")
       await user.delete()
-      onClose()
+      await signOut({ redirectUrl: "/" })
     } catch {
       setError("Something went wrong. Please try again.")
       setDeleting(false)
@@ -837,110 +840,158 @@ function DangerSection({
     <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-5">
       {!confirming ? (
         <div
-          className="rounded-xl p-5 flex flex-col gap-4"
+          className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%)",
-            border: "1px solid rgba(239,68,68,0.35)",
-            boxShadow: "inset 0 0 40px rgba(239,68,68,0.04)",
+            background: "var(--theme-surface)",
+            border: "1px solid rgba(239,68,68,0.5)",
           }}
         >
-          <div>
-            <p className="text-sm font-semibold text-red-400 font-sans">Delete account</p>
-            <p className="text-xs text-text-muted font-sans mt-1.5 leading-relaxed">
-              Permanently remove your account and all associated data. This cannot be undone.
+          {/* Header strip — visible on any background */}
+          <div
+            className="px-5 py-3 flex items-center gap-2.5"
+            style={{
+              background: "rgba(239,68,68,0.1)",
+              borderBottom: "1px solid rgba(239,68,68,0.18)",
+            }}
+          >
+            <div
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#ef4444",
+                boxShadow: "0 0 5px #ef4444",
+                flexShrink: 0,
+                animation: "pulse 2s ease-in-out infinite",
+              }}
+            />
+            <p className="text-sm font-mono font-semibold" style={{ color: "#dc2626" }}>
+              Kill my BirdBot
             </p>
           </div>
-          <div>
+
+          {/* Body */}
+          <div className="px-5 py-4 flex flex-col gap-4">
+            <p className="text-xs font-sans leading-relaxed" style={{ color: "#666" }}>
+              Cancels your subscription, revokes all integrations, and permanently destroys your account and every piece of data Bird has learned about you.
+            </p>
             <button
               type="button"
               onClick={startConfirm}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans transition-all"
+              className="self-start px-5 py-2 rounded-xl text-sm font-mono font-semibold transition-all"
               style={{
-                border: "1px solid rgba(239,68,68,0.6)",
-                color: "#f87171",
+                border: "1px solid rgba(239,68,68,0.55)",
+                color: "#dc2626",
                 background: "transparent",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(239,68,68,0.12)"
-                e.currentTarget.style.boxShadow = "0 0 16px rgba(239,68,68,0.2)"
+                e.currentTarget.style.background = "rgba(239,68,68,0.08)"
+                e.currentTarget.style.borderColor = "rgba(239,68,68,0.85)"
+                e.currentTarget.style.boxShadow = "0 0 14px rgba(239,68,68,0.18)"
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "transparent"
+                e.currentTarget.style.borderColor = "rgba(239,68,68,0.55)"
                 e.currentTarget.style.boxShadow = "none"
               }}
             >
-              Shut Down Account
+              Kill my BirdBot →
             </button>
           </div>
         </div>
       ) : (
         <div
-          className="rounded-xl p-5 flex flex-col gap-5"
+          className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(239,68,68,0.04) 100%)",
-            border: "1px solid rgba(239,68,68,0.5)",
-            boxShadow: "0 0 40px rgba(239,68,68,0.08)",
+            background: "var(--theme-surface)",
+            border: "1px solid rgba(239,68,68,0.6)",
+            boxShadow: "0 0 0 3px rgba(239,68,68,0.07)",
           }}
         >
-          <div>
-            <p className="text-sm font-semibold text-red-400 font-sans">⚠ Shut Down my Account Forever?</p>
-            <p className="text-xs text-text-muted font-sans mt-1.5 leading-relaxed">
-              This cannot be undone. Your account and all associated data will be permanently destroyed.
+          {/* Header strip */}
+          <div
+            className="px-5 py-4"
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              borderBottom: "1px solid rgba(239,68,68,0.18)",
+            }}
+          >
+            <p className="text-sm font-mono font-semibold" style={{ color: "#dc2626" }}>
+              Are you sure?
+            </p>
+            <p className="text-xs font-sans mt-1.5 leading-relaxed" style={{ color: "#666" }}>
+              This cannot be undone. Your account, subscription, and everything Bird has learned will be gone forever.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">
-              Type <span className="text-red-400 font-mono normal-case tracking-normal">{killPhrase}</span> to confirm
-            </label>
-            <input
-              ref={inputRef}
-              type="text"
-              value={killInput}
-              onChange={(e) => setKillInput(e.target.value)}
-              placeholder={killPhrase}
-              className="px-4 py-3 rounded-xl text-text-base placeholder:text-text-muted font-sans text-sm focus:outline-none transition-all"
-              style={{
-                background: "var(--theme-surface)",
-                border: "1px solid rgba(239,68,68,0.3)",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.border = "1px solid rgba(239,68,68,0.6)"
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(239,68,68,0.10)"
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.border = "1px solid rgba(239,68,68,0.3)"
-                e.currentTarget.style.boxShadow = "none"
-              }}
-            />
-          </div>
+          {/* Body */}
+          <div className="px-5 py-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[11px] font-mono uppercase tracking-widest" style={{ color: "#555" }}>
+                Type <span className="font-semibold normal-case tracking-normal" style={{ color: "#dc2626" }}>{killPhrase}</span> to confirm
+              </label>
+              <div
+                className="flex items-center gap-2 rounded-xl px-4 py-3 transition-all"
+                style={{
+                  background: "rgba(239,68,68,0.04)",
+                  border: "1px solid rgba(239,68,68,0.35)",
+                }}
+                onFocusCapture={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.border = "1px solid rgba(239,68,68,0.7)"
+                  el.style.boxShadow = "0 0 0 3px rgba(239,68,68,0.08)"
+                }}
+                onBlurCapture={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.border = "1px solid rgba(239,68,68,0.35)"
+                  el.style.boxShadow = "none"
+                }}
+              >
+                <span className="font-mono text-sm select-none" style={{ color: "rgba(239,68,68,0.45)" }}>›</span>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={killInput}
+                  onChange={(e) => setKillInput(e.target.value)}
+                  placeholder="type the phrase above"
+                  className="flex-1 font-mono text-sm bg-transparent focus:outline-none text-text-base placeholder:text-text-muted placeholder:opacity-50"
+                />
+              </div>
+            </div>
 
-          {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
+            {error && (
+              <p className="text-xs font-mono text-red-500">{error}</p>
+            )}
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => { setConfirming(false); setKillInput("") }}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base hover:bg-white/[0.04] transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={!canDelete || deleting}
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans text-white disabled:opacity-35 disabled:cursor-not-allowed transition-all"
-              style={
-                canDelete && !deleting
-                  ? {
-                      background: "linear-gradient(135deg,#b91c1c,#ef4444)",
-                      boxShadow: "0 0 20px rgba(239,68,68,0.4)",
-                    }
-                  : { background: "#7f1d1d" }
-              }
-            >
-              {deleting ? "Deleting…" : killPhrase}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => { setConfirming(false); setKillInput("") }}
+                className="px-4 py-2.5 rounded-xl text-sm font-mono transition-all"
+                style={{ border: "1px solid #aaa", color: "#555" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#222"; e.currentTarget.style.borderColor = "#888" }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "#555"; e.currentTarget.style.borderColor = "#aaa" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!canDelete || deleting}
+                onClick={handleDelete}
+                className="flex-1 py-2.5 rounded-xl text-sm font-mono font-semibold text-white disabled:cursor-not-allowed transition-all"
+                style={
+                  canDelete && !deleting
+                    ? {
+                        background: "linear-gradient(135deg, #991b1b 0%, #dc2626 60%, #ef4444 100%)",
+                        boxShadow: "0 0 20px rgba(239,68,68,0.3), 0 2px 8px rgba(0,0,0,0.12)",
+                        opacity: 1,
+                      }
+                    : { background: "rgba(239,68,68,0.15)", opacity: 0.5 }
+                }
+              >
+                {deleting ? "Deleting…" : killPhrase}
+              </button>
+            </div>
           </div>
         </div>
       )}

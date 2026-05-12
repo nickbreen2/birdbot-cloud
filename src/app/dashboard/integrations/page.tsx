@@ -85,7 +85,7 @@ const SECTIONS: SectionDef[] = [
     subtitle: "Let Bird search and create documents on your behalf",
     accent: "#34d399",
     integrations: [
-      { name: "Google Drive", description: "Search and create docs", icon: null, iconBg: "#4285F4", initials: "GD", googleService: true },
+      { name: "Google Drive", description: "Search and create docs", icon: "/google-drive.svg", iconBg: "", googleService: true },
       { name: "Dropbox",      description: "Search Dropbox files",   icon: null, iconBg: "#0061FF", initials: "Db" },
       { name: "OneDrive",     description: "Search OneDrive",        icon: null, iconBg: "#0078D4", initials: "OD" },
     ],
