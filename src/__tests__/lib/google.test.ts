@@ -82,8 +82,8 @@ describe("getGoogleClient", () => {
   it("returns a client without refreshing when token has 1 hour left", async () => {
     mocks.findUnique.mockResolvedValue({
       userId: "user_1",
-      accessToken: "at",
-      refreshToken: "rt",
+      accessToken: "enc:at",
+      refreshToken: "enc:rt",
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     })
 
@@ -96,8 +96,8 @@ describe("getGoogleClient", () => {
   it("refreshes when token expires in less than 5 minutes", async () => {
     mocks.findUnique.mockResolvedValue({
       userId: "user_1",
-      accessToken: "old_at",
-      refreshToken: "rt",
+      accessToken: "enc:old_at",
+      refreshToken: "enc:rt",
       expiresAt: new Date(Date.now() + 2 * 60 * 1000),
     })
     mocks.refreshAccessToken.mockResolvedValue({
