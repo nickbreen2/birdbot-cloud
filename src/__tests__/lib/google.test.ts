@@ -41,6 +41,11 @@ vi.mock("@/lib/telegram", () => ({
   sendTelegramMessage: mocks.sendTelegramMessage,
 }))
 
+vi.mock("@/lib/tokenEncryption", () => ({
+  encrypt: vi.fn((v: string) => `enc:${v}`),
+  decrypt: vi.fn((v: string) => v.replace(/^enc:/, "")),
+}))
+
 process.env.GOOGLE_CLIENT_ID = "test-client-id"
 process.env.GOOGLE_CLIENT_SECRET = "test-client-secret"
 process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
@@ -102,7 +107,7 @@ describe("getGoogleClient", () => {
     await getGoogleClient("user_1")
     expect(mocks.refreshAccessToken).toHaveBeenCalledOnce()
     expect(mocks.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ accessToken: "new_at" }) })
+      expect.objectContaining({ data: expect.objectContaining({ accessToken: "enc:new_at" }) })
     )
   })
 

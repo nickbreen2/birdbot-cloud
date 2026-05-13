@@ -3,6 +3,7 @@ import type { OAuth2Client } from "google-auth-library"
 import { createHmac, timingSafeEqual } from "crypto"
 import { prisma } from "@/lib/prisma"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { encrypt, decrypt } from "@/lib/tokenEncryption"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const OAuth2Constructor = google.auth.OAuth2 as any
@@ -49,7 +50,10 @@ export async function getGoogleClient(userId: string): Promise<OAuth2Client> {
   if (!conn) throw new Error(`No Google connection for user ${userId}`)
 
   const client = buildOAuthClient()
-  client.setCredentials({ access_token: conn.accessToken, refresh_token: conn.refreshToken })
+  client.setCredentials({
+    access_token: decrypt(conn.accessToken),
+    refresh_token: decrypt(conn.refreshToken),
+  })
 
   const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000)
   if (conn.expiresAt < fiveMinutesFromNow) {
@@ -61,7 +65,7 @@ export async function getGoogleClient(userId: string): Promise<OAuth2Client> {
       await prisma.googleConnection.update({
         where: { userId },
         data: {
-          accessToken: credentials.access_token,
+          accessToken: encrypt(credentials.access_token),
           expiresAt: new Date(credentials.expiry_date),
         },
       })
