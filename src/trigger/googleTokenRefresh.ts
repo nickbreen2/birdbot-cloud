@@ -1,6 +1,7 @@
 import { schedules } from "@trigger.dev/sdk"
 import { prisma } from "@/lib/prisma"
 import { buildOAuthClient, handleTokenRevoked } from "@/lib/google"
+import { decrypt, encrypt } from "@/lib/tokenEncryption"
 
 export const googleTokenRefreshCron = schedules.task({
   id: "google-token-refresh",
@@ -15,13 +16,13 @@ export const googleTokenRefreshCron = schedules.task({
 
     for (const conn of expiring) {
       const client = buildOAuthClient()
-      client.setCredentials({ refresh_token: conn.refreshToken })
+      client.setCredentials({ refresh_token: decrypt(conn.refreshToken) })
       try {
         const { credentials } = await client.refreshAccessToken()
         await prisma.googleConnection.update({
           where: { userId: conn.userId },
           data: {
-            accessToken: credentials.access_token!,
+            accessToken: encrypt(credentials.access_token!),
             expiresAt: new Date(credentials.expiry_date!),
           },
         })
