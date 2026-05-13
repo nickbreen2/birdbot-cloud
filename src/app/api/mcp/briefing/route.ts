@@ -60,7 +60,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ briefing, sessionId })
   } catch (err) {
     console.error("[/api/mcp/briefing] Error:", err)
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

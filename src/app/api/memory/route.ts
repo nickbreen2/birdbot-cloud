@@ -120,7 +120,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ messages, nextCursor, hasMore })
   } catch (err) {
     console.error("[GET /api/memory] Error:", err)
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
