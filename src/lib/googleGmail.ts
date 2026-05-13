@@ -1,6 +1,10 @@
 import { google } from "googleapis"
 import { getGoogleClient } from "@/lib/google"
 
+function sanitizeHeader(value: string): string {
+  return value.replace(/[\r\n]/g, "")
+}
+
 export type EmailSummary = {
   id: string
   threadId: string
@@ -63,7 +67,12 @@ export async function draftEmail(userId: string, details: SendEmailDetails): Pro
   const gmail = google.gmail({ version: "v1", auth: auth as never })
 
   const raw = Buffer.from(
-    [`To: ${details.to}`, `Subject: ${details.subject}`, "", details.body].join("\n")
+    [
+      `To: ${sanitizeHeader(details.to)}`,
+      `Subject: ${sanitizeHeader(details.subject)}`,
+      "",
+      details.body,
+    ].join("\n")
   ).toString("base64url")
 
   const draft = await gmail.users.drafts.create({
@@ -79,7 +88,12 @@ export async function sendEmail(userId: string, details: SendEmailDetails): Prom
   const gmail = google.gmail({ version: "v1", auth: auth as never })
 
   const raw = Buffer.from(
-    [`To: ${details.to}`, `Subject: ${details.subject}`, "", details.body].join("\n")
+    [
+      `To: ${sanitizeHeader(details.to)}`,
+      `Subject: ${sanitizeHeader(details.subject)}`,
+      "",
+      details.body,
+    ].join("\n")
   ).toString("base64url")
 
   await gmail.users.messages.send({ userId: "me", requestBody: { raw } })
