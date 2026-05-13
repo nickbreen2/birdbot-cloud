@@ -20,7 +20,8 @@ export function buildOAuthClient(): OAuth2Client {
 }
 
 export function createState(userId: string): string {
-  const secret = process.env.GOOGLE_OAUTH_STATE_SECRET!
+  const secret = process.env.GOOGLE_OAUTH_STATE_SECRET
+  if (!secret) throw new Error("GOOGLE_OAUTH_STATE_SECRET is not set")
   const sig = createHmac("sha256", secret).update(userId).digest("hex")
   return Buffer.from(`${userId}:${sig}`).toString("base64url")
 }
@@ -33,7 +34,8 @@ export function verifyState(state: string): string | null {
     const userId = decoded.slice(0, colonIdx)
     const sig = decoded.slice(colonIdx + 1)
     if (!userId || !sig) return null
-    const secret = process.env.GOOGLE_OAUTH_STATE_SECRET!
+    const secret = process.env.GOOGLE_OAUTH_STATE_SECRET
+    if (!secret) throw new Error("GOOGLE_OAUTH_STATE_SECRET is not set")
     const expected = createHmac("sha256", secret).update(userId).digest("hex")
     const sigBuf = Buffer.from(sig, "hex")
     const expectedBuf = Buffer.from(expected, "hex")

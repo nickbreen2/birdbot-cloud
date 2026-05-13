@@ -74,6 +74,26 @@ describe("createState / verifyState", () => {
     const badState = Buffer.from("nocolonhere").toString("base64url")
     expect(verifyState(badState)).toBeNull()
   })
+
+  it("createState throws when GOOGLE_OAUTH_STATE_SECRET is not set", () => {
+    const saved = process.env.GOOGLE_OAUTH_STATE_SECRET
+    delete process.env.GOOGLE_OAUTH_STATE_SECRET
+    try {
+      expect(() => createState("user_1")).toThrow("GOOGLE_OAUTH_STATE_SECRET is not set")
+    } finally {
+      process.env.GOOGLE_OAUTH_STATE_SECRET = saved
+    }
+  })
+
+  it("verifyState returns null when GOOGLE_OAUTH_STATE_SECRET is not set", async () => {
+    const saved = process.env.GOOGLE_OAUTH_STATE_SECRET
+    delete process.env.GOOGLE_OAUTH_STATE_SECRET
+    try {
+      expect(verifyState("somestate")).toBeNull()
+    } finally {
+      process.env.GOOGLE_OAUTH_STATE_SECRET = saved
+    }
+  })
 })
 
 describe("getGoogleClient", () => {
