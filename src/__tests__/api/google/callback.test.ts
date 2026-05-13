@@ -36,6 +36,11 @@ vi.mock("@clerk/nextjs/server", () => ({
   }),
 }))
 
+vi.mock("@/lib/tokenEncryption", () => ({
+  encrypt: vi.fn((v: string) => `enc:${v}`),
+  decrypt: vi.fn((v: string) => v.replace(/^enc:/, "")),
+}))
+
 process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
 
 import { GET } from "@/app/api/google/callback/route"
