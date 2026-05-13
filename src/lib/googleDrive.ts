@@ -12,7 +12,9 @@ export async function searchFiles(userId: string, query: string): Promise<DriveF
   const auth = await getGoogleClient(userId)
   const drive = google.drive({ version: "v3", auth: auth as never })
 
-  const safeQuery = query.replace(/'/g, "\\'")
+  // Escape single quotes per Google Drive FQL spec; strip backslashes to prevent
+  // backslash-escape bypass.
+  const safeQuery = query.replace(/\\/g, "").replace(/'/g, "\\'")
   const response = await drive.files.list({
     q: `name contains '${safeQuery}' and trashed = false`,
     fields: "files(id, name, mimeType, webViewLink)",

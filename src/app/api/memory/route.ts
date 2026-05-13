@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const query = searchParams.get("query")?.trim() ?? ""
+    const query = (searchParams.get("query") ?? "").trim().slice(0, 500)
     const rawLimit = parseInt(searchParams.get("limit") ?? "20", 10)
     const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 100)
     const cursorParam = searchParams.get("cursor") ?? null

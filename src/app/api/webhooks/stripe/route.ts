@@ -38,7 +38,8 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session
       await tasks.trigger<typeof handleStripeCheckoutCompleted>(
         "stripe-checkout-completed",
-        { session }
+        { session },
+        { idempotencyKey: event.id }
       )
       break
     }
@@ -47,7 +48,8 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       await tasks.trigger<typeof handleStripeSubscriptionUpdated>(
         "stripe-subscription-updated",
-        { subscription }
+        { subscription },
+        { idempotencyKey: event.id }
       )
       break
     }
@@ -56,7 +58,8 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       await tasks.trigger<typeof handleStripeSubscriptionDeleted>(
         "stripe-subscription-deleted",
-        { subscription }
+        { subscription },
+        { idempotencyKey: event.id }
       )
       break
     }

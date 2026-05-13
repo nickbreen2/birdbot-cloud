@@ -13,11 +13,18 @@ export const morningBriefTask = schedules.task({
     })
 
     for (const tgUser of telegramUsers) {
-      const googleConn = await prisma.googleConnection.findUnique({
-        where: { userId: tgUser.userId },
-        select: { id: true },
-      })
+      const [googleConn, subscription] = await Promise.all([
+        prisma.googleConnection.findUnique({
+          where: { userId: tgUser.userId },
+          select: { id: true },
+        }),
+        prisma.subscription.findUnique({
+          where: { clerkUserId: tgUser.userId },
+          select: { status: true },
+        }),
+      ])
       if (!googleConn) continue
+      if (!subscription || subscription.status !== "active") continue
 
       try {
         const [events, emails] = await Promise.all([

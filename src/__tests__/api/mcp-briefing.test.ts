@@ -4,6 +4,7 @@ const mockFindUnique = vi.fn()
 const mockFindManySession = vi.fn()
 const mockFindManyDecision = vi.fn()
 const mockSynthesize = vi.fn()
+const mockCheckRateLimit = vi.fn()
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -23,6 +24,10 @@ vi.mock("@/lib/synthesis", () => ({
   synthesizeBriefing: (...args: unknown[]) => mockSynthesize(...args),
 }))
 
+vi.mock("@/lib/rateLimit", () => ({
+  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
+}))
+
 function makeRequest(token?: string, project?: string) {
   const url = `http://localhost/api/mcp/briefing${project ? `?project=${project}` : ""}`
   return new Request(url, {
@@ -34,6 +39,7 @@ function makeRequest(token?: string, project?: string) {
 describe("GET /api/mcp/briefing", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockCheckRateLimit.mockResolvedValue(true)
     mockFindManySession.mockResolvedValue([])
     mockFindManyDecision.mockResolvedValue([])
   })
@@ -82,5 +88,13 @@ describe("GET /api/mcp/briefing", () => {
     expect(res.status).toBe(200)
     expect(body.briefing).toContain("first session")
     expect(typeof body.sessionId).toBe("string")
+  })
+
+  it("returns 429 when rate limit exceeded", async () => {
+    mockFindUnique.mockResolvedValueOnce({ userToken: "valid-token" })
+    mockCheckRateLimit.mockResolvedValueOnce(false)
+    const { GET } = await import("@/app/api/mcp/briefing/route")
+    const res = await GET(makeRequest("valid-token", "birdbot-cloud"))
+    expect(res.status).toBe(429)
   })
 })

@@ -40,23 +40,7 @@ export async function DELETE() {
       }
     }
 
-    // 3. Get MCP userToken before deleting McpConnection (Cloud* tables reference it)
-    const mcpConn = await prisma.mcpConnection.findUnique({
-      where: { clerkUserId: userId },
-      select: { userToken: true },
-    })
-
-    // 4. Delete Cloud* records tied to the MCP userToken
-    if (mcpConn) {
-      await Promise.all([
-        prisma.cloudSession.deleteMany({ where: { userToken: mcpConn.userToken } }),
-        prisma.cloudDecision.deleteMany({ where: { userToken: mcpConn.userToken } }),
-        prisma.cloudProject.deleteMany({ where: { userToken: mcpConn.userToken } }),
-        prisma.projectBrief.deleteMany({ where: { userToken: mcpConn.userToken } }),
-      ])
-    }
-
-    // 5. Send Telegram goodbye before the record is gone
+    // 3. Send Telegram goodbye before the record is gone
     const tgUser = await prisma.telegramUser.findUnique({
       where: { userId },
       select: { telegramChatId: true },
@@ -73,17 +57,33 @@ export async function DELETE() {
       }
     }
 
-    // 6. Delete all remaining user data — Entity deletion cascades to Relationship, Mention, Goal
-    await Promise.all([
-      prisma.pendingAction.deleteMany({ where: { userId } }),
-      prisma.telegramPairingToken.deleteMany({ where: { userId } }),
-      prisma.telegramUser.deleteMany({ where: { userId } }),
-      prisma.googleConnection.deleteMany({ where: { userId } }),
-      prisma.entity.deleteMany({ where: { userId } }),
-      prisma.userPreferences.deleteMany({ where: { userId } }),
-      prisma.subscription.deleteMany({ where: { clerkUserId: userId } }),
-      prisma.mcpConnection.deleteMany({ where: { clerkUserId: userId } }),
-    ])
+    // 4. Delete all user data atomically — Entity deletion cascades to Relationship, Mention, Goal
+    await prisma.$transaction(async (tx) => {
+      const mcpConn = await tx.mcpConnection.findUnique({
+        where: { clerkUserId: userId },
+        select: { userToken: true },
+      })
+
+      if (mcpConn) {
+        await Promise.all([
+          tx.cloudSession.deleteMany({ where: { userToken: mcpConn.userToken } }),
+          tx.cloudDecision.deleteMany({ where: { userToken: mcpConn.userToken } }),
+          tx.cloudProject.deleteMany({ where: { userToken: mcpConn.userToken } }),
+          tx.projectBrief.deleteMany({ where: { userToken: mcpConn.userToken } }),
+        ])
+      }
+
+      await Promise.all([
+        tx.pendingAction.deleteMany({ where: { userId } }),
+        tx.telegramPairingToken.deleteMany({ where: { userId } }),
+        tx.telegramUser.deleteMany({ where: { userId } }),
+        tx.googleConnection.deleteMany({ where: { userId } }),
+        tx.entity.deleteMany({ where: { userId } }),
+        tx.userPreferences.deleteMany({ where: { userId } }),
+        tx.subscription.deleteMany({ where: { clerkUserId: userId } }),
+        tx.mcpConnection.deleteMany({ where: { clerkUserId: userId } }),
+      ])
+    })
 
     return NextResponse.json({ ok: true })
   } catch (err) {

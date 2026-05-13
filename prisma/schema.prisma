@@ -243,3 +243,11 @@ model PendingAction {
 
   @@index([userId])
 }
+
+model RateLimitBucket {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}

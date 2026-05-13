@@ -347,13 +347,7 @@ export function ConnectGuidePopup() {
                   href={pairing!.deepLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                    height: 44, borderRadius: 12, textDecoration: 'none',
-                    background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)',
-                    color: '#38bdf8', fontSize: 14, fontWeight: 600,
-                    fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
-                  }}
+                  className="flex items-center justify-center gap-1.5 w-full h-10 rounded-xl text-sm font-semibold transition-colors no-underline bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
                 >
                   <ExternalLink size={13} /> Open in Telegram
                 </a>
