@@ -3,6 +3,7 @@ import { google } from "googleapis"
 import { clerkClient } from "@clerk/nextjs/server"
 import { buildOAuthClient, verifyState } from "@/lib/google"
 import { prisma } from "@/lib/prisma"
+import { encrypt } from "@/lib/tokenEncryption"
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -44,19 +45,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorBase)
   }
 
+  const encryptedAccessToken = encrypt(tokens.access_token)
+  const encryptedRefreshToken = encrypt(tokens.refresh_token)
+
   await prisma.googleConnection.upsert({
     where: { userId },
     create: {
       userId,
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
+      accessToken: encryptedAccessToken,
+      refreshToken: encryptedRefreshToken,
       expiresAt: new Date(tokens.expiry_date),
       scopes: (tokens.scope ?? "").split(" ").filter(Boolean),
       email,
     },
     update: {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
+      accessToken: encryptedAccessToken,
+      refreshToken: encryptedRefreshToken,
       expiresAt: new Date(tokens.expiry_date),
       scopes: (tokens.scope ?? "").split(" ").filter(Boolean),
       email,
