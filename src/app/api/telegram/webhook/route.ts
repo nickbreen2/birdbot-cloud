@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto"
 import { NextResponse } from "next/server"
 import { tasks } from "@trigger.dev/sdk"
 import type { telegramProcess } from "@/trigger/telegram"
@@ -5,7 +6,8 @@ import type { TelegramUpdate } from "@/lib/telegram"
 
 export async function POST(request: Request) {
   const secret = request.headers.get("x-telegram-bot-api-secret-token")
-  if (!secret || secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+  const expected = process.env.TELEGRAM_WEBHOOK_SECRET
+  if (!secret || !expected || !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) {
     return new NextResponse("Forbidden", { status: 403 })
   }
 

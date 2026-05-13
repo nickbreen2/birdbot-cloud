@@ -62,7 +62,7 @@ export function OnboardingOrbitVisual({ step = 1 }: { step?: number }) {
   const dimIconFilter = 'grayscale(1) brightness(0.5)'
 
   return (
-    <div style={{ position: 'relative', width: CONTAINER, height: CONTAINER }}>
+    <div suppressHydrationWarning style={{ position: 'relative', width: CONTAINER, height: CONTAINER }}>
 
       {STARS.map((s, i) => (
         <div key={i} style={{
