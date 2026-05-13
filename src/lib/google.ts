@@ -62,12 +62,20 @@ export async function getGoogleClient(userId: string): Promise<OAuth2Client> {
       if (!credentials.access_token || !credentials.expiry_date) {
         throw new Error("Incomplete credentials from Google refresh")
       }
+      const updateData: {
+        accessToken: string
+        expiresAt: Date
+        refreshToken?: string
+      } = {
+        accessToken: encrypt(credentials.access_token),
+        expiresAt: new Date(credentials.expiry_date),
+      }
+      if (credentials.refresh_token) {
+        updateData.refreshToken = encrypt(credentials.refresh_token)
+      }
       await prisma.googleConnection.update({
         where: { userId },
-        data: {
-          accessToken: encrypt(credentials.access_token),
-          expiresAt: new Date(credentials.expiry_date),
-        },
+        data: updateData,
       })
       client.setCredentials(credentials)
     } catch {

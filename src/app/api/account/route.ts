@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getStripe } from "@/lib/stripe"
 import { buildOAuthClient } from "@/lib/google"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { decrypt } from "@/lib/tokenEncryption"
 
 export async function DELETE() {
   const { userId } = await auth()
@@ -33,7 +34,7 @@ export async function DELETE() {
     if (googleConn) {
       try {
         const client = buildOAuthClient()
-        await client.revokeToken(googleConn.refreshToken)
+        await client.revokeToken(decrypt(googleConn.refreshToken))
       } catch {
         // Token may already be invalid — proceed regardless
       }
