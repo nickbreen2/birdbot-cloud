@@ -19,6 +19,12 @@ export async function POST(request: Request) {
 
   const stripe = getStripe()
 
+  // Verify this Stripe customer belongs to the authenticated user
+  const customer = await stripe.customers.retrieve(customerId)
+  if (customer.deleted || customer.metadata?.clerkUserId !== userId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   // Attach payment method to customer
   await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId })
 
