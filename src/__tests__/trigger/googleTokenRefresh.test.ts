@@ -98,4 +98,31 @@ describe("googleTokenRefreshCron", () => {
     expect(mockRefreshAccessToken).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
   })
+
+  it("encrypts and saves new refreshToken when Google returns one", async () => {
+    mockFindMany.mockResolvedValueOnce([
+      { userId: "user_1", refreshToken: "enc:old_refresh" },
+    ])
+    mockRefreshAccessToken.mockResolvedValueOnce({
+      credentials: {
+        access_token: "new_at",
+        refresh_token: "new_rt",
+        expiry_date: Date.now() + 3600000,
+      },
+    })
+    mockUpdate.mockResolvedValueOnce({})
+
+    const { googleTokenRefreshCron } = await import("@/trigger/googleTokenRefresh")
+    await googleTokenRefreshCron.run({} as never, {} as never)
+
+    expect(mockEncrypt).toHaveBeenCalledWith("new_rt")
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          accessToken: "enc:new_at",
+          refreshToken: "enc:new_rt",
+        }),
+      })
+    )
+  })
 })
