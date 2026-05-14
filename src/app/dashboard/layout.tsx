@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { redirect } from "next/navigation"
 import { currentUser } from "@clerk/nextjs/server"
 import { Sidebar } from "@/components/dashboard/Sidebar"
@@ -11,9 +10,6 @@ import { ConnectGuidePopup } from "@/components/dashboard/ConnectGuidePopup"
 import { prisma } from "@/lib/prisma"
 
 export default async function DashboardLayout({
-=======
-export default function DashboardLayout({
->>>>>>> origin/main
   children,
 }: {
   children: React.ReactNode
@@ -47,7 +43,6 @@ export default function DashboardLayout({
   }
 
   return (
-<<<<<<< HEAD
     <WizardProvider>
       <div className="min-h-screen bg-depth flex">
         <Sidebar />
@@ -61,10 +56,5 @@ export default function DashboardLayout({
         <AccountModal />
       </div>
     </WizardProvider>
-=======
-    <div className="min-h-screen bg-depth flex items-center justify-center">
-      {children}
-    </div>
->>>>>>> origin/main
   )
 }

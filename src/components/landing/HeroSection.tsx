@@ -2,11 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-<<<<<<< HEAD
 import { useAuth, useUser } from "@clerk/nextjs"
-=======
-import { useAuth } from "@clerk/nextjs"
->>>>>>> origin/main
 import { BirdbotIcon } from "@/components/ui/BirdbotIcon"
 
 const WORDS = ["remembering.", "taking notes.", "scheduling.", "drafting emails.", "finding things."]
@@ -14,11 +10,8 @@ const LONGEST_WORD = "drafting emails."
 
 export function HeroSection() {
   const { isLoaded, isSignedIn } = useAuth()
-<<<<<<< HEAD
   const { user } = useUser()
   const onboardingComplete = user?.publicMetadata?.onboardingComplete === true
-=======
->>>>>>> origin/main
   const [wordIndex, setWordIndex] = useState(0)
   const [visible, setVisible] = useState(true)
 
@@ -144,11 +137,7 @@ export function HeroSection() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-<<<<<<< HEAD
             {isLoaded && isSignedIn ? (onboardingComplete ? "Go to Dashboard" : "Finish Setup") : "Try BirdBot free"}
-=======
-            {isLoaded && isSignedIn ? "Go to Dashboard" : "Try BirdBot free"}
->>>>>>> origin/main
             <span
               className="inline-flex items-center justify-center rounded-full flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
               style={{
