@@ -43,6 +43,7 @@ export type ExtractionRunResult = {
   entitiesCreated: number
   entitiesReused: number
   relationshipsCreated: number
+  entities: { name: string; type: string }[]
   error?: string
 }
 
@@ -64,7 +65,7 @@ export async function runEntityExtraction(payload: ExtractEntitiesPayload): Prom
     (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === "extract_entities"
   )
   if (!toolUse) {
-    return { entitiesCreated: 0, entitiesReused: 0, relationshipsCreated: 0, error: "no_tool_use" }
+    return { entitiesCreated: 0, entitiesReused: 0, relationshipsCreated: 0, entities: [], error: "no_tool_use" }
   }
 
   let parseResult = ExtractionResultSchema.safeParse(toolUse.input)
@@ -72,13 +73,14 @@ export async function runEntityExtraction(payload: ExtractEntitiesPayload): Prom
     parseResult = ExtractionResultSchema.safeParse(repairToolInput(toolUse.input))
     if (!parseResult.success) {
       console.error("[extractEntities] Zod parse error:", parseResult.error.message)
-      return { entitiesCreated: 0, entitiesReused: 0, relationshipsCreated: 0, error: "zod_parse_failure" }
+      return { entitiesCreated: 0, entitiesReused: 0, relationshipsCreated: 0, entities: [], error: "zod_parse_failure" }
     }
   }
 
   const { entities, relationships } = parseResult.data
 
   const entityIdMap = new Map<string, string>()
+  const processedEntities: { name: string; type: string }[] = []
   let entitiesCreated = 0
   let entitiesReused = 0
 
@@ -134,6 +136,7 @@ export async function runEntityExtraction(payload: ExtractEntitiesPayload): Prom
     }
 
     entityIdMap.set(entity.name.toLowerCase(), entityId)
+    processedEntities.push({ name: entity.name, type: entity.type })
 
     await prisma.mention.create({
       data: {
@@ -168,7 +171,7 @@ export async function runEntityExtraction(payload: ExtractEntitiesPayload): Prom
     }
   }
 
-  return { entitiesCreated, entitiesReused, relationshipsCreated }
+  return { entitiesCreated, entitiesReused, relationshipsCreated, entities: processedEntities }
 }
 
 export const extractEntities = task({

@@ -9,11 +9,12 @@ type SessionActivity = { browserName?: string; deviceType?: string; isMobile?: b
 type SessionWithActivitiesResource = { id: string; status: string; lastActiveAt: Date; latestActivity?: SessionActivity; revoke: () => Promise<unknown> }
 import { useWizard } from "@/components/onboarding/WizardContext"
 
-type AccountSection = "profile" | "security" | "danger"
+type AccountSection = "profile" | "security" | "billing" | "danger"
 
 const SECTION_META: Record<AccountSection, { title: string; subtitle: string }> = {
   profile:  { title: "Profile",  subtitle: "Manage your profile, email, and connected accounts." },
   security: { title: "Security", subtitle: "View and manage your active sessions." },
+  billing:  { title: "Billing",  subtitle: "Manage your subscription, plan, and payment method." },
   danger:   { title: "Danger Zone", subtitle: "Irreversible actions. Proceed with caution." },
 }
 
@@ -56,15 +57,15 @@ export function AccountModal() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(6,9,18,0.92)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
       onClick={() => setAccountOpen(false)}
     >
       <div
         className="w-full max-w-[860px] rounded-2xl border border-border overflow-hidden flex relative h-[90vh] md:h-[700px]"
         style={{
-          background: "#111827",
+          background: "var(--theme-surface)",
           boxShadow:
-            "0 0 0 1px rgba(37,99,235,0.18), 0 0 100px rgba(37,99,235,0.18), 0 60px 120px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.04)",
+            "0 0 0 1px rgba(255,255,255,0.07), 0 60px 120px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -72,7 +73,7 @@ export function AccountModal() {
         {mobileNavOpen && (
           <div
             className="md:hidden absolute inset-0 z-10 flex flex-col"
-            style={{ background: "#0a0e1a" }}
+            style={{ background: "var(--theme-depth)" }}
           >
             <div className="flex items-center justify-between px-5 py-5 border-b border-border flex-shrink-0">
               <div>
@@ -88,22 +89,22 @@ export function AccountModal() {
               </button>
             </div>
             <nav className="flex-1 flex flex-col px-2 py-3 gap-0.5 overflow-y-auto">
-              {(["profile", "security"] as const).map((id) => (
+              {(["profile", "security", "billing"] as const).map((id) => (
                 <button
                   key={id}
                   onClick={() => selectSection(id)}
                   className={`w-full text-left px-4 py-3.5 text-sm font-sans transition-all rounded-xl capitalize ${
                     section === id
-                      ? "border-l-2 border-blue-bright text-blue-bright font-medium"
+                      ? "border-l-2 text-text-base font-medium"
                       : "border-l-2 border-transparent text-text-muted hover:text-text-dim hover:bg-white/[0.03]"
                   }`}
                   style={
                     section === id
-                      ? { background: "linear-gradient(90deg, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.04) 100%)" }
+                      ? { background: "var(--theme-nav-active-bg)", borderColor: "var(--theme-nav-active-bar)" }
                       : undefined
                   }
                 >
-                  {id === "profile" ? "Profile" : "Security"}
+                  {id === "profile" ? "Profile" : id === "security" ? "Security" : "Billing"}
                 </button>
               ))}
             </nav>
@@ -113,13 +114,13 @@ export function AccountModal() {
                   onClick={() => selectSection("danger")}
                   className={`w-full text-left px-4 py-3.5 text-sm font-sans transition-all rounded-xl ${
                     section === "danger"
-                      ? "border-l-2 border-red-400 text-red-300 font-medium"
-                      : "border-l-2 border-transparent text-red-400 hover:text-red-300 hover:bg-red-500/[0.08]"
+                      ? "border-l-2 border-red-600 font-medium"
+                      : "border-l-2 border-transparent hover:bg-red-500/[0.08]"
                   }`}
                   style={
                     section === "danger"
-                      ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)" }
-                      : undefined
+                      ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)", color: "#dc2626" }
+                      : { color: "#dc2626" }
                   }
                 >
                   ⚠ Danger Zone
@@ -132,7 +133,7 @@ export function AccountModal() {
         {/* ── Left sidebar ── */}
         <div
           className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border"
-          style={{ background: "#0a0e1a" }}
+          style={{ background: "var(--theme-depth)" }}
         >
           <div className="px-5 pt-6 pb-5">
             <h2 className="text-lg font-sans font-semibold text-text-base leading-tight">Account</h2>
@@ -140,22 +141,22 @@ export function AccountModal() {
           </div>
 
           <nav className="flex-1 flex flex-col px-2 gap-0.5">
-            {(["profile", "security"] as const).map((id) => (
+            {(["profile", "security", "billing"] as const).map((id) => (
               <button
                 key={id}
                 onClick={() => setSection(id)}
                 className={`w-full text-left px-3 py-2.5 text-sm font-sans transition-all rounded-r-xl ${
                   section === id
-                    ? "border-l-2 border-blue-bright text-blue-bright font-medium"
+                    ? "border-l-2 text-text-base font-medium"
                     : "border-l-2 border-transparent text-text-muted hover:text-text-dim hover:bg-white/[0.03]"
                 }`}
                 style={
                   section === id
-                    ? { background: "linear-gradient(90deg, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.04) 100%)" }
+                    ? { background: "var(--theme-nav-active-bg)", borderColor: "var(--theme-nav-active-bar)" }
                     : undefined
                 }
               >
-                {id === "profile" ? "Profile" : "Security"}
+                {id === "profile" ? "Profile" : id === "security" ? "Security" : "Billing"}
               </button>
             ))}
           </nav>
@@ -166,13 +167,13 @@ export function AccountModal() {
                 onClick={() => setSection("danger")}
                 className={`w-full text-left px-3 py-2.5 text-sm font-sans transition-all rounded-r-xl ${
                   section === "danger"
-                    ? "border-l-2 border-red-400 text-red-300 font-medium"
-                    : "border-l-2 border-transparent text-red-400 hover:text-red-300 hover:bg-red-500/[0.08]"
+                    ? "border-l-2 border-red-600 font-medium"
+                    : "border-l-2 border-transparent hover:bg-red-500/[0.08]"
                 }`}
                 style={
                   section === "danger"
-                    ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)" }
-                    : undefined
+                    ? { background: "linear-gradient(90deg, rgba(239,68,68,0.20) 0%, rgba(239,68,68,0.05) 100%)", color: "#dc2626" }
+                    : { color: "#dc2626" }
                 }
               >
                 ⚠ Danger Zone
@@ -182,11 +183,11 @@ export function AccountModal() {
         </div>
 
         {/* ── Right content ── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "#111827" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "var(--theme-acct-main-bg)" }}>
           {/* Sticky header */}
           <div
             className="flex items-center px-4 md:px-8 py-5 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#111827" }}
+            style={{ borderBottom: "1px solid var(--theme-border)", background: "var(--theme-acct-main-bg)" }}
           >
             <button
               className="md:hidden mr-3 w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-base hover:bg-white/[0.06] transition-all flex-shrink-0"
@@ -216,6 +217,7 @@ export function AccountModal() {
               <ProfileSection user={user} signIn={signIn} signOut={signOut} onClose={() => setAccountOpen(false)} />
             )}
             {section === "security" && <SecuritySection />}
+            {section === "billing" && <BillingSection />}
             {section === "danger" && (
               <DangerSection user={user} onClose={() => setAccountOpen(false)} />
             )}
@@ -321,7 +323,7 @@ function ProfileSection({
             ) : (
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold select-none"
-                style={{ background: "linear-gradient(135deg, #2563eb, #60a5fa)" }}
+                style={{ background: "linear-gradient(135deg, #333333, #555555)" }}
               >
                 {initials}
               </div>
@@ -332,7 +334,7 @@ function ProfileSection({
               disabled={avatarSaving}
               aria-label="Change profile photo"
               className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 disabled:opacity-50 transition-colors"
-              style={{ background: "#2563eb", borderColor: "#111827" }}
+              style={{ background: "#444444", borderColor: "#111111" }}
             >
               {avatarSaving ? (
                 <span className="block w-2.5 h-2.5 border border-white/40 border-t-white rounded-full animate-spin" />
@@ -350,7 +352,7 @@ function ProfileSection({
           </div>
         </div>
 
-        <div className="h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+        <div className="h-px" style={{ background: "var(--theme-border)" }} />
 
         {/* Full name row */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
@@ -363,15 +365,15 @@ function ProfileSection({
                   onChange={e => setFirstName(e.target.value)}
                   placeholder="First name"
                   autoFocus
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-2 focus:ring-blue"
-                  style={{ backgroundColor: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-1 focus:ring-white/20"
+                  style={{ backgroundColor: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
                 />
                 <input
                   value={lastName}
                   onChange={e => setLastName(e.target.value)}
                   placeholder="Last name"
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-2 focus:ring-blue"
-                  style={{ backgroundColor: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-text-base text-sm outline-none focus:ring-1 focus:ring-white/20"
+                  style={{ backgroundColor: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
                 />
               </div>
             ) : (
@@ -388,7 +390,7 @@ function ProfileSection({
                   onClick={saveName}
                   disabled={nameSaving}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50 transition-opacity"
-                  style={{ background: "linear-gradient(135deg, #1d4ed8, #2563eb)" }}
+                  style={{ background: "linear-gradient(135deg, #333333, #555555)" }}
                 >
                   <Check size={12} />
                   {nameSaving ? "Saving…" : "Save"}
@@ -420,7 +422,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Email Address</p>
         <div
           className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <Mail size={15} className="text-text-muted flex-shrink-0" />
@@ -442,7 +444,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Connected Accounts</p>
         <div
           className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <GoogleIcon />
@@ -465,7 +467,7 @@ function ProfileSection({
             <button
               type="button"
               onClick={connectGoogle}
-              className="text-xs text-blue-light hover:text-blue-bright border border-blue/25 hover:border-blue/50 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+              className="text-xs text-text-dim hover:text-text-base border border-border hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
             >
               Connect
             </button>
@@ -478,7 +480,7 @@ function ProfileSection({
         <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">Session</p>
         <div
           className="px-4 py-3.5 rounded-xl"
-          style={{ background: "#1a2235", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
         >
           <button
             type="button"
@@ -557,10 +559,8 @@ function SecuritySection() {
                   key={session.id}
                   className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
                   style={{
-                    background: isCurrent ? "rgba(37,99,235,0.06)" : "#1a2235",
-                    border: isCurrent
-                      ? "1px solid rgba(37,99,235,0.25)"
-                      : "1px solid rgba(255,255,255,0.07)",
+                    background: isCurrent ? "var(--theme-panel-hover)" : "var(--theme-surface)",
+                    border: "1px solid var(--theme-border)",
                   }}
                 >
                   <div className="flex-shrink-0 mt-0.5 text-text-muted">
@@ -574,9 +574,9 @@ function SecuritySection() {
                         <span
                           className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
                           style={{
-                            color: "#60a5fa",
-                            backgroundColor: "rgba(37,99,235,0.15)",
-                            border: "1px solid rgba(37,99,235,0.3)",
+                            color: "var(--theme-text-dim)",
+                            backgroundColor: "var(--theme-nav-hover-bg)",
+                            border: "1px solid var(--theme-border)",
                           }}
                         >
                           This device
@@ -612,6 +612,190 @@ function SecuritySection() {
   )
 }
 
+// ── Billing section ────────────────────────────────────────────────────────────
+
+type BillingInfo = { plan: string; status: string; currentPeriodEnd: string }
+
+function BillingSection() {
+  const [info, setInfo] = useState<BillingInfo | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [noSubscription, setNoSubscription] = useState(false)
+  const [error, setError] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(false)
+    setNoSubscription(false)
+    setInfo(null)
+
+    async function load() {
+      try {
+        const infoRes = await fetch('/api/billing-info')
+        if (cancelled) return
+        if (infoRes.status === 404) {
+          setNoSubscription(true)
+          return
+        }
+        if (!infoRes.ok) { setError(true); return }
+        const infoData = await infoRes.json() as BillingInfo
+        setInfo(infoData)
+      } catch {
+        if (!cancelled) setError(true)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [retryCount])
+
+  async function handleManageClick() {
+    setPortalLoading(true)
+    setPortalError(false)
+    try {
+      const res = await fetch('/api/billing-portal', { method: 'POST' })
+      if (!res.ok) { setPortalError(true); return }
+      const { url } = await res.json() as { url: string }
+      window.open(url, '_blank')
+    } catch {
+      setPortalError(true)
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
+  const periodEnd = info
+    ? new Date(info.currentPeriodEnd).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : null
+
+  const isTrialing = info?.status === 'trialing'
+
+  if (loading) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex items-center justify-center h-40">
+        <span className="text-sm text-text-muted">Loading billing info…</span>
+      </div>
+    )
+  }
+
+  if (noSubscription) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-3">
+        <p className="text-sm text-text-muted">No active subscription found.</p>
+        <p className="text-xs text-text-muted">
+          Need help?{' '}
+          <a href="mailto:support@birdbot.ai" className="underline hover:text-text-dim transition-colors">
+            Contact support
+          </a>
+        </p>
+      </div>
+    )
+  }
+
+  if (error || !info) {
+    return (
+      <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-3">
+        <p className="text-sm text-text-muted">Unable to load billing info. Please try again.</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount(c => c + 1)}
+          className="text-xs text-text-dim hover:text-text-base border border-border px-3 py-1.5 rounded-lg transition-colors w-fit"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-8">
+      <div className="flex flex-col gap-3">
+        <p className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">
+          Subscription
+        </p>
+
+        {/* Plan */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">Plan</span>
+          <span className="text-sm font-semibold text-text-base">{info.plan}</span>
+        </div>
+
+        {/* Status */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">Status</span>
+          {isTrialing ? (
+            <span
+              className="text-[11px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+              style={{
+                color: "#34d399",
+                background: "rgba(5,150,105,0.12)",
+                border: "1px solid rgba(5,150,105,0.28)",
+              }}
+            >
+              Trial
+            </span>
+          ) : (
+            <span
+              className="text-[11px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+              style={{
+                color: "#4ade80",
+                background: "rgba(34,197,94,0.08)",
+                border: "1px solid rgba(34,197,94,0.25)",
+              }}
+            >
+              Active
+            </span>
+          )}
+        </div>
+
+        {/* Trial end / Next billing */}
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+        >
+          <span className="text-sm text-text-muted">
+            {isTrialing ? "Trial ends" : "Next billing"}
+          </span>
+          <span className="text-sm font-semibold text-text-base">{periodEnd}</span>
+        </div>
+
+        {/* Manage button */}
+        <button
+          type="button"
+          onClick={handleManageClick}
+          disabled={portalLoading}
+          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
+        >
+          {portalLoading ? 'Opening…' : 'Manage subscription'}
+        </button>
+
+        <p className="text-center text-[11.5px] font-sans text-text-muted">
+          Cancel anytime · Opens Stripe&apos;s secure billing portal
+        </p>
+        {portalError && (
+          <p className="text-center text-[11.5px] text-red-400">
+            Could not open portal. Please try again.
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Danger Zone section ────────────────────────────────────────────────────────
 
 function DangerSection({
@@ -621,13 +805,14 @@ function DangerSection({
   user: NonNullable<ReturnType<typeof useUser>["user"]>
   onClose: () => void
 }) {
+  const { signOut } = useClerk()
   const [confirming, setConfirming] = useState(false)
   const [killInput, setKillInput]   = useState("")
   const [deleting, setDeleting]     = useState(false)
   const [error, setError]           = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const killPhrase = "Shut Down my Account Forever"
+  const killPhrase = "I want to kill my BirdBot"
   const canDelete  = killInput === killPhrase
 
   function startConfirm() {
@@ -641,8 +826,10 @@ function DangerSection({
     setDeleting(true)
     setError("")
     try {
+      const res = await fetch("/api/account", { method: "DELETE" })
+      if (!res.ok) throw new Error("cleanup failed")
       await user.delete()
-      onClose()
+      await signOut({ redirectUrl: "/" })
     } catch {
       setError("Something went wrong. Please try again.")
       setDeleting(false)
@@ -653,110 +840,158 @@ function DangerSection({
     <div className="px-4 py-5 md:px-8 md:py-7 flex flex-col gap-5">
       {!confirming ? (
         <div
-          className="rounded-xl p-5 flex flex-col gap-4"
+          className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%)",
-            border: "1px solid rgba(239,68,68,0.35)",
-            boxShadow: "inset 0 0 40px rgba(239,68,68,0.04)",
+            background: "var(--theme-surface)",
+            border: "1px solid rgba(239,68,68,0.5)",
           }}
         >
-          <div>
-            <p className="text-sm font-semibold text-red-400 font-sans">Delete account</p>
-            <p className="text-xs text-text-muted font-sans mt-1.5 leading-relaxed">
-              Permanently remove your account and all associated data. This cannot be undone.
+          {/* Header strip — visible on any background */}
+          <div
+            className="px-5 py-3 flex items-center gap-2.5"
+            style={{
+              background: "rgba(239,68,68,0.1)",
+              borderBottom: "1px solid rgba(239,68,68,0.18)",
+            }}
+          >
+            <div
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#ef4444",
+                boxShadow: "0 0 5px #ef4444",
+                flexShrink: 0,
+                animation: "pulse 2s ease-in-out infinite",
+              }}
+            />
+            <p className="text-sm font-mono font-semibold" style={{ color: "#dc2626" }}>
+              Kill my BirdBot
             </p>
           </div>
-          <div>
+
+          {/* Body */}
+          <div className="px-5 py-4 flex flex-col gap-4">
+            <p className="text-xs font-sans leading-relaxed" style={{ color: "#666" }}>
+              Cancels your subscription, revokes all integrations, and permanently destroys your account and every piece of data Bird has learned about you.
+            </p>
             <button
               type="button"
               onClick={startConfirm}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans transition-all"
+              className="self-start px-5 py-2 rounded-xl text-sm font-mono font-semibold transition-all"
               style={{
-                border: "1px solid rgba(239,68,68,0.6)",
-                color: "#f87171",
+                border: "1px solid rgba(239,68,68,0.55)",
+                color: "#dc2626",
                 background: "transparent",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(239,68,68,0.12)"
-                e.currentTarget.style.boxShadow = "0 0 16px rgba(239,68,68,0.2)"
+                e.currentTarget.style.background = "rgba(239,68,68,0.08)"
+                e.currentTarget.style.borderColor = "rgba(239,68,68,0.85)"
+                e.currentTarget.style.boxShadow = "0 0 14px rgba(239,68,68,0.18)"
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "transparent"
+                e.currentTarget.style.borderColor = "rgba(239,68,68,0.55)"
                 e.currentTarget.style.boxShadow = "none"
               }}
             >
-              Shut Down Account
+              Kill my BirdBot →
             </button>
           </div>
         </div>
       ) : (
         <div
-          className="rounded-xl p-5 flex flex-col gap-5"
+          className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(239,68,68,0.04) 100%)",
-            border: "1px solid rgba(239,68,68,0.5)",
-            boxShadow: "0 0 40px rgba(239,68,68,0.08)",
+            background: "var(--theme-surface)",
+            border: "1px solid rgba(239,68,68,0.6)",
+            boxShadow: "0 0 0 3px rgba(239,68,68,0.07)",
           }}
         >
-          <div>
-            <p className="text-sm font-semibold text-red-400 font-sans">⚠ Shut Down my Account Forever?</p>
-            <p className="text-xs text-text-muted font-sans mt-1.5 leading-relaxed">
-              This cannot be undone. Your account and all associated data will be permanently destroyed.
+          {/* Header strip */}
+          <div
+            className="px-5 py-4"
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              borderBottom: "1px solid rgba(239,68,68,0.18)",
+            }}
+          >
+            <p className="text-sm font-mono font-semibold" style={{ color: "#dc2626" }}>
+              Are you sure?
+            </p>
+            <p className="text-xs font-sans mt-1.5 leading-relaxed" style={{ color: "#666" }}>
+              This cannot be undone. Your account, subscription, and everything Bird has learned will be gone forever.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-semibold font-sans text-text-muted uppercase tracking-widest">
-              Type <span className="text-red-400 font-mono normal-case tracking-normal">{killPhrase}</span> to confirm
-            </label>
-            <input
-              ref={inputRef}
-              type="text"
-              value={killInput}
-              onChange={(e) => setKillInput(e.target.value)}
-              placeholder={killPhrase}
-              className="px-4 py-3 rounded-xl text-text-base placeholder:text-text-muted font-sans text-sm focus:outline-none transition-all"
-              style={{
-                background: "#1a2235",
-                border: "1px solid rgba(239,68,68,0.3)",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.border = "1px solid rgba(239,68,68,0.6)"
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(239,68,68,0.10)"
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.border = "1px solid rgba(239,68,68,0.3)"
-                e.currentTarget.style.boxShadow = "none"
-              }}
-            />
-          </div>
+          {/* Body */}
+          <div className="px-5 py-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[11px] font-mono uppercase tracking-widest" style={{ color: "#555" }}>
+                Type <span className="font-semibold normal-case tracking-normal" style={{ color: "#dc2626" }}>{killPhrase}</span> to confirm
+              </label>
+              <div
+                className="flex items-center gap-2 rounded-xl px-4 py-3 transition-all"
+                style={{
+                  background: "rgba(239,68,68,0.04)",
+                  border: "1px solid rgba(239,68,68,0.35)",
+                }}
+                onFocusCapture={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.border = "1px solid rgba(239,68,68,0.7)"
+                  el.style.boxShadow = "0 0 0 3px rgba(239,68,68,0.08)"
+                }}
+                onBlurCapture={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.border = "1px solid rgba(239,68,68,0.35)"
+                  el.style.boxShadow = "none"
+                }}
+              >
+                <span className="font-mono text-sm select-none" style={{ color: "rgba(239,68,68,0.45)" }}>›</span>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={killInput}
+                  onChange={(e) => setKillInput(e.target.value)}
+                  placeholder="type the phrase above"
+                  className="flex-1 font-mono text-sm bg-transparent focus:outline-none text-text-base placeholder:text-text-muted placeholder:opacity-50"
+                />
+              </div>
+            </div>
 
-          {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
+            {error && (
+              <p className="text-xs font-mono text-red-500">{error}</p>
+            )}
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => { setConfirming(false); setKillInput("") }}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans border border-border text-text-dim hover:text-text-base hover:bg-white/[0.04] transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={!canDelete || deleting}
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-xl text-sm font-semibold font-sans text-white disabled:opacity-35 disabled:cursor-not-allowed transition-all"
-              style={
-                canDelete && !deleting
-                  ? {
-                      background: "linear-gradient(135deg,#b91c1c,#ef4444)",
-                      boxShadow: "0 0 20px rgba(239,68,68,0.4)",
-                    }
-                  : { background: "#7f1d1d" }
-              }
-            >
-              {deleting ? "Deleting…" : killPhrase}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => { setConfirming(false); setKillInput("") }}
+                className="px-4 py-2.5 rounded-xl text-sm font-mono transition-all"
+                style={{ border: "1px solid #aaa", color: "#555" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#222"; e.currentTarget.style.borderColor = "#888" }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "#555"; e.currentTarget.style.borderColor = "#aaa" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!canDelete || deleting}
+                onClick={handleDelete}
+                className="flex-1 py-2.5 rounded-xl text-sm font-mono font-semibold text-white disabled:cursor-not-allowed transition-all"
+                style={
+                  canDelete && !deleting
+                    ? {
+                        background: "linear-gradient(135deg, #991b1b 0%, #dc2626 60%, #ef4444 100%)",
+                        boxShadow: "0 0 20px rgba(239,68,68,0.3), 0 2px 8px rgba(0,0,0,0.12)",
+                        opacity: 1,
+                      }
+                    : { background: "rgba(239,68,68,0.15)", opacity: 0.5 }
+                }
+              >
+                {deleting ? "Deleting…" : killPhrase}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,73 +1,29 @@
+"use client"
+
+import { useState } from "react"
 import { PLANS } from "@/lib/stripe"
 import { PricingButton } from "./PricingButton"
 
-const BOLD_FEATURES = [
-  "Zero setup, instant access",
-  "Personal AI assistant, 24/7",
-  "Auto-updates, zero maintenance",
-]
-
-const plans = [
-  {
-    name: "Lite",
-    price: 19,
-    priceId: PLANS.lite.priceId,
-    desc: "For personal projects and getting started",
-    features: [
-      "1 BirdBot agent",
-      "1 channel & WebChat",
-      "Core skills",
-      "Standard AI models",
-      "Custom personality & memory",
-      "Fully private & encrypted",
-      "Community support",
-    ],
-    pro: false,
-  },
-  {
-    name: "Pro",
-    price: 39,
-    priceId: PLANS.pro.priceId,
-    desc: "For power users who rely on AI daily",
-    features: [
-      "1 BirdBot agent",
-      "All channels — Telegram, Discord, Slack",
-      "All skills + marketplace",
-      "All major AI models",
-      "Custom personality & memory",
-      "Fully private & encrypted",
-      "Daily backups",
-      "Priority support",
-    ],
-    pro: true,
-  },
-  {
-    name: "Max",
-    price: 79,
-    priceId: PLANS.max.priceId,
-    desc: "For heavy workloads and maximum performance",
-    features: [
-      "3 BirdBot agents",
-      "All channels — Telegram, Discord, Slack",
-      "All skills + early access",
-      "All AI models incl. frontier",
-      "Custom personality & memory",
-      "Fully private & encrypted",
-      "Daily backups",
-      "Advanced analytics",
-      "API access",
-      "Dedicated support",
-    ],
-    pro: false,
-  },
+const FEATURES = [
+  "Telegram as your personal AI home",
+  "Persistent memory & knowledge graph",
+  "Google Calendar, Gmail & Drive integration",
+  "Daily briefings & smart check-ins",
+  "MCP integration for dev tools",
+  "Unlimited conversations",
+  "Cancel anytime",
 ]
 
 export function PricingSection() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+
+  const plan = PLANS[billing]
+
   return (
     <section className="py-24 px-4" id="pricing">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <p className="text-text-muted text-xs font-bold tracking-widest uppercase font-sans mb-3">
             Pricing
           </p>
@@ -79,81 +35,82 @@ export function PricingSection() {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`rounded-2xl p-7 flex flex-col bg-panel ${
-                plan.pro
-                  ? "glow-border-blue"
-                  : "border border-border"
-              }`}
-            >
-              {/* Plan name */}
-              <p
-                className={`text-xs font-bold tracking-widest uppercase font-sans mb-1 ${
-                  plan.pro ? "text-blue-bright" : "text-text-muted"
-                }`}
-              >
-                {plan.name}
-              </p>
-
-              {/* Description */}
-              <p
-                className="text-text-muted text-sm font-sans leading-snug mb-5"
-                style={{ minHeight: "2.9em" }}
-              >
-                {plan.desc}
-              </p>
-
-              {/* Price */}
-              <div className="flex items-baseline gap-1 mb-5">
-                <span
-                  className={`font-heading font-black leading-none tracking-tight ${
-                    plan.pro ? "text-gradient-blue text-5xl" : "text-text-base text-5xl"
-                  }`}
-                >
-                  ${plan.price}
-                </span>
-                <span className="text-text-muted text-sm font-sans self-end mb-1.5">
-                  /mo
-                </span>
-              </div>
-
-              {/* Button */}
-              <PricingButton priceId={plan.priceId} isPro={plan.pro} />
-
-              {/* Cancel note */}
-              <p className="text-center text-xs text-text-muted font-sans mb-5">
-                Cancel anytime
-              </p>
-
-              {/* Divider */}
-              <div className="h-px bg-border mb-4" />
-
-              {/* Features */}
-              <ul className="flex flex-col gap-2.5">
-                {BOLD_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm font-sans text-text-base font-semibold">
-                    <span className="text-blue-bright flex-shrink-0 mt-px">✓</span>
-                    {f}
-                  </li>
-                ))}
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm font-sans text-text-muted font-normal">
-                    <span className="text-blue-bright flex-shrink-0 mt-px">✓</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        {/* Billing toggle */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <button
+            onClick={() => setBilling("monthly")}
+            className={`text-sm font-sans font-semibold px-4 py-1.5 rounded-full transition-colors ${
+              billing === "monthly"
+                ? "bg-blue-500/15 text-blue-bright border border-blue-500/30"
+                : "text-text-muted hover:text-text-base"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBilling("annual")}
+            className={`flex items-center gap-2 text-sm font-sans font-semibold px-4 py-1.5 rounded-full transition-colors ${
+              billing === "annual"
+                ? "bg-blue-500/15 text-blue-bright border border-blue-500/30"
+                : "text-text-muted hover:text-text-base"
+            }`}
+          >
+            Annual
+            <span className="text-xs bg-green-500/15 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full font-bold">
+              Save 44%
+            </span>
+          </button>
         </div>
 
-        {/* BYOK note */}
+        {/* Plan card */}
+        <div className="rounded-2xl p-8 flex flex-col bg-panel glow-border-blue">
+          <p className="text-xs font-bold tracking-widest uppercase font-sans mb-1 text-blue-bright">
+            BirdBot
+          </p>
+          <p className="text-text-muted text-sm font-sans leading-snug mb-5">
+            Your personal AI assistant — always on, always learning
+          </p>
+
+          {/* Price */}
+          <div className="flex items-baseline gap-1 mb-1">
+            <span className="font-heading font-black leading-none tracking-tight text-gradient-blue text-5xl">
+              ${plan.displayPrice}
+            </span>
+            <span className="text-text-muted text-sm font-sans self-end mb-1.5">
+              /mo
+            </span>
+          </div>
+
+          {billing === "annual" && (
+            <p className="text-text-muted text-xs font-sans mb-5">
+              Billed $60/year
+            </p>
+          )}
+          {billing === "monthly" && <div className="mb-5" />}
+
+          <PricingButton priceId={plan.priceId} isPro={true} />
+
+          <p className="text-center text-xs text-text-muted font-sans mb-5">
+            Cancel anytime
+          </p>
+
+          <div className="h-px bg-border mb-4" />
+
+          <ul className="flex flex-col gap-2.5">
+            {FEATURES.map((f) => (
+              <li
+                key={f}
+                className="flex items-start gap-2.5 text-sm font-sans text-text-muted font-normal"
+              >
+                <span className="text-blue-bright flex-shrink-0 mt-px">✓</span>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <p className="text-center text-text-muted text-xs font-sans mt-6">
-          Every plan runs on its own secure, isolated container with encrypted access.
+          Your data is private and never used for training.
         </p>
       </div>
     </section>

@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { X } from "lucide-react"
-
-type EntityTypeName = "file" | "concept" | "decision" | "task" | "technology" | "person" | "goal"
+import { EntityTypeName, NODE_COLORS } from "./graphConstants"
 
 interface EntityDetail {
   id: string
@@ -21,13 +20,14 @@ interface MentionItem {
 }
 
 const TYPE_BADGE: Record<EntityTypeName, string> = {
-  goal:       "bg-amber-500/15 text-amber-300 border-amber-500/25",
-  task:       "bg-blue-500/15 text-blue-300 border-blue-500/25",
-  concept:    "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-  file:       "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-  technology: "bg-violet-500/15 text-violet-300 border-violet-500/25",
-  person:     "bg-rose-500/15 text-rose-300 border-rose-500/25",
-  decision:   "bg-orange-500/15 text-orange-300 border-orange-500/25",
+  goal:       "bg-amber-500/15 border-amber-500/35 text-amber-700 dark:text-amber-300 dark:border-amber-500/25",
+  task:       "bg-blue-500/15 border-blue-500/35 text-blue-700 dark:text-blue-300 dark:border-blue-500/25",
+  concept:    "bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400 dark:border-zinc-500/20",
+  date:       "bg-fuchsia-500/15 border-fuchsia-500/35 text-fuchsia-700 dark:text-fuchsia-300 dark:border-fuchsia-500/25",
+  file:       "bg-emerald-500/15 border-emerald-500/35 text-emerald-700 dark:text-emerald-300 dark:border-emerald-500/25",
+  technology: "bg-violet-500/15 border-violet-500/35 text-violet-700 dark:text-violet-300 dark:border-violet-500/25",
+  person:     "bg-rose-500/15 border-rose-500/35 text-rose-700 dark:text-rose-300 dark:border-rose-500/25",
+  decision:   "bg-orange-500/15 border-orange-500/35 text-orange-700 dark:text-orange-300 dark:border-orange-500/25",
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -37,9 +37,9 @@ const SOURCE_LABELS: Record<string, string> = {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  telegram: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-  session:  "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  decision: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  telegram: "bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-400 dark:border-sky-500/20",
+  session:  "bg-violet-500/10 border-violet-500/30 text-violet-700 dark:text-violet-400 dark:border-violet-500/20",
+  decision: "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400 dark:border-amber-500/20",
 }
 
 function formatRelative(dateStr: string): string {
@@ -54,12 +54,20 @@ function formatRelative(dateStr: string): string {
   return `${Math.floor(days / 30)}mo ago`
 }
 
+interface Connection {
+  id: string
+  name: string
+  type: EntityTypeName
+}
+
 interface EntityPanelProps {
   entityId: string | null
   onClose: () => void
+  connections?: Connection[]
+  onConnectionClick?: (id: string) => void
 }
 
-export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
+export default function EntityPanel({ entityId, onClose, connections = [], onConnectionClick }: EntityPanelProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const [entity, setEntity] = useState<EntityDetail | null>(null)
   const [mentions, setMentions] = useState<MentionItem[]>([])
@@ -132,7 +140,9 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
   return (
     <div
       className={`flex flex-col flex-shrink-0 border-l border-border overflow-hidden transition-all duration-200 ${
-        isOpen ? "w-96 xl:w-[40%]" : "w-0"
+        isOpen
+          ? "fixed inset-0 z-50 w-full bg-depth md:static md:inset-auto md:z-auto md:w-96 xl:w-[40%]"
+          : "w-0"
       }`}
     >
       {isOpen && (
@@ -163,7 +173,7 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
             <button
               ref={closeBtnRef}
               onClick={onClose}
-              className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg text-text-muted hover:text-text-base hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-blue/50"
+              className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg text-text-muted hover:text-text-base hover:bg-surface transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/50"
               aria-label="Close panel"
             >
               <X size={16} />
@@ -177,10 +187,40 @@ export default function EntityPanel({ entityId, onClose }: EntityPanelProps) {
             </p>
           )}
 
+          {/* Connections */}
+          {!loading && connections.length > 0 && (
+            <div className="px-5 pb-4 flex-shrink-0">
+              <p className="text-[10px] font-semibold font-sans text-text-muted uppercase tracking-widest mb-2">
+                Connected to
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {connections.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => onConnectionClick?.(c.id)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium font-sans border transition-all hover:brightness-125 active:scale-95"
+                    style={{
+                      background: NODE_COLORS[c.type] + "28",
+                      borderColor: NODE_COLORS[c.type] + "5a",
+                      color: NODE_COLORS[c.type],
+                    }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: NODE_COLORS[c.type] }}
+                    />
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="h-px bg-border mx-5 flex-shrink-0" />
 
           {/* Scrollable mentions */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-0">
+          <div className="flex-1 overflow-y-auto hide-scrollbar px-5 py-4 pb-24 md:pb-4 space-y-3 min-h-0">
             {loading ? (
               [0, 1, 2].map((i) => (
                 <div key={i} className="rounded-xl bg-panel border border-border px-4 py-4">

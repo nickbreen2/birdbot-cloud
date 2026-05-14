@@ -55,6 +55,7 @@ export function AuthModal({ mode, onClose, onSwitchMode }: AuthModalProps) {
     >
       <div
         ref={dialogRef}
+        data-theme="landing"
         className="auth-card rounded-2xl glow-border-blue w-full max-w-[440px] p-6 sm:p-8 flex flex-col gap-5 sm:gap-6"
         onClick={(e) => e.stopPropagation()}
         role="dialog"

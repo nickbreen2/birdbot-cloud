@@ -29,7 +29,7 @@ export function Footer() {
         }}
       />
 
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-6 px-8 sm:px-12">
+      <div className="relative w-full flex flex-col sm:flex-row items-center justify-between gap-6 px-8 sm:px-12">
         {/* Logo */}
         <Link
           href="/"
@@ -53,7 +53,7 @@ export function Footer() {
 
         {/* Copyright */}
         <p
-          className="text-sm font-sans order-last sm:order-none"
+          className="text-sm font-sans order-last sm:order-none md:absolute md:left-1/2 md:-translate-x-1/2"
           style={{ color: "rgba(100,116,139,0.8)", letterSpacing: "0.01em" }}
         >
           © {new Date().getFullYear()} BirdBot.ai

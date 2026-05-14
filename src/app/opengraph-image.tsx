@@ -19,11 +19,12 @@ export default function OGImage() {
           overflow: "hidden",
         }}
       >
-        {/* Star dots — scattered white specks for atmosphere */}
+        {/* Star dots — matches hero atmosphere */}
         {[
           [8, 12], [15, 55], [22, 88], [31, 33], [42, 71], [55, 18],
           [63, 82], [71, 44], [82, 9],  [90, 67], [96, 30], [4, 76],
           [37, 95], [50, 6],  [78, 92], [18, 40], [88, 52], [60, 60],
+          [25, 20], [70, 75], [45, 48], [10, 90], [85, 35],
         ].map(([x, y], i) => (
           <div
             key={i}
@@ -35,39 +36,21 @@ export default function OGImage() {
               height: i % 3 === 0 ? "2px" : "1px",
               borderRadius: "50%",
               backgroundColor: "white",
-              opacity: 0.15 + (i % 4) * 0.06,
+              opacity: 0.12 + (i % 4) * 0.07,
             }}
           />
         ))}
 
-        {/* Deep blue atmospheric glow behind center content */}
+        {/* Hero atmosphere — same radial-gradient layers as HeroSection */}
         <div
           style={{
             position: "absolute",
-            width: "900px",
-            height: "560px",
-            borderRadius: "50%",
+            inset: 0,
             backgroundImage:
-              "radial-gradient(ellipse at center, rgba(37,99,235,0.22) 0%, rgba(14,30,80,0.12) 45%, transparent 72%)",
-            top: "50%",
-            left: "50%",
-            marginTop: "-280px",
-            marginLeft: "-450px",
-          }}
-        />
-
-        {/* Soft sky-blue upper halo */}
-        <div
-          style={{
-            position: "absolute",
-            width: "600px",
-            height: "300px",
-            borderRadius: "50%",
-            backgroundImage:
-              "radial-gradient(ellipse at center, rgba(125,211,252,0.10) 0%, transparent 68%)",
-            top: "0px",
-            left: "50%",
-            marginLeft: "-300px",
+              "radial-gradient(ellipse 65% 45% at 50% 18%, rgba(125,211,252,0.12) 0%, transparent 55%), " +
+              "radial-gradient(ellipse 55% 50% at 50% 45%, rgba(37,99,235,0.13) 0%, transparent 70%), " +
+              "radial-gradient(ellipse 40% 30% at 72% 32%, rgba(234,179,8,0.07) 0%, transparent 65%)",
+            display: "flex",
           }}
         />
 
@@ -98,19 +81,18 @@ export default function OGImage() {
             BirdBot
           </div>
 
-          {/* Tagline — spaced uppercase sky blue, matching hero subheadline */}
+          {/* Subheadline — matches hero "The AI assistant that lives in your messages" */}
           <div
             style={{
-              fontSize: "20px",
+              fontSize: "26px",
               fontWeight: 300,
-              letterSpacing: "12px",
-              textTransform: "uppercase",
+              letterSpacing: "1px",
               color: "rgba(186,230,253,0.70)",
-              marginTop: "4px",
+              marginTop: "8px",
               display: "flex",
             }}
           >
-            Your AI Companion
+            The AI assistant that lives in your messages
           </div>
 
           {/* Thin divider line */}
@@ -120,25 +102,28 @@ export default function OGImage() {
               height: "1px",
               backgroundImage:
                 "linear-gradient(90deg, transparent, rgba(125,211,252,0.45), transparent)",
-              margin: "20px 0",
+              margin: "22px 0",
               display: "flex",
             }}
           />
 
-          {/* Description */}
+          {/* Hero copy with yellow accent — mirrors the rotating word color #eab308 */}
           <div
             style={{
-              fontSize: "22px",
-              color: "rgba(148,163,184,0.85)",
+              fontSize: "24px",
               textAlign: "center",
-              maxWidth: "720px",
+              maxWidth: "760px",
               lineHeight: 1.5,
               display: "flex",
-              textWrap: "balance",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: "6px",
             }}
           >
-            Deploy your personal AI agent in seconds. Automates tasks, browses
-            the web, and connects to your apps — running 24/7.
+            <span style={{ color: "rgba(148,163,184,0.85)" }}>Text it,</span>
+            <span style={{ color: "#eab308", fontWeight: 500 }}>it remembers.</span>
+            <span style={{ color: "rgba(148,163,184,0.85)" }}>Text it,</span>
+            <span style={{ color: "#eab308", fontWeight: 500 }}>it acts.</span>
           </div>
 
           {/* Domain pill */}

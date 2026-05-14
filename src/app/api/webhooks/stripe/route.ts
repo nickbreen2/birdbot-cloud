@@ -29,9 +29,8 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid signature"
-    console.error("Webhook signature verification failed:", message)
-    return new NextResponse(`Webhook Error: ${message}`, { status: 400 })
+    console.error("Webhook signature verification failed:", err)
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
   }
 
   switch (event.type) {
@@ -39,7 +38,8 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session
       await tasks.trigger<typeof handleStripeCheckoutCompleted>(
         "stripe-checkout-completed",
-        { session }
+        { session },
+        { idempotencyKey: event.id }
       )
       break
     }
@@ -48,7 +48,8 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       await tasks.trigger<typeof handleStripeSubscriptionUpdated>(
         "stripe-subscription-updated",
-        { subscription }
+        { subscription },
+        { idempotencyKey: event.id }
       )
       break
     }
@@ -57,7 +58,8 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       await tasks.trigger<typeof handleStripeSubscriptionDeleted>(
         "stripe-subscription-deleted",
-        { subscription }
+        { subscription },
+        { idempotencyKey: event.id }
       )
       break
     }

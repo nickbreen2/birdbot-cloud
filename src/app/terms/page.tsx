@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
+import { LandingThemeLock } from "@/components/LandingThemeLock"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen">
+      <LandingThemeLock />
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-6 pt-28 md:pt-36 pb-24">

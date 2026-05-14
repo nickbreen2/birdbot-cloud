@@ -1,10 +1,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { StarField } from "@/components/StarField"
+import { LandingThemeLock } from "@/components/LandingThemeLock"
 
 export default function NotFound() {
   return (
     <div className="relative min-h-screen bg-depth text-text-base flex flex-col items-center justify-center px-4">
+      <LandingThemeLock />
       <StarField />
 
       {/* Atmospheric blue glow behind the icon */}

@@ -14,49 +14,19 @@ export function getStripe(): Stripe {
 }
 
 export const PLANS = {
-  lite: {
-    name: "Lite",
-    price: 19,
-    priceId: process.env.STRIPE_LITE_PRICE_ID ?? "",
-    features: [
-      "1 BirdBot agent",
-      "1 channel & WebChat",
-      "Core skills",
-      "Standard AI models",
-      "Custom personality & memory",
-      "Community support",
-    ],
+  monthly: {
+    name: "BirdBot",
+    price: 9,
+    displayPrice: 9,
+    interval: "month" as const,
+    priceId: process.env.STRIPE_MONTHLY_PRICE_ID ?? "",
   },
-  pro: {
-    name: "Pro",
-    price: 39,
-    priceId: process.env.STRIPE_PRO_PRICE_ID ?? "",
-    popular: true,
-    features: [
-      "1 BirdBot agent",
-      "All channels — Telegram, Discord, Slack",
-      "All skills + marketplace",
-      "All major AI models",
-      "Custom personality & memory",
-      "Daily backups",
-      "Priority support",
-    ],
-  },
-  max: {
-    name: "Max",
-    price: 79,
-    priceId: process.env.STRIPE_MAX_PRICE_ID ?? "",
-    features: [
-      "3 BirdBot agents",
-      "All channels — Telegram, Discord, Slack",
-      "All skills + early access",
-      "All AI models incl. frontier",
-      "Custom personality & memory",
-      "Daily backups",
-      "Advanced analytics",
-      "API access",
-      "Dedicated support",
-    ],
+  annual: {
+    name: "BirdBot",
+    price: 60,
+    displayPrice: 5,
+    interval: "year" as const,
+    priceId: process.env.STRIPE_ANNUAL_PRICE_ID ?? "",
   },
 } as const
 

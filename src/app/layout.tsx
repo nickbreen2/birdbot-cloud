@@ -4,11 +4,12 @@
 export const dynamic = 'force-dynamic'
 
 import type { Metadata } from "next"
-import { Outfit, DM_Sans } from "next/font/google"
+import { Outfit, DM_Sans, Fraunces, JetBrains_Mono, Bricolage_Grotesque } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { StarField } from "@/components/StarField"
+import { ThemeProviderWrapper } from "@/components/ThemeProviderWrapper"
 import "./globals.css"
 import "./custom.css"
 
@@ -24,21 +25,40 @@ const dmSans = DM_Sans({
   weight: ["300", "400", "500", "600", "700"],
 })
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+})
+
+const bricolageGrotesque = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+  weight: ["500", "600", "700"],
+})
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
   ),
-  title: "BirdBot.ai — Your Personal AI Agent, Always On",
+  title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
   description:
-    "Deploy your own AI agent in seconds. BirdBot automates tasks, browses the web, manages files, and connects to Telegram and your favorite apps — running 24/7, no setup required.",
+    "BirdBot is the AI assistant that lives in your messages. Text it on Telegram and it remembers, takes notes, tracks what matters, and keeps you organized — 24/7.",
   keywords: [
-    "AI agent",
-    "personal AI assistant",
+    "AI assistant",
+    "personal AI",
     "Claude AI",
-    "autonomous agent",
-    "AI automation",
     "Telegram AI bot",
-    "managed AI",
+    "AI memory",
+    "knowledge graph",
+    "AI notes",
     "BirdBot",
   ],
   icons: {
@@ -46,18 +66,18 @@ export const metadata: Metadata = {
     apple: "/BirdBot-Icon-mark2.png",
   },
   openGraph: {
-    title: "BirdBot.ai — Your Personal AI Agent, Always On",
+    title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
     description:
-      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
+      "Text BirdBot on Telegram and it remembers, takes notes, and keeps you organized — 24/7.",
     type: "website",
     url: "https://birdbot.ai",
     siteName: "BirdBot.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "BirdBot.ai — Your Personal AI Agent, Always On",
+    title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
     description:
-      "Deploy your own AI agent in seconds. Automates tasks, browses the web, connects to your apps — running 24/7.",
+      "Text BirdBot on Telegram and it remembers, takes notes, and keeps you organized — 24/7.",
   },
 }
 
@@ -69,17 +89,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${dmSans.variable} h-full`}
+      data-theme="landing"
+      className={`${outfit.variable} ${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${bricolageGrotesque.variable} h-full`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var d=["/dashboard","/demo"],p=window.location.pathname;if(!d.some(function(x){return p===x||p.startsWith(x+"/")}))return;var t=localStorage.getItem("theme")||"dark";if(t==="system")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})();` }} />
+      </head>
       <body className="min-h-full bg-depth text-text-base antialiased font-sans" suppressHydrationWarning>
-        <ClerkProvider signUpForceRedirectUrl="/dashboard" signInForceRedirectUrl="/dashboard">
-          <StarField />
-          <div className="relative" style={{ zIndex: 1 }}>
-            {children}
-          </div>
-          <Analytics />
-          <SpeedInsights />
-        </ClerkProvider>
+        <ThemeProviderWrapper>
+          <ClerkProvider signUpForceRedirectUrl="/onboarding" signInForceRedirectUrl="/dashboard">
+            <StarField />
+            <div className="relative" style={{ zIndex: 1 }}>
+              {children}
+            </div>
+            <Analytics />
+            <SpeedInsights />
+          </ClerkProvider>
+        </ThemeProviderWrapper>
       </body>
     </html>
   )

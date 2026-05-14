@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { synthesizeBriefing } from "@/lib/synthesis"
+import { checkRateLimit } from "@/lib/rateLimit"
 
 export async function GET(request: Request) {
   try {
@@ -17,6 +18,11 @@ export async function GET(request: Request) {
 
     if (!connection) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const allowed = await checkRateLimit(`briefing:${token}`, 10, 60 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -60,7 +66,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ briefing, sessionId })
   } catch (err) {
     console.error("[/api/mcp/briefing] Error:", err)
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

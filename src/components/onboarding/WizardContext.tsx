@@ -3,8 +3,6 @@
 import { createContext, useContext, useState } from "react"
 
 interface WizardContextType {
-  forceOpen: boolean
-  setForceOpen: (open: boolean) => void
   settingsOpen: boolean
   setSettingsOpen: (open: boolean) => void
   accountOpen: boolean
@@ -12,8 +10,6 @@ interface WizardContextType {
 }
 
 const WizardContext = createContext<WizardContextType>({
-  forceOpen: false,
-  setForceOpen: () => {},
   settingsOpen: false,
   setSettingsOpen: () => {},
   accountOpen: false,
@@ -21,15 +17,12 @@ const WizardContext = createContext<WizardContextType>({
 })
 
 export function WizardProvider({ children }: { children: React.ReactNode }) {
-  const [forceOpen, setForceOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
 
   return (
     <WizardContext.Provider
       value={{
-        forceOpen,
-        setForceOpen,
         settingsOpen,
         setSettingsOpen,
         accountOpen,

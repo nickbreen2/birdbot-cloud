@@ -48,7 +48,7 @@ export const handleStripeSubscriptionUpdated = task({
   run: async (payload: { subscription: Stripe.Subscription }) => {
     const subscription = payload.subscription as StripeSubscriptionWithPeriod
 
-    await prisma.subscription.update({
+    await prisma.subscription.updateMany({
       where: { stripeSubscriptionId: subscription.id },
       data: {
         stripePriceId: subscription.items.data[0].price.id,
@@ -65,7 +65,7 @@ export const handleStripeSubscriptionDeleted = task({
   run: async (payload: { subscription: Stripe.Subscription }) => {
     const { subscription } = payload
 
-    await prisma.subscription.update({
+    await prisma.subscription.updateMany({
       where: { stripeSubscriptionId: subscription.id },
       data: { status: "canceled" },
     })
