@@ -3,7 +3,11 @@
 import Link from "next/link"
 import { useState, useCallback } from "react"
 import { usePathname, useRouter } from "next/navigation"
+<<<<<<< HEAD
 import { useAuth, SignOutButton, useUser } from "@clerk/nextjs"
+=======
+import { useAuth, SignOutButton } from "@clerk/nextjs"
+>>>>>>> origin/main
 import { Button } from "@/components/ui/Button"
 import { AuthModal } from "@/components/auth/AuthModal"
 
@@ -19,8 +23,11 @@ export function Navbar() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'sign-in' | 'sign-up'>('sign-in')
   const { isLoaded, isSignedIn } = useAuth()
+<<<<<<< HEAD
   const { user } = useUser()
   const onboardingComplete = user?.publicMetadata?.onboardingComplete === true
+=======
+>>>>>>> origin/main
   const pathname = usePathname()
   const router = useRouter()
 
