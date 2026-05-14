@@ -1,6 +1,6 @@
 # BirdBot.ai — Cloud App
 
-BirdBot is a managed AI agent platform. Users sign up, pick a plan, and get a personal AI assistant deployed in the cloud that runs 24/7. They interact with their agent via a web chat interface and Telegram.
+BirdBot is a personal AI assistant platform. Users sign up, connect their Telegram account, and get an AI that lives in their messages — remembering things, tracking threads, and catching open loops.
 
 This repo (`birdbot-cloud`) is a single Next.js app that serves both the public landing page and the authenticated dashboard.
 
@@ -12,7 +12,9 @@ This repo (`birdbot-cloud`) is a single Next.js app that serves both the public 
 | Styling | Tailwind CSS v4 |
 | Auth | Clerk |
 | Database | Neon (PostgreSQL) via Prisma |
-| Billing | Stripe (test mode) |
+| Background Jobs | Trigger.dev |
+| AI | Anthropic Claude |
+| Billing | Stripe |
 | Testing | Vitest |
 | Deployment | Vercel |
 
@@ -23,112 +25,95 @@ This repo (`birdbot-cloud`) is a single Next.js app that serves both the public 
 ```bash
 git clone <repo-url>
 cd birdbot-cloud
-```
+2. Install dependencies
 
-### 2. Install dependencies
-
-```bash
 npm install
-```
+3. Set up environment variables
 
-### 3. Set up environment variables
-
-Copy the example file and fill in your credentials:
-
-```bash
 cp .env.local.example .env.local
-```
+Fill in each value — see the comments in .env.local.example for where to find each key. The required services are:
 
-Open `.env.local` and provide values for each variable. See the comments in `.env.example` for where to find each key:
+Neon — console.neon.tech → your project → Connection Details. You need both DATABASE_URL (pooled) and DIRECT_URL (direct) — Prisma migrations require the direct connection.
+Clerk — dashboard.clerk.com → your application → API Keys
+Stripe — dashboard.stripe.com → Developers → API Keys. Create two subscription products (monthly + annual) and paste the Price IDs.
+Anthropic — console.anthropic.com → API Keys
+Trigger.dev — cloud.trigger.dev → your project → API Keys
+Telegram — Create a bot via @BotFather to get TELEGRAM_BOT_TOKEN. Generate TELEGRAM_WEBHOOK_SECRET with openssl rand -hex 32. After deploying, register the webhook with Telegram pointing to https://yourdomain.com/api/telegram/webhook.
+Google OAuth — console.cloud.google.com → APIs & Services → Credentials → Create OAuth 2.0 Client. Set the redirect URI to https://yourdomain.com/api/google/callback. Generate GOOGLE_OAUTH_STATE_SECRET with openssl rand -hex 32 and GOOGLE_TOKEN_ENCRYPTION_KEY with openssl rand -base64 32.
+ADMIN_EMAILS — Comma-separated list of emails that bypass the subscription check. Set this to your own email so you can access the dashboard without a paid subscription in development.
+4. Set up the database
 
-- **Neon** — [console.neon.tech](https://console.neon.tech) → your project → Connection Details
-- **Clerk** — [dashboard.clerk.com](https://dashboard.clerk.com) → your application → API Keys
-- **Stripe** — [dashboard.stripe.com](https://dashboard.stripe.com) → Developers → API Keys
-
-### 4. Set up the database
-
-Run Prisma migrations against your Neon database:
-
-```bash
 npx prisma migrate deploy
-```
+If you need to regenerate the Prisma client after a schema change:
 
-If you need to generate the Prisma client after schema changes:
 
-```bash
 npx prisma generate
-```
+5. Run the dev server
 
-### 5. Run the dev server
-
-```bash
 npm run dev
-```
+Open http://localhost:3000. The landing page is at / and the dashboard is at /dashboard (requires sign-in and an active subscription, or an ADMIN_EMAILS bypass).
 
-Open [http://localhost:3000](http://localhost:3000). The landing page is at `/` and the dashboard is at `/dashboard` (requires sign-in).
+6. Set up Stripe webhooks locally
 
-### 6. Set up Stripe webhooks (for billing)
-
-In a separate terminal, forward Stripe events to your local server:
-
-```bash
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
-```
+Copy the webhook signing secret into STRIPE_WEBHOOK_SECRET in .env.local.
 
-Copy the webhook signing secret printed by the CLI into `STRIPE_WEBHOOK_SECRET` in your `.env.local`.
+Project Structure
 
-## Project Structure
-
-```
 src/
   app/
-    api/              # API routes (agents, checkout, waitlist, Stripe webhooks)
-    dashboard/        # Authenticated dashboard pages (chat, plan, usage, etc.)
-    sign-in/          # Clerk sign-in page
-    sign-up/          # Clerk sign-up page
-    page.tsx          # Public landing page
-    layout.tsx        # Root layout (Clerk provider, fonts, StarField background)
+    api/
+      checkout/         # Create Stripe Checkout session
+      billing-portal/   # Open Stripe customer portal
+      billing-info/     # Current subscription state
+      google/           # Google OAuth flow (start + callback)
+      telegram/         # Telegram webhook receiver
+      hq/               # Dashboard brief data (threads, loops, learned)
+      memory/           # Memory CRUD
+      onboarding/       # Onboarding state
+      account/          # Account deletion
+      webhooks/stripe/  # Stripe event handler
+    dashboard/
+      page.tsx          # HQ brief (threads, open loops, recently learned)
+      memory/           # Memory browser
+      integrations/     # Google + Telegram connection management
+      loops/            # Loop history
+      [...]slug]/       # Dynamic dashboard pages
+    onboarding/         # Onboarding wizard pages
+    page.tsx            # Public landing page
+    layout.tsx          # Root layout (Clerk provider, fonts, background)
   components/
-    dashboard/        # Dashboard UI (Sidebar, AgentSetupWizard, WizardContext, etc.)
-    landing/          # Landing page sections (Hero, Pricing, Waitlist, etc.)
-    ui/               # Shared primitives (Button, Badge)
+    auth/               # AuthModal (sign-in/sign-up modal)
+    dashboard/          # Sidebar, BottomTabBar, SettingsModal, AccountModal, etc.
+    landing/            # Landing page sections (Hero, Navbar, FAQ, etc.)
+    onboarding/         # Wizard steps + WizardContext
+    ui/                 # Shared primitives (Button, Badge, BirdbotIcon)
   lib/
-    prisma.ts         # Prisma client singleton (Neon adapter)
-    stripe.ts         # Stripe client singleton + plan config
-    clerk-appearance.ts
-  types/
-    wizard.ts         # Types for the agent setup wizard
+    prisma.ts           # Prisma client singleton (Neon adapter)
+    stripe.ts           # Stripe client singleton + plan config
+    google.ts           # Google OAuth client helpers
+    tokenEncryption.ts  # AES-256-GCM encryption for stored OAuth tokens
 prisma/
-  schema.prisma       # Database schema (WaitlistEntry, Agent)
-```
+  schema.prisma         # Full database schema
+trigger/
+  tasks/                # Trigger.dev background task definitions
+Available Scripts
+Command	Description
+npm run dev	Start the development server
+npm run build	Create a production build
+npm run start	Start the production server
+npm run lint	Run ESLint
+npm run test	Run tests with Vitest
+npm run test:watch	Run tests in watch mode
+Key Concepts
+Auth — Sign-in and sign-up are handled via a modal (AuthModal + Clerk) on the landing page. There are no dedicated /sign-in or /sign-up pages in the main flow.
 
-## Available Scripts
+Onboarding wizard — After a user subscribes and signs in for the first time, they go through a multi-step wizard (/onboarding) to connect Telegram and configure their assistant. Completion is tracked via publicMetadata.onboardingComplete on the Clerk user object.
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm run start` | Start the production server |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run tests with Vitest |
-| `npm run test:watch` | Run tests in watch mode |
+Dashboard HQ — The main dashboard page (/dashboard) shows a live brief: topics Bird is tracking, open loops (things the user said they'd do), and recently learned facts.
 
-## Running Tests
+Subscription gate — dashboard/layout.tsx checks for an active Stripe subscription on every dashboard request. Users without one are redirected to the landing page. Emails in ADMIN_EMAILS bypass this check.
 
-```bash
-npm run test
-```
+Google token encryption — OAuth tokens for Google Drive are encrypted at rest using AES-256-GCM (lib/tokenEncryption.ts) before being stored in the database.
 
-Tests live in `src/__tests__/`. The test suite uses Vitest.
-
-## Key Concepts
-
-**Agent Setup Wizard** — New users who sign in are guided through a multi-step wizard (`AgentSetupWizard`) to name and configure their AI agent. Wizard state is managed by `WizardContext`.
-
-**Incubating Gate** — After an agent is created, it has `status: "incubating"` while being provisioned. `IncubatingGate` shows a holding screen until the agent is live.
-
-**Stripe billing flow** — The `/api/checkout` route creates a Stripe Checkout session. Stripe posts events to `/api/webhooks/stripe` after payment. The webhook handler needs database writes wired up (see TODO comments in that file).
-
-## Pending Work
-
-See TODO comments in `src/app/api/webhooks/stripe/route.ts` — after a successful checkout, the app needs to persist subscription data and update user records in the database.
+Telegram webhook — Incoming messages from users arrive at /api/telegram/webhook. The secret header is verified with a constant-time comparison to prevent timing attacks.
