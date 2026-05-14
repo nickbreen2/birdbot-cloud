@@ -35,7 +35,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorBase)
   }
 
-  client.setCredentials(tokens)
+  client.setCredentials({
+    access_token: tokens.access_token ?? undefined,
+    refresh_token: tokens.refresh_token ?? undefined,
+    expiry_date: tokens.expiry_date ?? undefined,
+    scope: tokens.scope ?? undefined,
+  })
   let email = ""
   try {
     const oauth2 = google.oauth2({ version: "v2", auth: client as never })
