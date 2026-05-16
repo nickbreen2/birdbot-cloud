@@ -245,22 +245,27 @@ async function handlePairing(
   await sendTelegramMessage(chatId, "Connected! Send me your notes and I'll log them to your knowledge graph.")
 }
 
+async function checkSubscription(userId: string): Promise<boolean> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { clerkUserId: userId },
+    select: { status: true, currentPeriodEnd: true },
+  })
+  return !!(
+    subscription &&
+    (subscription.status === "active" || subscription.status === "trialing") &&
+    subscription.currentPeriodEnd > new Date()
+  )
+}
+
 async function handleMessage(
   payload: TelegramProcessPayload,
   userId: string
 ): Promise<void> {
   const { chatId, messageId, text } = payload
 
-  // Check subscription status before processing
-  const subscription = await prisma.subscription.findUnique({
-    where: { clerkUserId: userId },
-    select: { status: true, currentPeriodEnd: true },
-  })
-
-  const isActive =
-    subscription &&
-    (subscription.status === "active" || subscription.status === "trialing") &&
-    subscription.currentPeriodEnd > new Date()
+  // Check subscription status before processing (admin bypass via ADMIN_CLERK_USER_IDS)
+  const adminUserIds = (process.env.ADMIN_CLERK_USER_IDS ?? "").split(",").map(s => s.trim()).filter(Boolean)
+  const isActive = adminUserIds.includes(userId) || await checkSubscription(userId)
 
   if (!isActive) {
     const lastSent = expiredCooldown.get(userId) ?? 0
