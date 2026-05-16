@@ -35,11 +35,17 @@ const PLAN_PRICES = {
   annual:  { display: '$60', cadence: 'per year',  label: 'Annual',  sub: '$60/yr' },
 }
 
+type PromoState = 'idle' | 'checking' | 'free' | 'invalid'
+
 export default function OnboardingStep3() {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [customerId, setCustomerId] = useState<string | null>(null)
   const [plan, setPlan] = useState<'monthly' | 'annual'>('monthly')
   const [fetchError, setFetchError] = useState(false)
+
+  const [promoInput, setPromoInput] = useState('')
+  const [promoState, setPromoState] = useState<PromoState>('idle')
+  const [promoCodeId, setPromoCodeId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/onboarding/setup-intent', { method: 'POST' })
@@ -52,6 +58,30 @@ export default function OnboardingStep3() {
       .catch(() => setFetchError(true))
   }, [])
 
+  async function applyPromo() {
+    const code = promoInput.trim().toUpperCase()
+    if (!code || promoState === 'checking') return
+    setPromoState('checking')
+    try {
+      const res = await fetch('/api/onboarding/validate-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      })
+      const d = await res.json() as { valid: boolean; isFree?: boolean; promoCodeId?: string }
+      if (d.valid && d.isFree) {
+        setPromoCodeId(d.promoCodeId ?? null)
+        setPromoState('free')
+      } else {
+        setPromoState('invalid')
+      }
+    } catch {
+      setPromoState('invalid')
+    }
+  }
+
+  const isFree = promoState === 'free'
+
   if (fetchError) {
     return (
       <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', color: '#888882' }}>
@@ -60,30 +90,95 @@ export default function OnboardingStep3() {
     )
   }
 
-  const stripePanel = clientSecret && customerId ? (
-    <Elements stripe={stripePromise} options={{ clientSecret, appearance: {
-      theme: 'night',
-      variables: {
-        colorPrimary: '#2463EB',
-        colorBackground: '#131929',
-        colorText: '#f1f5f9',
-        colorDanger: '#EF4444',
-        fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
-        borderRadius: '10px',
-        colorTextPlaceholder: '#64748b',
-        colorIcon: '#94a3b8',
-      },
-    }}}>
-      <PaymentCard plan={plan} customerId={customerId} />
-    </Elements>
-  ) : (
-    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '40px 0' }}>
-      Loading payment form…
+  const promoSection = (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input
+          type="text"
+          value={promoInput}
+          onChange={e => { setPromoInput(e.target.value); setPromoState('idle'); setPromoCodeId(null) }}
+          onKeyDown={e => e.key === 'Enter' && applyPromo()}
+          placeholder="Promo code"
+          disabled={isFree}
+          style={{
+            flex: 1, height: 40, padding: '0 12px',
+            background: isFree ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.06)',
+            border: isFree
+              ? '1.5px solid rgba(52,211,153,0.4)'
+              : promoState === 'invalid'
+                ? '1.5px solid rgba(239,68,68,0.5)'
+                : '1.5px solid rgba(255,255,255,0.1)',
+            borderRadius: 10, color: 'var(--theme-text-base)',
+            fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
+            fontSize: 14, outline: 'none',
+          }}
+        />
+        {!isFree && (
+          <button
+            onClick={applyPromo}
+            disabled={promoState === 'checking' || !promoInput.trim()}
+            style={{
+              height: 40, padding: '0 16px',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1.5px solid rgba(255,255,255,0.12)',
+              borderRadius: 10, color: 'var(--theme-text-base)',
+              fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              opacity: promoState === 'checking' || !promoInput.trim() ? 0.5 : 1,
+            }}
+          >
+            {promoState === 'checking' ? '…' : 'Apply'}
+          </button>
+        )}
+      </div>
+      {promoState === 'invalid' && (
+        <p style={{ fontSize: 12, color: '#EF4444', marginTop: 6, marginBottom: 0 }}>
+          That code isn't valid or has expired.
+        </p>
+      )}
+      {isFree && (
+        <p style={{ fontSize: 12, color: '#34d399', marginTop: 6, marginBottom: 0 }}>
+          Free access applied. No card needed.
+        </p>
+      )}
     </div>
   )
 
+  let paymentPanel: React.ReactNode
+
+  if (isFree && customerId && promoCodeId) {
+    paymentPanel = <FreeAccessCard customerId={customerId} plan={plan} promoCodeId={promoCodeId} promoSection={promoSection} />
+  } else if (clientSecret && customerId) {
+    paymentPanel = (
+      <Elements stripe={stripePromise} options={{ clientSecret, appearance: {
+        theme: 'night',
+        variables: {
+          colorPrimary: '#2463EB',
+          colorBackground: '#131929',
+          colorText: '#f1f5f9',
+          colorDanger: '#EF4444',
+          fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)',
+          borderRadius: '10px',
+          colorTextPlaceholder: '#64748b',
+          colorIcon: '#94a3b8',
+        },
+      }}}>
+        <PaymentCard plan={plan} customerId={customerId} promoSection={promoSection} />
+      </Elements>
+    )
+  } else {
+    paymentPanel = (
+      <>
+        {promoSection}
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '40px 0' }}>
+          Loading payment form…
+        </div>
+      </>
+    )
+  }
+
   return (
-    <OnboardingShell step={3} rightContent={stripePanel}>
+    <OnboardingShell step={3} rightContent={paymentPanel}>
       <h1 className="ob-h1">
         Start your 7&#8209;day free trial
       </h1>
@@ -94,7 +189,6 @@ export default function OnboardingStep3() {
 
       {/* Plan toggle */}
       <div style={{ position: 'relative', marginBottom: 20, marginTop: 28 }}>
-        {/* Header tab above annual button — matches its width (50% minus padding+gap) */}
         <div style={{
           position: 'absolute',
           top: -24, right: 4,
@@ -168,7 +262,111 @@ export default function OnboardingStep3() {
   )
 }
 
-function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; customerId: string }) {
+function FreeAccessCard({
+  customerId,
+  plan,
+  promoCodeId,
+  promoSection,
+}: {
+  customerId: string
+  plan: 'monthly' | 'annual'
+  promoCodeId: string
+  promoSection: React.ReactNode
+}) {
+  const router = useRouter()
+  const { session } = useSession()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleFreeAccess() {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/onboarding/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId, plan, promoCodeId }),
+      })
+      if (!res.ok) {
+        const d = await res.json() as { error?: string }
+        setError(d.error ?? 'Something went wrong. Please try again.')
+        setLoading(false)
+        return
+      }
+      await session?.reload()
+      router.push('/dashboard')
+    } catch {
+      setError('Something went wrong. Please check your connection and try again.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      {promoSection}
+
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--theme-border)',
+      }}>
+        <img src="/BirdBot-Icon-mark2.png" alt="BirdBot" style={{ width: 38, height: 38, borderRadius: 10 }} />
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
+            fontSize: 14, fontWeight: 700, color: 'var(--theme-text-base)', letterSpacing: '-0.3px',
+          }}>BirdBot Pro</div>
+          <div style={{ fontSize: 11.5, color: '#34d399', marginTop: 1 }}>Free access</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{
+            fontFamily: 'var(--font-outfit, "Outfit", sans-serif)',
+            fontSize: 19, fontWeight: 700, color: '#34d399', letterSpacing: '-0.5px',
+          }}>$0</div>
+          <div style={{ fontSize: 11, color: 'var(--theme-text-dim)' }}>forever</div>
+        </div>
+      </div>
+
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '10px 0', margin: '14px 0', borderTop: '1px solid var(--theme-border)',
+        borderBottom: '1px solid var(--theme-border)',
+      }}>
+        <span style={{ fontSize: 13, color: 'var(--theme-text-dim)' }}>Due today</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#34d399' }}>$0.00</span>
+      </div>
+
+      {error && (
+        <p style={{ fontSize: 13, color: '#EF4444', marginBottom: 10, textAlign: 'center' }}>{error}</p>
+      )}
+
+      <button
+        onClick={handleFreeAccess}
+        disabled={loading}
+        style={{
+          ...btnBlue,
+          background: loading ? 'rgba(36,99,235,0.5)' : '#2463EB',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          marginBottom: 12,
+        }}
+      >
+        {loading ? 'Setting up…' : 'Get free access'}
+      </button>
+
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 5, fontSize: 11.5, color: 'rgba(255,255,255,0.4)',
+      }}>
+        <svg width="12" height="14" viewBox="0 0 12 14" fill="none">
+          <path d="M6 1L1 3.5V7C1 9.8 3.2 12.4 6 13C8.8 12.4 11 9.8 11 7V3.5L6 1Z" fill="rgba(255,255,255,0.3)"/>
+        </svg>
+        Secured &amp; powered by Stripe
+      </div>
+    </div>
+  )
+}
+
+function PaymentCard({ plan, customerId, promoSection }: { plan: 'monthly' | 'annual'; customerId: string; promoSection: React.ReactNode }) {
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
@@ -217,8 +415,6 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
         return
       }
 
-      // Force Clerk to refresh the session JWT so the middleware sees
-      // onboardingComplete: true before we navigate to /dashboard.
       await session?.reload()
       router.push('/dashboard')
     } catch {
@@ -231,6 +427,8 @@ function PaymentCard({ plan, customerId }: { plan: 'monthly' | 'annual'; custome
 
   return (
     <form onSubmit={handleSubmit}>
+      {promoSection}
+
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 12,

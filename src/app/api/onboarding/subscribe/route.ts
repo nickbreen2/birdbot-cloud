@@ -7,11 +7,15 @@ export async function POST(request: Request) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json() as { paymentMethodId?: string; customerId?: string; plan?: string }
-  const { paymentMethodId, customerId, plan } = body
+  const body = await request.json() as { paymentMethodId?: string; customerId?: string; plan?: string; promoCodeId?: string }
+  const { paymentMethodId, customerId, plan, promoCodeId } = body
 
-  if (!paymentMethodId || !customerId || !plan) {
+  if (!customerId || !plan) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  if (!paymentMethodId && !promoCodeId) {
+    return NextResponse.json({ error: 'Missing payment method or promo code' }, { status: 400 })
   }
 
   const planConfig = plan === 'monthly' ? PLANS.monthly : plan === 'annual' ? PLANS.annual : null
@@ -25,24 +29,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  // Attach payment method to customer
-  await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId })
+  let subscription: Awaited<ReturnType<typeof stripe.subscriptions.create>>
 
-  // Set as default payment method
-  await stripe.customers.update(customerId, {
-    invoice_settings: { default_payment_method: paymentMethodId },
-  })
-
-  // Create subscription with 7-day trial
-  const subscription = await stripe.subscriptions.create({
-    customer: customerId,
-    items: [{ price: planConfig.priceId }],
-    trial_period_days: 7,
-    payment_settings: {
-      payment_method_types: ['card'],
-      save_default_payment_method: 'on_subscription',
-    },
-  })
+  if (promoCodeId) {
+    // Free path: 100% off promo code — no card needed, Stripe bills $0 immediately
+    subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: planConfig.priceId }],
+      discounts: [{ promotion_code: promoCodeId }],
+    })
+  } else {
+    // Paid path: attach card and create subscription with 7-day trial
+    await stripe.paymentMethods.attach(paymentMethodId!, { customer: customerId })
+    await stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: paymentMethodId! },
+    })
+    subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: planConfig.priceId }],
+      trial_period_days: 7,
+      payment_settings: {
+        payment_method_types: ['card'],
+        save_default_payment_method: 'on_subscription',
+      },
+    })
+  }
 
   // In Stripe v21, current_period_end lives on each SubscriptionItem.
   // For a trialing subscription, use trial_end; fall back to item-level period end.
