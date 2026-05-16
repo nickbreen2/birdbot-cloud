@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { PLANS } from '@/lib/stripe'
 
@@ -17,10 +17,14 @@ export async function GET() {
     const sub = await prisma.subscription.findUnique({ where: { clerkUserId: userId } })
     if (!sub) return NextResponse.json({ error: 'No subscription found' }, { status: 404 })
 
+    const clerk = await clerkClient()
+    const user = await clerk.users.getUser(userId)
+    const isFree = (user.publicMetadata as Record<string, unknown>).plan === 'free'
+
     return NextResponse.json({
-      plan: resolvePlanLabel(sub.stripePriceId),
+      plan: isFree ? 'Free · Forever' : resolvePlanLabel(sub.stripePriceId),
       status: sub.status,
-      currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
+      currentPeriodEnd: isFree ? null : sub.currentPeriodEnd.toISOString(),
     })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

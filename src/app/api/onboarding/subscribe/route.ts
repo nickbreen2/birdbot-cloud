@@ -95,7 +95,7 @@ export async function POST(request: Request) {
     publicMetadata: {
       ...user.publicMetadata,
       onboardingComplete: true,
-      plan,
+      plan: promoCodeId ? 'free' : plan,
     },
   })
 

@@ -614,7 +614,7 @@ function SecuritySection() {
 
 // ── Billing section ────────────────────────────────────────────────────────────
 
-type BillingInfo = { plan: string; status: string; currentPeriodEnd: string }
+type BillingInfo = { plan: string; status: string; currentPeriodEnd: string | null }
 
 function BillingSection() {
   const [info, setInfo] = useState<BillingInfo | null>(null)
@@ -668,7 +668,7 @@ function BillingSection() {
     }
   }
 
-  const periodEnd = info
+  const periodEnd = info?.currentPeriodEnd
     ? new Date(info.currentPeriodEnd).toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -677,6 +677,7 @@ function BillingSection() {
     : null
 
   const isTrialing = info?.status === 'trialing'
+  const isFreeForever = info?.currentPeriodEnd === null
 
   if (loading) {
     return (
@@ -762,34 +763,40 @@ function BillingSection() {
           )}
         </div>
 
-        {/* Trial end / Next billing */}
-        <div
-          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
-          style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
-        >
-          <span className="text-sm text-text-muted">
-            {isTrialing ? "Trial ends" : "Next billing"}
-          </span>
-          <span className="text-sm font-semibold text-text-base">{periodEnd}</span>
-        </div>
+        {/* Trial end / Next billing — hidden for free-forever accounts */}
+        {!isFreeForever && (
+          <div
+            className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+            style={{ background: "var(--theme-surface)", border: "1px solid var(--theme-border)" }}
+          >
+            <span className="text-sm text-text-muted">
+              {isTrialing ? "Trial ends" : "Next billing"}
+            </span>
+            <span className="text-sm font-semibold text-text-base">{periodEnd}</span>
+          </div>
+        )}
 
-        {/* Manage button */}
-        <button
-          type="button"
-          onClick={handleManageClick}
-          disabled={portalLoading}
-          className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
-        >
-          {portalLoading ? 'Opening…' : 'Manage subscription'}
-        </button>
+        {/* Manage button — hidden for free-forever accounts */}
+        {!isFreeForever && (
+          <>
+            <button
+              type="button"
+              onClick={handleManageClick}
+              disabled={portalLoading}
+              className="w-full h-10 rounded-xl text-sm font-semibold transition-colors mt-1 disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
+            >
+              {portalLoading ? 'Opening…' : 'Manage subscription'}
+            </button>
 
-        <p className="text-center text-[11.5px] font-sans text-text-muted">
-          Cancel anytime · Opens Stripe&apos;s secure billing portal
-        </p>
-        {portalError && (
-          <p className="text-center text-[11.5px] text-red-400">
-            Could not open portal. Please try again.
-          </p>
+            <p className="text-center text-[11.5px] font-sans text-text-muted">
+              Cancel anytime · Opens Stripe&apos;s secure billing portal
+            </p>
+            {portalError && (
+              <p className="text-center text-[11.5px] text-red-400">
+                Could not open portal. Please try again.
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
