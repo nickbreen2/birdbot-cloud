@@ -278,7 +278,7 @@ function buildReplyUserMessage(input: ReplyInput): string {
 export async function generateBirdReply(input: ReplyInput, fallback: string): Promise<string> {
   try {
     const response = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-sonnet-4-6",
       max_tokens: 120,
       system: REPLY_SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildReplyUserMessage(input) }],
