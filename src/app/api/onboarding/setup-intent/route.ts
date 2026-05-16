@@ -20,6 +20,9 @@ export async function POST() {
 
   if (existing.data.length > 0) {
     customerId = existing.data[0].id
+    if (existing.data[0].metadata?.clerkUserId !== userId) {
+      await stripe.customers.update(customerId, { metadata: { clerkUserId: userId } })
+    }
   } else {
     const customer = await stripe.customers.create(
       {
