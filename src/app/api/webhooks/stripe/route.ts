@@ -6,6 +6,7 @@ import type {
   handleStripeCheckoutCompleted,
   handleStripeSubscriptionUpdated,
   handleStripeSubscriptionDeleted,
+  handleStripeSubscriptionCreated,
 } from "@/trigger/stripe"
 
 export async function POST(request: Request) {
@@ -39,6 +40,16 @@ export async function POST(request: Request) {
       await tasks.trigger<typeof handleStripeCheckoutCompleted>(
         "stripe-checkout-completed",
         { session },
+        { idempotencyKey: event.id }
+      )
+      break
+    }
+
+    case "customer.subscription.created": {
+      const subscription = event.data.object as Stripe.Subscription
+      await tasks.trigger<typeof handleStripeSubscriptionCreated>(
+        "stripe-subscription-created",
+        { subscription },
         { idempotencyKey: event.id }
       )
       break

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@clerk/nextjs/server"
+import { auth, clerkClient } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/prisma"
 import { getStripe } from "@/lib/stripe"
 import { buildOAuthClient } from "@/lib/google"
@@ -84,6 +84,10 @@ export async function DELETE() {
         tx.mcpConnection.deleteMany({ where: { clerkUserId: userId } }),
       ])
     })
+
+    // 5. Delete the Clerk user (server-side, avoids client SDK permission issues)
+    const clerk = await clerkClient()
+    await clerk.users.deleteUser(userId)
 
     return NextResponse.json({ ok: true })
   } catch (err) {

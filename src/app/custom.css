@@ -1382,3 +1382,65 @@ html:has([data-theme="landing"]) .starfield { display: block; }
   animation: ob-pulse 3.2s ease-out infinite;
   z-index: -1;
 }
+
+/* ── Expired subscription banner ── */
+.expired-banner {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  backdrop-filter: blur(8px);
+  background: rgba(239,68,68,0.08);
+  border-bottom: 1px solid rgba(239,68,68,0.2);
+}
+
+.expired-banner__text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(252,165,165,0.9);
+}
+
+.expired-banner__btn {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: #fff;
+  background: rgba(239,68,68,0.5);
+  border: 1px solid rgba(239,68,68,0.4);
+  cursor: pointer;
+}
+
+.expired-banner__btn:hover:not(:disabled) {
+  background: rgba(239,68,68,0.65);
+}
+
+.expired-banner__btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+[data-theme="light"] .expired-banner {
+  background: #fef2f2;
+  border-bottom: 1px solid #fca5a5;
+}
+
+[data-theme="light"] .expired-banner__text {
+  color: #991b1b;
+}
+
+[data-theme="light"] .expired-banner__btn {
+  color: #fff;
+  background: #dc2626;
+  border: 1px solid #b91c1c;
+}
+
+[data-theme="light"] .expired-banner__btn:hover:not(:disabled) {
+  background: #b91c1c;
+}

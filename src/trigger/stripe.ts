@@ -42,6 +42,40 @@ export const handleStripeCheckoutCompleted = task({
   },
 })
 
+export const handleStripeSubscriptionCreated = task({
+  id: "stripe-subscription-created",
+  retry: { maxAttempts: 5, factor: 2, minTimeoutInMs: 1000, maxTimeoutInMs: 30_000 },
+  run: async (payload: { subscription: Stripe.Subscription }) => {
+    const subscription = payload.subscription as StripeSubscriptionWithPeriod
+    const { getStripe } = await import("@/lib/stripe")
+
+    // clerkUserId lives on the customer, not the subscription
+    const customer = await getStripe().customers.retrieve(subscription.customer as string)
+    if (customer.deleted) return
+    const clerkUserId = customer.metadata?.clerkUserId
+    if (!clerkUserId) return
+
+    await prisma.subscription.upsert({
+      where: { clerkUserId },
+      create: {
+        clerkUserId,
+        stripeCustomerId: subscription.customer as string,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscription.items.data[0].price.id,
+        status: subscription.status,
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      },
+      update: {
+        stripeCustomerId: subscription.customer as string,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscription.items.data[0].price.id,
+        status: subscription.status,
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      },
+    })
+  },
+})
+
 export const handleStripeSubscriptionUpdated = task({
   id: "stripe-subscription-updated",
   retry: { maxAttempts: 5, factor: 2, minTimeoutInMs: 1000, maxTimeoutInMs: 30_000 },

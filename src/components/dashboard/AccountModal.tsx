@@ -835,7 +835,6 @@ function DangerSection({
     try {
       const res = await fetch("/api/account", { method: "DELETE" })
       if (!res.ok) throw new Error("cleanup failed")
-      await user.delete()
       await signOut({ redirectUrl: "/" })
     } catch {
       setError("Something went wrong. Please try again.")
