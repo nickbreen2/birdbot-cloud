@@ -17,40 +17,14 @@ export function ExpiredBanner() {
   }
 
   return (
-    <div
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background: "rgba(239,68,68,0.08)",
-        borderBottom: "1px solid rgba(239,68,68,0.2)",
-        padding: "10px 20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <span style={{ fontSize: 13, color: "rgba(252,165,165,0.9)", lineHeight: 1.4 }}>
+    <div className="expired-banner">
+      <span className="expired-banner__text">
         Your subscription has ended. Reactivate to keep BirdBot working for you.
       </span>
       <button
         onClick={handleReactivate}
         disabled={loading}
-        style={{
-          fontSize: 13,
-          fontWeight: 600,
-          color: "#fff",
-          background: "rgba(239,68,68,0.5)",
-          border: "1px solid rgba(239,68,68,0.4)",
-          borderRadius: 6,
-          padding: "6px 14px",
-          cursor: loading ? "default" : "pointer",
-          opacity: loading ? 0.7 : 1,
-          whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}
+        className="expired-banner__btn"
       >
         {loading ? "Loading..." : "Reactivate"}
       </button>
