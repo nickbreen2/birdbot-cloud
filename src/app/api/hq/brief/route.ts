@@ -38,6 +38,7 @@ export async function GET() {
         AND e.type NOT IN ('task', 'date', 'file')
       GROUP BY e.id
       ORDER BY mention_count DESC, last_mention_at DESC
+      LIMIT 100
     `,
     prisma.entity.findMany({
       where: {
