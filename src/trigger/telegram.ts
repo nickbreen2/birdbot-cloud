@@ -4,6 +4,7 @@ import { sendTelegramMessage } from "@/lib/telegram"
 import { runEntityExtraction } from "@/trigger/extractEntities"
 import { generateBirdReply } from "@/lib/replyPrompt"
 import { getGraphContext } from "@/lib/graphContext"
+import { detectAndScheduleFollowUp } from "@/lib/followUpScheduler"
 import Anthropic from "@anthropic-ai/sdk"
 import { getUpcomingEvents, createEvent } from "@/lib/googleCalendar"
 import { getUnreadSummary, sendEmail } from "@/lib/googleGmail"
@@ -331,16 +332,24 @@ async function handleMessage(
     return
   }
 
-  const reply = await generateBirdReply(
-    {
+  const [reply] = await Promise.all([
+    generateBirdReply(
+      {
+        text,
+        entities: result.entities,
+        counts: { entitiesCreated: result.entitiesCreated, entitiesUpdated: result.entitiesReused, totalEntities: total },
+        error: false,
+        ...context,
+      },
+      "Got it."
+    ),
+    detectAndScheduleFollowUp(
+      userId,
+      chatId,
       text,
-      entities: result.entities,
-      counts: { entitiesCreated: result.entitiesCreated, entitiesUpdated: result.entitiesReused, totalEntities: total },
-      error: false,
-      ...context,
-    },
-    "Got it."
-  )
+      result.entities.map((e) => ({ name: e.name, type: e.type }))
+    ),
+  ])
   await sendTelegramMessage(chatId, reply)
 }
 
