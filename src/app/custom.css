@@ -846,6 +846,20 @@ html[data-theme="light"] body {
   color: var(--brief-text-faintest);
   border-color: #1E1E24;
 }
+.loops__see-all {
+  background: transparent;
+  border: none;
+  padding: 10px 0 2px;
+  font: 500 11px/1 var(--brief-sans);
+  color: var(--brief-text-faint);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  transition: color 0.15s;
+}
+.loops__see-all:hover {
+  color: var(--brief-text-muted);
+}
 .loop__undo {
   color: var(--brief-text-faint) !important;
   border-color: #2A2A30 !important;

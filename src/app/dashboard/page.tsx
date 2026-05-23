@@ -86,6 +86,7 @@ export default function HQPage() {
   const [fetchError, setFetchError] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const closeHistory = useCallback(() => setHistoryOpen(false), [])
+  const [showAllLoops, setShowAllLoops] = useState(false)
 
   function addLoopBack(loop: Loop) {
     setData((prev) => {
@@ -190,7 +191,7 @@ export default function HQPage() {
           <p className="brief__empty">No open loops — Bird hasn&rsquo;t caught any unfollowed promises yet.</p>
         ) : (
           <div className="loops">
-            {loops.slice(0, 4).map((loop) => (
+            {(showAllLoops ? loops : loops.slice(0, 4)).map((loop) => (
               <div key={loop.id} className="loop">
                 <span className="loop__text">
                   You said you&rsquo;d <em>{loop.name}</em>
@@ -202,6 +203,11 @@ export default function HQPage() {
                 </button>
               </div>
             ))}
+            {loops.length > 4 && (
+              <button className="loops__see-all" onClick={() => setShowAllLoops(v => !v)}>
+                {showAllLoops ? "Show less" : "Show all"}
+              </button>
+            )}
           </div>
         )}
       </section>
