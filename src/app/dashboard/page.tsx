@@ -87,6 +87,7 @@ export default function HQPage() {
   const [historyOpen, setHistoryOpen] = useState(false)
   const closeHistory = useCallback(() => setHistoryOpen(false), [])
   const [showAllLoops, setShowAllLoops] = useState(false)
+  const [showAllThreads, setShowAllThreads] = useState(false)
 
   function addLoopBack(loop: Loop) {
     setData((prev) => {
@@ -153,7 +154,7 @@ export default function HQPage() {
           <p className="brief__empty">No threads yet — Bird will start tracking topics as you message it.</p>
         ) : (
           <div className="threads">
-            {threads.map((t) => {
+            {(showAllThreads ? threads : threads.slice(0, 6)).map((t) => {
               const color = TYPE_COLOR[t.type] ?? "#6366F1"
               const updatedAt = new Date(t.lastMentionAt)
               return (
@@ -174,6 +175,11 @@ export default function HQPage() {
                 </div>
               )
             })}
+            {threads.length > 6 && (
+              <button className="loops__see-all" onClick={() => setShowAllThreads(v => !v)}>
+                {showAllThreads ? "Show less" : "Show more"}
+              </button>
+            )}
           </div>
         )}
       </section>
