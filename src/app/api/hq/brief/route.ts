@@ -35,10 +35,9 @@ export async function GET() {
       FROM "Entity" e
       JOIN "Mention" m ON m."entityId" = e.id
       WHERE e."userId" = ${userId}
-        AND e.type != 'task'
+        AND e.type NOT IN ('task', 'date', 'file')
       GROUP BY e.id
       ORDER BY mention_count DESC, last_mention_at DESC
-      LIMIT 6
     `,
     prisma.entity.findMany({
       where: {
