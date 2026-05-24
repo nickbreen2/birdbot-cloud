@@ -8,7 +8,22 @@ export async function DELETE() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  await prisma.telegramUser.deleteMany({ where: { userId } })
+  try {
+    await prisma.telegramUser.deleteMany({ where: { userId } })
 
-  return NextResponse.json({ ok: true })
+    // If Telegram was home, auto-switch to WhatsApp (if connected) or null
+    const prefs = await prisma.userPreferences.findUnique({ where: { userId } })
+    if (prefs?.homeChannel === "telegram") {
+      const waUser = await prisma.whatsAppUser.findUnique({ where: { userId } })
+      await prisma.userPreferences.update({
+        where: { userId },
+        data: { homeChannel: waUser ? "whatsapp" : null },
+      })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error("[/api/telegram/unpair] Error:", err)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
 }
