@@ -13,6 +13,22 @@ type WhatsAppProcessPayload =
 const FIRST_MESSAGE =
   "Connected! Send me your notes and I'll remember everything for you."
 
+// Rate-limit expired-subscription replies: one per userId per 24 hours
+const expiredCooldown = new Map<string, number>()
+const EXPIRED_COOLDOWN_MS = 24 * 60 * 60 * 1000
+
+async function checkSubscription(userId: string): Promise<boolean> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { clerkUserId: userId },
+    select: { status: true, currentPeriodEnd: true },
+  })
+  return !!(
+    subscription &&
+    (subscription.status === "active" || subscription.status === "trialing") &&
+    subscription.currentPeriodEnd > new Date()
+  )
+}
+
 export const whatsappProcess = task({
   id: "whatsapp-process",
   retry: {
@@ -71,11 +87,34 @@ export const whatsappProcess = task({
     // Regular message from known user
     const userId = payload.userId!
 
+    // Check subscription status before processing (admin bypass via ADMIN_CLERK_USER_IDS)
+    const adminUserIds = (process.env.ADMIN_CLERK_USER_IDS ?? "").split(",").map(s => s.trim()).filter(Boolean)
+    const isActive = adminUserIds.includes(userId) || await checkSubscription(userId)
+
+    if (!isActive) {
+      const lastSent = expiredCooldown.get(userId) ?? 0
+      if (Date.now() - lastSent > EXPIRED_COOLDOWN_MS) {
+        expiredCooldown.set(userId, Date.now())
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
+        await sendWhatsAppMessage(
+          "+" + phoneNumber,
+          "Hey, it looks like your BirdBot subscription has ended. I'd love to keep helping you, but I need to be reactivated to do that. Once reactivated, we'll pick right up where we left off."
+        )
+        await sendWhatsAppMessage("+" + phoneNumber, `${appUrl}/sign-in`)
+      }
+      return
+    }
+
     // Update lastInboundAt for 24h window tracking
-    await prisma.whatsAppUser.update({
-      where: { userId },
-      data: { lastInboundAt: new Date() },
-    })
+    try {
+      await prisma.whatsAppUser.update({
+        where: { userId },
+        data: { lastInboundAt: new Date() },
+      })
+    } catch (err) {
+      console.error("[whatsapp-process] Failed to update lastInboundAt:", err)
+      return
+    }
 
     // Check if WhatsApp is the home channel
     const prefs = await prisma.userPreferences.findUnique({ where: { userId } })
