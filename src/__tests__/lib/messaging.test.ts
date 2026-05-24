@@ -59,7 +59,7 @@ describe("sendMessage", () => {
     mockPrismaTg.mockResolvedValueOnce({ telegramChatId: "999" })
     const { sendMessage } = await import("@/lib/messaging")
     await sendMessage("user_123", "Hello")
-    expect(mockSendTelegram).toHaveBeenCalledWith("999", "Hello")
+    expect(mockSendTelegram).toHaveBeenCalledWith(999, "Hello")
   })
 
   it("does nothing when homeChannel is null", async () => {
