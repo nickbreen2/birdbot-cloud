@@ -20,11 +20,12 @@ export async function sendWhatsAppMessage(phoneNumber: string, text: string): Pr
   })
 
   if (!res.ok) {
-    const err = await res.text()
+    const err = await res.text().catch(() => "(unable to read response)")
     console.error("[whatsapp] sendMessage failed:", res.status, err)
   }
 }
 
+// Only supports parameterless templates. If a template needs body variables, extend the signature.
 export async function sendWhatsAppTemplate(phoneNumber: string, templateName: string): Promise<void> {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
   const token = process.env.WHATSAPP_ACCESS_TOKEN
@@ -48,7 +49,7 @@ export async function sendWhatsAppTemplate(phoneNumber: string, templateName: st
   })
 
   if (!res.ok) {
-    const err = await res.text()
+    const err = await res.text().catch(() => "(unable to read response)")
     console.error("[whatsapp] sendTemplate failed:", res.status, err)
   }
 }
