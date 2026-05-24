@@ -20,6 +20,14 @@ type GoogleStatus =
   | { state: "connected"; email: string }
   | { state: "error" }
 
+type WaPairResult = { token: string; expiresAt: string }
+
+type WaStatus =
+  | { state: "loading" }
+  | { state: "unpaired" }
+  | { state: "connected" }
+  | { state: "error" }
+
 interface IntegrationDef {
   name: string
   description: string
@@ -153,6 +161,17 @@ export default function IntegrationsPage() {
   const [disconnectingGoogle, setDisconnectingGoogle] = useState(false)
   const [showGoogleMenu, setShowGoogleMenu] = useState(false)
 
+  const [waStatus, setWaStatus] = useState<WaStatus>({ state: "loading" })
+  const [waPairing, setWaPairing] = useState<WaPairResult | null>(null)
+  const [waConnecting, setWaConnecting] = useState(false)
+  const [waConnectError, setWaConnectError] = useState<string | null>(null)
+  const [showWaConnectModal, setShowWaConnectModal] = useState(false)
+  const [showWaDisconnect, setShowWaDisconnect] = useState(false)
+  const [waDisconnectInput, setWaDisconnectInput] = useState("")
+  const [disconnectingWa, setDisconnectingWa] = useState(false)
+  const [showWaMenu, setShowWaMenu] = useState(false)
+  const [homeChannel, setHomeChannel] = useState<"telegram" | "whatsapp" | null>(null)
+
   useEffect(() => {
     fetch("/api/telegram/status")
       .then((r) => r.json())
@@ -177,6 +196,21 @@ export default function IntegrationsPage() {
         )
       })
       .catch(() => setGoogleStatus({ state: "error" }))
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/whatsapp/status")
+      .then((r) => r.json())
+      .then((data: { connected: boolean }) => {
+        setWaStatus(data.connected ? { state: "connected" } : { state: "unpaired" })
+      })
+      .catch(() => setWaStatus({ state: "error" }))
+    fetch("/api/user/home-channel")
+      .then((r) => r.json())
+      .then((data: { homeChannel: "telegram" | "whatsapp" | null }) => {
+        setHomeChannel(data.homeChannel)
+      })
+      .catch(() => {})
   }, [])
 
   async function handleConnect() {
@@ -235,6 +269,68 @@ export default function IntegrationsPage() {
       setShowGoogleDisconnect(false)
       setGoogleDisconnectInput("")
     }
+  }
+
+  async function handleWaConnect() {
+    setWaConnecting(true)
+    setWaPairing(null)
+    setWaConnectError(null)
+    try {
+      const res = await fetch("/api/whatsapp/pair", { method: "POST" })
+      const data = (await res.json()) as WaPairResult & { error?: string }
+      if (!res.ok) throw new Error(data.error ?? "Request failed")
+      setWaPairing(data)
+    } catch (err) {
+      setWaConnectError(err instanceof Error ? err.message : "Failed to generate code — try again.")
+    } finally {
+      setWaConnecting(false)
+    }
+  }
+
+  async function checkWaConnection() {
+    setWaConnectError(null)
+    try {
+      const res = await fetch("/api/whatsapp/status")
+      const data = (await res.json()) as { connected: boolean; tokenExpired: boolean }
+      if (data.connected) {
+        setWaStatus({ state: "connected" })
+        setShowWaConnectModal(false)
+        setWaPairing(null)
+      } else if (data.tokenExpired) {
+        setWaConnectError("Code expired — generate a new one.")
+        setWaPairing(null)
+      } else {
+        setWaConnectError("Not connected yet — make sure you sent the code in WhatsApp.")
+      }
+    } catch {
+      setWaConnectError("Could not check status — try again.")
+    }
+  }
+
+  async function handleWaDisconnect() {
+    setDisconnectingWa(true)
+    try {
+      await fetch("/api/whatsapp/unpair", { method: "DELETE" })
+      setWaStatus({ state: "unpaired" })
+      setWaPairing(null)
+      if (homeChannel === "whatsapp") {
+        const tgPaired = tgStatus.state === "paired"
+        setHomeChannel(tgPaired ? "telegram" : null)
+      }
+    } finally {
+      setDisconnectingWa(false)
+      setShowWaDisconnect(false)
+      setWaDisconnectInput("")
+    }
+  }
+
+  async function setHome(channel: "telegram" | "whatsapp") {
+    await fetch("/api/user/home-channel", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ homeChannel: channel }),
+    })
+    setHomeChannel(channel)
   }
 
   const isGoogleConnected = googleStatus.state === "connected"
@@ -319,7 +415,7 @@ export default function IntegrationsPage() {
                               }}
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                              Connected
+                              {homeChannel === "telegram" ? "Connected · Home" : "Connected"}
                             </span>
                           ) : null}
                         </div>
@@ -338,6 +434,15 @@ export default function IntegrationsPage() {
                           className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
                         >
                           Connect
+                        </button>
+                      )}
+
+                      {isPaired && homeChannel !== "telegram" && (
+                        <button
+                          onClick={() => setHome("telegram")}
+                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                        >
+                          Set as Home
                         </button>
                       )}
 
@@ -364,6 +469,78 @@ export default function IntegrationsPage() {
                                     setShowDisconnect(true)
                                     setDisconnectInput("")
                                   }}
+                                  className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
+                                  style={{ color: "#f87171" }}
+                                >
+                                  Disconnect
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+
+                const isWhatsApp = integration.name === "WhatsApp"
+                const isWaConnected = waStatus.state === "connected"
+
+                if (isWhatsApp) {
+                  return (
+                    <div
+                      key={integration.name}
+                      data-connected={isWaConnected ? "true" : undefined}
+                      className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl relative"
+                    >
+                      <Image src="/Whatsapp.svg" alt="WhatsApp" width={40} height={40} className="flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-sm font-bold font-sans text-text-base leading-none">WhatsApp</p>
+                          {waStatus.state === "loading" ? (
+                            <div className="h-4 w-20 rounded bg-surface animate-pulse" />
+                          ) : isWaConnected ? (
+                            <span
+                              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium font-sans border"
+                              style={{ background: "rgba(52,211,153,0.1)", borderColor: "rgba(52,211,153,0.22)", color: "#34d399" }}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                              {homeChannel === "whatsapp" ? "Connected · Home" : "Connected"}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-xs font-sans text-text-muted truncate">{integration.description}</p>
+                      </div>
+                      {!isWaConnected && waStatus.state !== "loading" && (
+                        <button
+                          onClick={() => { setShowWaConnectModal(true); setWaPairing(null); setWaConnectError(null) }}
+                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                        >
+                          Connect
+                        </button>
+                      )}
+                      {isWaConnected && homeChannel !== "whatsapp" && (
+                        <button
+                          onClick={() => setHome("whatsapp")}
+                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
+                        >
+                          Set as Home
+                        </button>
+                      )}
+                      {isWaConnected && (
+                        <div className="relative flex-shrink-0">
+                          <button
+                            onClick={() => setShowWaMenu((v) => !v)}
+                            className="p-1.5 rounded-lg transition-colors text-text-muted hover:text-text-base"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          {showWaMenu && (
+                            <>
+                              <div className="fixed inset-0 z-10" onClick={() => setShowWaMenu(false)} />
+                              <div className="integ-dropdown absolute right-0 bottom-8 z-20 rounded-xl py-1 min-w-[130px] shadow-xl">
+                                <button
+                                  onClick={() => { setShowWaMenu(false); setShowWaDisconnect(true); setWaDisconnectInput("") }}
                                   className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
                                   style={{ color: "#f87171" }}
                                 >
@@ -658,6 +835,117 @@ export default function IntegrationsPage() {
                 style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
               >
                 {disconnectingGoogle ? "Disconnecting…" : "Disconnect"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Connect WhatsApp modal */}
+      {showWaConnectModal && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) { setShowWaConnectModal(false); setWaPairing(null); setWaConnectError(null) }
+          }}
+        >
+          <div className="integ-modal w-full max-w-sm rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <Image src="/Whatsapp.svg" alt="WhatsApp" width={28} height={28} />
+                <span className="font-heading font-bold text-base text-text-base">Connect WhatsApp</span>
+              </div>
+              <button
+                onClick={() => { setShowWaConnectModal(false); setWaPairing(null); setWaConnectError(null) }}
+                className="text-text-muted hover:text-text-base transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            {!waPairing ? (
+              <>
+                <p className="text-xs font-sans text-text-muted mb-5 leading-relaxed">
+                  Generate a code, then message it to Bird&apos;s WhatsApp number to link your account.
+                </p>
+                <button
+                  onClick={handleWaConnect}
+                  disabled={waConnecting}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors disabled:opacity-50 bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
+                >
+                  {waConnecting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <RefreshCw size={13} className="animate-spin" /> Generating code…
+                    </span>
+                  ) : "Generate code"}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-xs font-sans text-text-muted mb-3 leading-relaxed">
+                  Open WhatsApp and message{" "}
+                  <span className="font-semibold text-text-base">Bird&apos;s WhatsApp number</span> with this code. Expires in 15 minutes.
+                </p>
+                <div
+                  className="w-full py-3 rounded-xl text-center text-2xl font-mono font-bold text-text-base mb-4 tracking-widest"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)" }}
+                >
+                  {waPairing.token}
+                </div>
+                <button
+                  onClick={checkWaConnection}
+                  className="flex items-center justify-center gap-2 w-full py-2 text-xs font-sans text-text-muted hover:text-text-dim transition-colors"
+                >
+                  <RefreshCw size={11} /> Check if connected
+                </button>
+              </>
+            )}
+            {waConnectError && (
+              <p className="mt-3 text-xs font-sans text-center" style={{ color: "#f87171" }}>
+                {waConnectError}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Disconnect WhatsApp modal */}
+      {showWaDisconnect && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowWaDisconnect(false); setWaDisconnectInput("") } }}
+        >
+          <div className="integ-modal w-full max-w-sm rounded-2xl p-6">
+            <h2 className="font-heading font-bold text-base text-text-base mb-1">Disconnect WhatsApp?</h2>
+            <p className="text-xs font-sans text-text-muted mb-5 leading-relaxed">
+              Bird will stop receiving your WhatsApp messages. Type{" "}
+              <span className="font-mono text-text-base">disconnect WhatsApp</span> to confirm.
+            </p>
+            <input
+              type="text"
+              value={waDisconnectInput}
+              onChange={(e) => setWaDisconnectInput(e.target.value)}
+              placeholder="disconnect WhatsApp"
+              autoFocus
+              className="w-full px-3 py-2.5 rounded-lg text-sm font-mono bg-transparent text-text-base placeholder:text-text-muted focus:outline-none mb-4"
+              style={{ border: "1px solid rgba(255,255,255,0.18)" }}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowWaDisconnect(false); setWaDisconnectInput("") }}
+                className="flex-1 py-2 rounded-lg text-xs font-semibold font-sans"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.65)" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWaDisconnect}
+                disabled={waDisconnectInput.trim().toLowerCase() !== "disconnect whatsapp" || disconnectingWa}
+                className="flex-1 py-2 rounded-lg text-xs font-semibold font-sans disabled:opacity-30 transition-colors"
+                style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+              >
+                {disconnectingWa ? "Disconnecting…" : "Disconnect"}
               </button>
             </div>
           </div>
