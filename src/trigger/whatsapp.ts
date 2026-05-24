@@ -56,10 +56,11 @@ export const whatsappProcess = task({
 
       // Auto-set homeChannel if this is their first channel
       const prefs = await prisma.userPreferences.findUnique({ where: { userId: pairingUserId } })
-      if (prefs && !prefs.homeChannel) {
-        await prisma.userPreferences.update({
+      if (!prefs?.homeChannel) {
+        await prisma.userPreferences.upsert({
           where: { userId: pairingUserId },
-          data: { homeChannel: "whatsapp" },
+          create: { userId: pairingUserId, homeChannel: "whatsapp" },
+          update: { homeChannel: "whatsapp" },
         })
       }
 
