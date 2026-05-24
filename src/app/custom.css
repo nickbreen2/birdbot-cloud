@@ -190,6 +190,11 @@ html:has([data-theme="landing"]) body {
   }
 }
 
+/* Dark mode: main content area base */
+.dashboard-main {
+  background-color: #0c1117;
+}
+
 /* Light mode: pure white overscroll background and main content area */
 html[data-theme="light"],
 html[data-theme="light"] body {

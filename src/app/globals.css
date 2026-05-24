@@ -2,11 +2,11 @@
 
 /* ── Dark theme (default / :root) ── */
 :root {
-  --theme-depth:        #000000;
+  --theme-depth:        #020408;
   --theme-surface:      #111111;
   --theme-panel:        #1a1a1a;
   --theme-panel-hover:  #222222;
-  --theme-border:       #3d3d3d;
+  --theme-border:       #1e2533;
   --theme-text-base:    #f1f5f9;
   --theme-text-dim:     #94a3b8;
   --theme-text-muted:   #64748b;
@@ -22,8 +22,8 @@
   --theme-nav-active-bg:  rgba(255,255,255,0.07);
   --theme-nav-active-bar: #e8eaed;
   --theme-sidebar-border: rgba(255,255,255,0.1);
-  /* Account modal main panel — matches nav depth in dark mode */
-  --theme-acct-main-bg:   var(--theme-depth);
+  /* Account modal main panel */
+  --theme-acct-main-bg:   #0c1117;
   /* Graph D3 colors */
   --graph-edge-base:  rgba(148, 163, 184, 0.18);
   --graph-edge-hi:    rgba(148, 163, 184, 0.5);
@@ -49,11 +49,11 @@
 
 /* ── Dark theme (explicit, same as :root) ── */
 [data-theme="dark"] {
-  --theme-depth:        #000000;
+  --theme-depth:        #020408;
   --theme-surface:      #111111;
   --theme-panel:        #1a1a1a;
   --theme-panel-hover:  #222222;
-  --theme-border:       #3d3d3d;
+  --theme-border:       #1e2533;
   --theme-text-base:    #f1f5f9;
   --theme-text-dim:     #94a3b8;
   --theme-text-muted:   #64748b;
@@ -66,7 +66,7 @@
   --theme-nav-active-bg:  rgba(255,255,255,0.07);
   --theme-nav-active-bar: #e8eaed;
   --theme-sidebar-border: rgba(255,255,255,0.1);
-  --theme-acct-main-bg:   var(--theme-depth);
+  --theme-acct-main-bg:   #0c1117;
   --graph-edge-base:  rgba(148, 163, 184, 0.18);
   --graph-edge-hi:    rgba(148, 163, 184, 0.5);
   --graph-edge-lo:    rgba(148, 163, 184, 0.04);
