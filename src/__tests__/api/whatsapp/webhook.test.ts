@@ -81,6 +81,27 @@ describe("POST /api/whatsapp/webhook", () => {
     )
   })
 
+  it("fires whatsapp-process task with pairingUserId when pairing token is valid", async () => {
+    mockFindToken.mockResolvedValueOnce({
+      userId: "user_456",
+      token: "AB12CD",
+      usedAt: null,
+      expiresAt: new Date(Date.now() + 3600000),
+    })
+    mockTrigger.mockResolvedValueOnce({})
+    const { POST } = await import("@/app/api/whatsapp/webhook/route")
+    const res = await POST(makeRequest(inboundPayload))
+    expect(res.status).toBe(200)
+    expect(mockTrigger).toHaveBeenCalledWith(
+      "whatsapp-process",
+      expect.objectContaining({
+        phoneNumber: "15551234567",
+        pairingUserId: "user_456",
+        pairingToken: "AB12CD",
+      })
+    )
+  })
+
   it("returns 200 silently when no user or token found", async () => {
     mockFindToken.mockResolvedValueOnce(null)
     mockFindWaUser.mockResolvedValueOnce(null)

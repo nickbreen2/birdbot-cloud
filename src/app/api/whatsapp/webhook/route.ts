@@ -26,6 +26,7 @@ function verifySignature(payload: string, signature: string): boolean {
   if (!secret) return false
   const expected = createHmac("sha256", secret).update(payload).digest("hex")
   const sig = signature.replace("sha256=", "")
+  if (sig.length !== expected.length) return false
   try {
     return timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(sig, "hex"))
   } catch {
@@ -79,12 +80,16 @@ export async function POST(request: Request): Promise<Response> {
   })
 
   if (pairingToken && !pairingToken.usedAt && pairingToken.expiresAt > new Date()) {
-    await tasks.trigger<typeof whatsappProcess>("whatsapp-process", {
-      phoneNumber: from,
-      text,
-      pairingUserId: pairingToken.userId,
-      pairingToken: pairingToken.token,
-    })
+    try {
+      await tasks.trigger<typeof whatsappProcess>("whatsapp-process", {
+        phoneNumber: from,
+        text,
+        pairingUserId: pairingToken.userId,
+        pairingToken: pairingToken.token,
+      })
+    } catch (err) {
+      console.error("[whatsapp/webhook] Failed to trigger pairing task:", err)
+    }
     return new NextResponse("OK", { status: 200 })
   }
 
@@ -94,11 +99,15 @@ export async function POST(request: Request): Promise<Response> {
     return new NextResponse("OK", { status: 200 })
   }
 
-  await tasks.trigger<typeof whatsappProcess>("whatsapp-process", {
-    phoneNumber: from,
-    text,
-    userId: waUser.userId,
-  })
+  try {
+    await tasks.trigger<typeof whatsappProcess>("whatsapp-process", {
+      phoneNumber: from,
+      text,
+      userId: waUser.userId,
+    })
+  } catch (err) {
+    console.error("[whatsapp/webhook] Failed to trigger message task:", err)
+  }
 
   return new NextResponse("OK", { status: 200 })
 }
