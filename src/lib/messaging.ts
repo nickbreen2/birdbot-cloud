@@ -27,9 +27,8 @@ export async function sendMessage(userId: string, text: string): Promise<void> {
   const tg = await prisma.telegramUser.findUnique({ where: { userId } })
   if (!tg) return
   // telegramChatId is stored as a string in the DB; sendTelegramMessage accepts number.
-  // Pass as-is — the value is a numeric string so the Telegram API will accept it,
-  // and TypeScript is satisfied via the cast.
-  await sendTelegramMessage(tg.telegramChatId as unknown as number, text)
+  // Use Number() to explicitly convert the numeric string to a number.
+  await sendTelegramMessage(Number(tg.telegramChatId), text)
 }
 
 export async function sendRedirectMessage(
@@ -51,6 +50,7 @@ export async function sendRedirectMessage(
       Date.now() - wa.lastRedirectAt.getTime() < REDIRECT_COOLDOWN_MS
     if (tooSoon) return
     await sendWhatsAppMessage(wa.phoneNumber, text)
+    // Update after send — intentional: if send fails, we retry on next inbound rather than silently dropping
     await prisma.whatsAppUser.update({
       where: { userId },
       data: { lastRedirectAt: new Date() },
@@ -64,7 +64,8 @@ export async function sendRedirectMessage(
     tg.lastRedirectAt != null &&
     Date.now() - tg.lastRedirectAt.getTime() < REDIRECT_COOLDOWN_MS
   if (tooSoon) return
-  await sendTelegramMessage(tg.telegramChatId as unknown as number, text)
+  await sendTelegramMessage(Number(tg.telegramChatId), text)
+  // Update after send — intentional: if send fails, we retry on next inbound rather than silently dropping
   await prisma.telegramUser.update({
     where: { userId },
     data: { lastRedirectAt: new Date() },
