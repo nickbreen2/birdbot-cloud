@@ -31,7 +31,7 @@ function repairToolInput(input: unknown): unknown {
 
 export type ExtractEntitiesPayload = {
   text: string
-  sourceType: "session" | "decision" | "telegram"
+  sourceType: "session" | "decision" | "telegram" | "whatsapp"
   userId: string
   userToken?: string
   project?: string
