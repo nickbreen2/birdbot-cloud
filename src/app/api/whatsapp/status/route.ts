@@ -8,16 +8,21 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const waUser = await prisma.whatsAppUser.findUnique({ where: { userId } })
-  if (waUser) {
-    return NextResponse.json({ connected: true, tokenExpired: false })
+  try {
+    const waUser = await prisma.whatsAppUser.findUnique({ where: { userId } })
+    if (waUser) {
+      return NextResponse.json({ connected: true, tokenExpired: false })
+    }
+
+    const latestToken = await prisma.whatsAppPairingToken.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    })
+
+    const tokenExpired = latestToken != null && latestToken.expiresAt < new Date()
+    return NextResponse.json({ connected: false, tokenExpired })
+  } catch (err) {
+    console.error("[/api/whatsapp/status] Error:", err)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-
-  const latestToken = await prisma.whatsAppPairingToken.findFirst({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  })
-
-  const tokenExpired = latestToken != null && latestToken.expiresAt < new Date()
-  return NextResponse.json({ connected: false, tokenExpired })
 }

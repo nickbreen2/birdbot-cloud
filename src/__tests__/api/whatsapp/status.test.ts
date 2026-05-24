@@ -16,6 +16,14 @@ vi.mock("@/lib/prisma", () => ({
 describe("GET /api/whatsapp/status", () => {
   beforeEach(() => vi.clearAllMocks())
 
+  it("returns 401 when not authenticated", async () => {
+    const { auth } = await import("@clerk/nextjs/server")
+    vi.mocked(auth).mockResolvedValueOnce({ userId: null } as never)
+    const { GET } = await import("@/app/api/whatsapp/status/route")
+    const res = await GET()
+    expect(res.status).toBe(401)
+  })
+
   it("returns connected: true when WhatsAppUser exists", async () => {
     mockFindUnique.mockResolvedValueOnce({ phoneNumber: "+15551234567" })
     // findFirst is not called when waUser exists — no mock setup needed
