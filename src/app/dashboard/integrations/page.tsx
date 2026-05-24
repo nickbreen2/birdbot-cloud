@@ -291,6 +291,7 @@ export default function IntegrationsPage() {
     setWaConnectError(null)
     try {
       const res = await fetch("/api/whatsapp/status")
+      if (!res.ok) throw new Error("Status check failed")
       const data = (await res.json()) as { connected: boolean; tokenExpired: boolean }
       if (data.connected) {
         setWaStatus({ state: "connected" })
@@ -310,27 +311,35 @@ export default function IntegrationsPage() {
   async function handleWaDisconnect() {
     setDisconnectingWa(true)
     try {
-      await fetch("/api/whatsapp/unpair", { method: "DELETE" })
+      const res = await fetch("/api/whatsapp/unpair", { method: "DELETE" })
+      if (!res.ok) throw new Error("Disconnect failed")
       setWaStatus({ state: "unpaired" })
       setWaPairing(null)
       if (homeChannel === "whatsapp") {
         const tgPaired = tgStatus.state === "paired"
         setHomeChannel(tgPaired ? "telegram" : null)
       }
-    } finally {
-      setDisconnectingWa(false)
       setShowWaDisconnect(false)
       setWaDisconnectInput("")
+    } catch {
+      // Disconnect failed - leave modal open, user can try again
+    } finally {
+      setDisconnectingWa(false)
     }
   }
 
   async function setHome(channel: "telegram" | "whatsapp") {
-    await fetch("/api/user/home-channel", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ homeChannel: channel }),
-    })
-    setHomeChannel(channel)
+    try {
+      const res = await fetch("/api/user/home-channel", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ homeChannel: channel }),
+      })
+      if (!res.ok) throw new Error("Failed to set home channel")
+      setHomeChannel(channel)
+    } catch (err) {
+      console.error("[setHome] Error:", err)
+    }
   }
 
   const isGoogleConnected = googleStatus.state === "connected"
