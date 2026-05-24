@@ -32,6 +32,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 })
   }
 
+  // null homeChannel is set server-side only (on unpair), not via this endpoint
   if (body.homeChannel !== "telegram" && body.homeChannel !== "whatsapp") {
     return NextResponse.json({ error: "Invalid channel" }, { status: 400 })
   }
