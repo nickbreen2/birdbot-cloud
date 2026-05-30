@@ -1,6 +1,7 @@
 import { task } from "@trigger.dev/sdk"
 import { prisma } from "@/lib/prisma"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { sendRedirectMessage } from "@/lib/messaging"
 import { runEntityExtraction } from "@/trigger/extractEntities"
 import { generateBirdReply } from "@/lib/replyPrompt"
 import { getGraphContext } from "@/lib/graphContext"
@@ -401,6 +402,16 @@ export const telegramProcess = task({
           "I don't recognize this account yet. Visit your BirdBot dashboard → Integrations to get a pairing link."
         )
       }
+      return
+    }
+
+    // Check if Telegram is the home channel. If WhatsApp is home, send redirect.
+    const prefs = await prisma.userPreferences.findUnique({
+      where: { userId: tgUser.userId },
+      select: { homeChannel: true },
+    })
+    if (prefs?.homeChannel === "whatsapp") {
+      await sendRedirectMessage(tgUser.userId, "telegram")
       return
     }
 

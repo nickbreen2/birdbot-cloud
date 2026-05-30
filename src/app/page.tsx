@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Navbar } from "@/components/landing/Navbar"
 import { HeroSection } from "@/components/landing/HeroSection"
 import { ConversationDemo } from "@/components/landing/ConversationDemo"
@@ -8,6 +9,12 @@ import { WaitlistCTA } from "@/components/landing/WaitlistCTA"
 import { Footer } from "@/components/landing/Footer"
 import { LandingThemeLock } from "@/components/LandingThemeLock"
 import { ScrollOnMount } from "@/components/landing/ScrollOnMount"
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+}
 
 export default function Home() {
   return (

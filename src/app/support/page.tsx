@@ -8,6 +8,9 @@ import { EmailBox } from "./EmailBox"
 export const metadata: Metadata = {
   title: "Support — BirdBot.ai",
   description: "Get support from the BirdBot.ai team.",
+  alternates: {
+    canonical: "/support",
+  },
 }
 
 export default function SupportPage() {

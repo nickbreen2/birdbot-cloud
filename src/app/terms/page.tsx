@@ -6,6 +6,9 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Terms of Service — BirdBot.ai",
   description: "Terms of Service for BirdBot.ai",
+  alternates: {
+    canonical: "/terms",
+  },
 }
 
 export default function TermsPage() {

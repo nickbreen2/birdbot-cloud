@@ -20,10 +20,16 @@ enum EntityType {
   goal
 }
 
+enum ChannelType {
+  telegram
+  whatsapp
+}
+
 enum MentionSourceType {
   session
   decision
   telegram
+  whatsapp
 }
 
 enum GoalStatus {
@@ -122,23 +128,46 @@ model UserPreferences {
   userToken            String?  @unique
   personalityPreset    String   @default("assistant")
   personalitySliders   Json?
-  globalCheckinEnabled Boolean  @default(true)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  globalCheckinEnabled Boolean      @default(true)
+  homeChannel          ChannelType?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 model TelegramUser {
   id             String   @id @default(cuid())
   userId         String   @unique
   telegramChatId String   @unique
-  username       String?
-  firstName      String?
-  lastName       String?
-  createdAt      DateTime @default(now())
+  username        String?
+  firstName       String?
+  lastName        String?
+  lastRedirectAt  DateTime?
+  createdAt       DateTime  @default(now())
   updatedAt      DateTime @updatedAt
 }
 
 model TelegramPairingToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model WhatsAppUser {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  phoneNumber     String    @unique
+  lastInboundAt   DateTime?
+  lastRedirectAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model WhatsAppPairingToken {
   id        String    @id @default(cuid())
   userId    String
   token     String    @unique
