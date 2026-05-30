@@ -46,7 +46,7 @@ const bricolageGrotesque = Bricolage_Grotesque({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://birdbot.ai"
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.birdbot.ai"
   ),
   title: "BirdBot.ai — The AI Assistant That Lives in Your Messages",
   description:
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     description:
       "Text BirdBot on Telegram and it remembers, takes notes, and keeps you organized — 24/7.",
     type: "website",
-    url: "https://birdbot.ai",
+    url: "https://www.birdbot.ai",
     siteName: "BirdBot.ai",
   },
   twitter: {
