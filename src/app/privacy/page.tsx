@@ -6,6 +6,9 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Privacy Policy — BirdBot.ai",
   description: "Privacy Policy for BirdBot.ai",
+  alternates: {
+    canonical: "/privacy",
+  },
 }
 
 export default function PrivacyPage() {
