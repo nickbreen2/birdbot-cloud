@@ -110,7 +110,7 @@ const SECTIONS: SectionDef[] = [
       { name: "Microsoft Teams", description: "Teams workspace",  icon: "/Microsoft_Office_Teams_(2025-present).svg",         iconBg: "#6264A7" },
       { name: "Notion",          description: "Notion workspace", icon: "/notion-svgrepo-com.svg",                            iconBg: "#404040" },
       { name: "Linear",          description: "Linear projects",  icon: "/linear-logo.svg",                                   iconBg: "#5E6AD2", iconWhiteBg: true },
-      { name: "GitHub",          description: "Repo activity",    icon: "/github-color.svg",                                  iconBg: "#333333" },
+      { name: "GitHub",          description: "Repo activity",    icon: "/github-svgrepo-com%20(1).svg",                      iconBg: "#333333", iconWhiteBg: true },
     ],
   },
   {
