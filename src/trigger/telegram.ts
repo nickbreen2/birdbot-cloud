@@ -296,8 +296,14 @@ async function handleMessage(
   if (googleConn) {
     const intent = await detectGoogleIntent(text)
     if (intent) {
-      const googleHandled = await handleGoogleIntent(chatId, userId, intent)
-      if (googleHandled) return
+      try {
+        const googleHandled = await handleGoogleIntent(chatId, userId, intent)
+        if (googleHandled) return
+      } catch (err) {
+        console.error("[telegram] Google intent failed:", err)
+        await sendTelegramMessage(chatId, "I couldn't reach your Google account right now. Try reconnecting from your dashboard.")
+        return
+      }
     }
   }
 
