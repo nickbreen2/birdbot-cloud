@@ -294,29 +294,36 @@ async function handleMessage(
   })
 
   if (googleConn) {
-    const intent = await detectGoogleIntent(text)
-    if (intent) {
-      try {
+    try {
+      const intent = await detectGoogleIntent(text)
+      if (intent) {
         const googleHandled = await handleGoogleIntent(chatId, userId, intent)
         if (googleHandled) return
-      } catch (err) {
-        console.error("[telegram] Google intent failed:", err)
-        await sendTelegramMessage(chatId, "I couldn't reach your Google account right now. Try reconnecting from your dashboard.")
-        return
       }
+    } catch (err) {
+      console.error("[telegram] Google intent failed:", err)
+      await sendTelegramMessage(chatId, "I couldn't reach your Google account right now. Try reconnecting from your dashboard.")
+      return
     }
   }
 
-  const [result, context] = await Promise.all([
-    runEntityExtraction({
-      text,
-      sourceType: "telegram",
-      userId,
-      sourceId: messageId.toString(),
-      snippet: text,
-    }),
-    getGraphContext(userId),
-  ])
+  let result, context
+  try {
+    ;[result, context] = await Promise.all([
+      runEntityExtraction({
+        text,
+        sourceType: "telegram",
+        userId,
+        sourceId: messageId.toString(),
+        snippet: text,
+      }),
+      getGraphContext(userId),
+    ])
+  } catch (err) {
+    console.error("[telegram] extraction/context failed:", err)
+    await sendTelegramMessage(chatId, "Got that — something glitched on my end. Try again?")
+    return
+  }
 
   if (result.error) {
     console.warn("[telegram] extraction error:", result.error, "for message", messageId)
