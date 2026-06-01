@@ -34,6 +34,7 @@ interface IntegrationDef {
   icon: string | null
   iconBg: string
   initials?: string
+  iconWhiteBg?: boolean
   live?: boolean
   googleService?: boolean
 }
@@ -104,12 +105,12 @@ const SECTIONS: SectionDef[] = [
     subtitle: "Bring Bird into your team's workspace",
     accent: "#8b5cf6",
     integrations: [
-      { name: "Slack",           description: "Slack workspace",  icon: "/Slack.svg",   iconBg: "" },
-      { name: "Discord",         description: "Discord server",   icon: "/Discord.svg", iconBg: "" },
-      { name: "Microsoft Teams", description: "Teams workspace",  icon: null, iconBg: "#6264A7", initials: "Te" },
-      { name: "Notion",          description: "Notion workspace", icon: null, iconBg: "#404040", initials: "No" },
-      { name: "Linear",          description: "Linear projects",  icon: null, iconBg: "#5E6AD2", initials: "Li" },
-      { name: "GitHub",          description: "Repo activity",    icon: null, iconBg: "#333333", initials: "Gh" },
+      { name: "Slack",           description: "Slack workspace",  icon: "/Slack.svg",                                         iconBg: "" },
+      { name: "Discord",         description: "Discord server",   icon: "/Discord.svg",                                       iconBg: "" },
+      { name: "Microsoft Teams", description: "Teams workspace",  icon: "/Microsoft_Office_Teams_(2025-present).svg",         iconBg: "#6264A7" },
+      { name: "Notion",          description: "Notion workspace", icon: "/notion-svgrepo-com.svg",                            iconBg: "#404040" },
+      { name: "Linear",          description: "Linear projects",  icon: "/linear-logo.svg",                                   iconBg: "#5E6AD2", iconWhiteBg: true },
+      { name: "GitHub",          description: "Repo activity",    icon: "/github-color.svg",                                  iconBg: "#333333" },
     ],
   },
   {
@@ -118,12 +119,12 @@ const SECTIONS: SectionDef[] = [
     subtitle: "Let Bird monitor and post on your behalf",
     accent: "#ec4899",
     integrations: [
-      { name: "X (Twitter)", description: "Posts and mentions", icon: null, iconBg: "#18181b", initials: "X"  },
-      { name: "Instagram",   description: "Instagram posts",    icon: null, iconBg: "#E1306C", initials: "In" },
-      { name: "TikTok",      description: "TikTok content",     icon: null, iconBg: "#010101", initials: "Ti" },
-      { name: "LinkedIn",    description: "LinkedIn posts",     icon: null, iconBg: "#0077B5", initials: "Li" },
-      { name: "YouTube",     description: "YouTube channel",    icon: null, iconBg: "#FF0000", initials: "Yt" },
-      { name: "Threads",     description: "Threads posts",      icon: null, iconBg: "#3A3A3A", initials: "Th" },
+      { name: "X (Twitter)", description: "Posts and mentions", icon: "/X_logo_2023.svg",                          iconBg: "#18181b", iconWhiteBg: true },
+      { name: "Instagram",   description: "Instagram posts",    icon: "/Instagram_logo_2016.svg",                 iconBg: "#E1306C" },
+      { name: "TikTok",      description: "TikTok content",     icon: "/tiktok-icon-2.svg",                       iconBg: "#010101", iconWhiteBg: true },
+      { name: "LinkedIn",    description: "LinkedIn posts",     icon: "/linkedin-svgrepo-com.svg",                iconBg: "#0077B5", iconWhiteBg: true },
+      { name: "YouTube",     description: "YouTube channel",    icon: "/YouTube_full-color_icon_(2017).svg",      iconBg: "#FF0000" },
+      { name: "Threads",     description: "Threads posts",      icon: "/Threads_(app)_logo.svg",                  iconBg: "#3A3A3A", iconWhiteBg: true },
     ],
   },
 ]
@@ -499,67 +500,16 @@ export default function IntegrationsPage() {
                   return (
                     <div
                       key={integration.name}
-                      data-connected={isWaConnected ? "true" : undefined}
                       className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl relative"
                     >
                       <Image src="/Whatsapp.svg" alt="WhatsApp" width={40} height={40} className="flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-sm font-bold font-sans text-text-base leading-none">WhatsApp</p>
-                          {waStatus.state === "loading" ? (
-                            <div className="h-4 w-20 rounded bg-surface animate-pulse" />
-                          ) : isWaConnected ? (
-                            <span
-                              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium font-sans border"
-                              style={{ background: "rgba(52,211,153,0.1)", borderColor: "rgba(52,211,153,0.22)", color: "#34d399" }}
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                              {homeChannel === "whatsapp" ? "Connected · Home" : "Connected"}
-                            </span>
-                          ) : null}
-                        </div>
+                        <p className="text-sm font-bold font-sans text-text-base leading-none mb-1">WhatsApp</p>
                         <p className="text-xs font-sans text-text-muted truncate">{integration.description}</p>
                       </div>
-                      {!isWaConnected && waStatus.state !== "loading" && (
-                        <button
-                          onClick={() => { setShowWaConnectModal(true); setWaPairing(null); setWaConnectError(null) }}
-                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
-                        >
-                          Connect
-                        </button>
-                      )}
-                      {isWaConnected && homeChannel !== "whatsapp" && (
-                        <button
-                          onClick={() => setHome("whatsapp")}
-                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
-                        >
-                          Set as Home
-                        </button>
-                      )}
-                      {isWaConnected && (
-                        <div className="relative flex-shrink-0">
-                          <button
-                            onClick={() => setShowWaMenu((v) => !v)}
-                            className="p-1.5 rounded-lg transition-colors text-text-muted hover:text-text-base"
-                          >
-                            <MoreVertical size={16} />
-                          </button>
-                          {showWaMenu && (
-                            <>
-                              <div className="fixed inset-0 z-10" onClick={() => setShowWaMenu(false)} />
-                              <div className="integ-dropdown absolute right-0 bottom-8 z-20 rounded-xl py-1 min-w-[130px] shadow-xl">
-                                <button
-                                  onClick={() => { setShowWaMenu(false); setShowWaDisconnect(true); setWaDisconnectInput("") }}
-                                  className="w-full text-center px-4 py-2 text-sm font-sans font-medium transition-colors"
-                                  style={{ color: "#f87171" }}
-                                >
-                                  Disconnect
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
+                      <span className="integ-soon-badge flex-shrink-0 text-[10px] font-semibold font-sans px-2.5 py-1 rounded-full">
+                        Soon
+                      </span>
                     </div>
                   )
                 }
@@ -648,13 +598,13 @@ export default function IntegrationsPage() {
                     className="integ-card flex items-center gap-4 px-5 py-4 rounded-xl"
                   >
                     {integration.icon ? (
-                      <Image
-                        src={integration.icon}
-                        alt={integration.name}
-                        width={40}
-                        height={40}
-                        className="flex-shrink-0"
-                      />
+                      integration.iconWhiteBg ? (
+                        <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center bg-white p-1.5">
+                          <Image src={integration.icon} alt={integration.name} width={28} height={28} />
+                        </div>
+                      ) : (
+                        <Image src={integration.icon} alt={integration.name} width={40} height={40} className="flex-shrink-0" />
+                      )
                     ) : (
                       <InitialIcon
                         initials={integration.initials ?? integration.name[0]}
