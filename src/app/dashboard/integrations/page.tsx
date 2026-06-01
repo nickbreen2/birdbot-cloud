@@ -425,7 +425,7 @@ export default function IntegrationsPage() {
                               }}
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                              {homeChannel === "telegram" ? "Connected · Home" : "Connected"}
+                              Connected
                             </span>
                           ) : null}
                         </div>
@@ -447,16 +447,7 @@ export default function IntegrationsPage() {
                         </button>
                       )}
 
-                      {isPaired && homeChannel !== "telegram" && (
-                        <button
-                          onClick={() => setHome("telegram")}
-                          className="integ-connect-btn flex-shrink-0 px-3 py-1 rounded-lg text-xs font-semibold font-sans transition-colors"
-                        >
-                          Set as Home
-                        </button>
-                      )}
-
-                      {isPaired && (
+{isPaired && (
                         <div className="relative flex-shrink-0">
                           <button
                             onClick={() => setShowTgMenu((v) => !v)}
