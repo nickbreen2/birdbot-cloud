@@ -6,6 +6,7 @@ import { decrypt, encrypt } from "@/lib/tokenEncryption"
 export const googleTokenRefreshCron = schedules.task({
   id: "google-token-refresh",
   cron: "*/45 * * * *",
+  machine: { preset: "small-2x" },
   run: async () => {
     const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000)
 
